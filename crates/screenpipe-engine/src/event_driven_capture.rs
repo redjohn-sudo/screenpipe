@@ -52,6 +52,8 @@ const CAPTURE_OPERATION_TIMEOUT: Duration = Duration::from_secs(15);
 const TREE_WALK_WORKER_TIMEOUT_GRACE: Duration = Duration::from_millis(750);
 const WARM_VISUAL_CHECK_INTERVAL: Duration = Duration::from_secs(5);
 const WARM_FOCUS_BACKSTOP_INTERVAL: Duration = Duration::from_secs(1);
+#[cfg(target_os = "windows")]
+const WINDOWS_CONTEXT_CAPTURE_SETTLE: Duration = Duration::from_millis(250);
 
 fn tree_walk_worker_timeout(config: &TreeWalkerConfig) -> Duration {
     config
@@ -2027,6 +2029,18 @@ pub(crate) async fn event_driven_capture_loop(
                 // This distinguishes active-but-failing work from intentional
                 // focus-aware Warm/Cold idling.
                 record_capture_attempt(&vision_metrics, &monitor_liveness);
+
+                // Win32 foreground ownership changes before DWM necessarily presents the
+                // replacement pixels. Capturing immediately can therefore persist the last
+                // frame of an excluded window under the newly focused app's identity. Keep
+                // this off the input hooks and wait only at app/window boundaries.
+                #[cfg(target_os = "windows")]
+                if matches!(
+                    trigger,
+                    CaptureTrigger::AppSwitch { .. } | CaptureTrigger::WindowFocus { .. }
+                ) {
+                    tokio::time::sleep(WINDOWS_CONTEXT_CAPTURE_SETTLE).await;
+                }
 
                 // Compute elements_ref for frame-to-frame element dedup.
                 // If the current content_hash matches the previous frame's hash
