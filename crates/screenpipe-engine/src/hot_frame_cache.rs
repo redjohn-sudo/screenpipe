@@ -89,6 +89,17 @@ pub struct HotFrameCache {
     warm_ready_rx: watch::Receiver<bool>,
 }
 
+// Completion is a lifetime guarantee: errors, panics and cancellation must all
+// release timeline waiters. Without this, one failed warm-up adds 30 seconds to
+// every subsequent request even while live frames continue filling the cache.
+struct WarmupCompletion(watch::Sender<bool>);
+
+impl Drop for WarmupCompletion {
+    fn drop(&mut self) {
+        let _ = self.0.send(true);
+    }
+}
+
 impl Default for HotFrameCache {
     fn default() -> Self {
         Self::new()
@@ -229,6 +240,7 @@ impl HotFrameCache {
 
     /// Warm the cache from DB on cold start (load last N hours).
     pub async fn warm_from_db(&self, db: &screenpipe_db::DatabaseManager, hours: i64) {
+        let _completion = WarmupCompletion(self.warm_ready_tx.clone());
         let end = Utc::now();
         let start = end - chrono::Duration::hours(hours);
 
@@ -339,9 +351,6 @@ impl HotFrameCache {
                 warn!("hot_frame_cache: failed to warm from DB: {}", e);
             }
         }
-
-        // Signal that warm is complete (even on failure — callers should not block forever)
-        let _ = self.warm_ready_tx.send(true);
     }
 }
 
@@ -464,6 +473,51 @@ fn hot_frame_to_timeseries(hot: &HotFrame, audio_entries: Vec<AudioEntry>) -> Ti
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn warmup_panic_releases_timeline_waiters_without_claiming_coverage() {
+        let db = screenpipe_db::DatabaseManager::new("sqlite::memory:", Default::default())
+            .await
+            .unwrap();
+        let cache = Arc::new(HotFrameCache::new());
+        let worker_cache = cache.clone();
+        let worker = tokio::spawn(async move {
+            // Force a panic inside the real warm-up future before its DB query.
+            // Any panic there used to strand every later request for 30 seconds.
+            worker_cache.warm_from_db(&db, i64::MAX).await;
+        });
+        assert!(worker.await.unwrap_err().is_panic());
+        assert!(cache.wait_warm(std::time::Duration::from_millis(50)).await);
+        assert!(cache.earliest_coverage().await.is_none());
+    }
+
+    #[tokio::test]
+    async fn cancelled_warmup_releases_timeline_waiters() {
+        let cache = HotFrameCache::new();
+        let completion = WarmupCompletion(cache.warm_ready_tx.clone());
+        let (started, ready) = tokio::sync::oneshot::channel();
+        let worker = tokio::spawn(async move {
+            let _completion = completion;
+            started.send(()).unwrap();
+            std::future::pending::<()>().await;
+        });
+        ready.await.unwrap();
+        worker.abort();
+        assert!(worker.await.unwrap_err().is_cancelled());
+        assert!(cache.wait_warm(std::time::Duration::from_millis(50)).await);
+        assert!(cache.earliest_coverage().await.is_none());
+    }
+
+    #[tokio::test]
+    async fn empty_warmup_releases_waiters_without_claiming_coverage() {
+        let db = screenpipe_db::DatabaseManager::new("sqlite::memory:", Default::default())
+            .await
+            .unwrap();
+        let cache = HotFrameCache::new();
+        cache.warm_from_db(&db, 24).await;
+        assert!(cache.wait_warm(std::time::Duration::from_millis(50)).await);
+        assert!(cache.earliest_coverage().await.is_none());
+    }
 
     #[tokio::test]
     async fn test_push_and_get_frames() {
