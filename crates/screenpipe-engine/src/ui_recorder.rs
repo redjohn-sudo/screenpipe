@@ -693,6 +693,34 @@ impl UiRecorderHandle {
     }
 }
 
+// The platform receiver is synchronous. Keep its idle wait off Tokio workers:
+// otherwise a locally queued frame-linker/database task can wait indefinitely
+// for the next input event to make this loop yield.
+fn spawn_ui_recorder_worker<F>(stop_flag: Arc<AtomicBool>, work: F) -> tokio::task::JoinHandle<()>
+where
+    F: std::future::Future<Output = ()> + Send + 'static,
+{
+    struct StopOnDrop(Arc<AtomicBool>);
+    impl Drop for StopOnDrop {
+        fn drop(&mut self) {
+            self.0.store(true, Ordering::SeqCst);
+        }
+    }
+
+    let runtime = tokio::runtime::Handle::current();
+    let stop_on_drop = StopOnDrop(stop_flag);
+    let worker = tokio::task::spawn_blocking(move || runtime.block_on(work));
+    tokio::spawn(async move {
+        // Cancelling the async owner must also stop the blocking worker, even
+        // before this owner is first polled. The bounded receiver timeout lets
+        // the worker observe the flag and stop the native recorder while idle.
+        let _stop_on_drop = stop_on_drop;
+        if let Err(error) = worker.await {
+            error!("UI recorder worker failed: {}", error);
+        }
+    })
+}
+
 /// Start UI event recording.
 ///
 /// If `capture_trigger_tx` is provided, relevant UI events (app switch, window focus,
@@ -837,7 +865,7 @@ pub async fn start_ui_recording(
     let url_policy = screenpipe_a11y::url_filter::UrlPolicy::new(&ignored_urls, &included_urls);
 
     // Spawn the event processing task
-    let task_handle = tokio::spawn(async move {
+    let task_handle = spawn_ui_recorder_worker(stop_flag.clone(), async move {
         let session_id = Uuid::new_v4().to_string();
         info!("UI recording session started: {}", session_id);
 
@@ -2544,6 +2572,71 @@ mod tests {
         // because a flag got out of sync).
         set_ui_recorder_state(true, false, true, true, true);
         assert_eq!(ui_recorder_status_snapshot().mode, UiRecorderMode::Off);
+    }
+
+    #[tokio::test]
+    async fn recorder_idle_wait_does_not_starve_frame_linker() {
+        let stop = Arc::new(AtomicBool::new(false));
+        let (link_tx, mut link_rx) = tokio::sync::mpsc::channel(1);
+        let linker = tokio::spawn(async move {
+            let reply: std::sync::mpsc::Sender<()> = link_rx.recv().await.unwrap();
+            reply.send(()).unwrap();
+        });
+        let worker = spawn_ui_recorder_worker(stop.clone(), async move {
+            let (reply, received) = std::sync::mpsc::channel();
+            link_tx.send(reply).await.unwrap();
+            // This is the platform receiver's idle wait. The linker must run
+            // before another input wakes it, even on a one-thread runtime.
+            received.recv_timeout(Duration::from_secs(2)).unwrap();
+        });
+        worker.await.unwrap();
+        linker.await.unwrap();
+        assert!(stop.load(Ordering::SeqCst));
+    }
+
+    #[tokio::test]
+    async fn cancelling_recorder_owner_stops_idle_worker() {
+        let stop = Arc::new(AtomicBool::new(false));
+        let worker_stop = stop.clone();
+        let (started_tx, started_rx) = tokio::sync::oneshot::channel();
+        let (ended_tx, ended_rx) = tokio::sync::oneshot::channel();
+        let worker = spawn_ui_recorder_worker(stop.clone(), async move {
+            started_tx.send(()).unwrap();
+            while !worker_stop.load(Ordering::SeqCst) {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            let _ = ended_tx.send(());
+        });
+        started_rx.await.unwrap();
+        worker.abort();
+        assert!(worker.await.unwrap_err().is_cancelled());
+        tokio::time::timeout(Duration::from_secs(2), ended_rx)
+            .await
+            .expect("cancelled owner must stop the blocking receiver")
+            .unwrap();
+        assert!(stop.load(Ordering::SeqCst));
+    }
+
+    #[tokio::test]
+    async fn cancelling_recorder_before_first_poll_stops_worker() {
+        let stop = Arc::new(AtomicBool::new(false));
+        let worker_stop = stop.clone();
+        let (ended_tx, ended_rx) = tokio::sync::oneshot::channel();
+        let worker = spawn_ui_recorder_worker(stop.clone(), async move {
+            while !worker_stop.load(Ordering::SeqCst) {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            let _ = ended_tx.send(());
+        });
+        // No await before abort: the async owner cannot have been polled by
+        // this current-thread runtime, but its cancellation guard must exist.
+        worker.abort();
+        assert!(worker.await.unwrap_err().is_cancelled());
+        tokio::time::timeout(Duration::from_secs(2), ended_rx)
+            .await
+            .expect("unpolled owner must still stop the native receiver")
+            .unwrap();
+        assert!(stop.load(Ordering::SeqCst));
     }
 
     #[tokio::test]
