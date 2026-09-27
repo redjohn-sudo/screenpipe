@@ -1958,7 +1958,10 @@ fn run_app_observer(
 
         // Re-check title as well as HWND: browser tab/navigation changes often
         // retain the same HWND and do not emit EVENT_SYSTEM_FOREGROUND.
-        SetTimer(HWND::default(), APP_OBSERVER_TIMER_ID, 250, None);
+        let observer_timer = SetTimer(HWND::default(), APP_OBSERVER_TIMER_ID, 250, None);
+        if observer_timer == 0 {
+            warn!("a11y: failed to install foreground/title observer timer");
+        }
 
         // Process initial foreground window
         APP_OBSERVER_STATE.with(|state| {
@@ -1976,7 +1979,7 @@ fn run_app_observer(
             }
 
             // Handle timer messages as a safety-net foreground check
-            if msg.message == WM_TIMER && msg.wParam.0 == APP_OBSERVER_TIMER_ID {
+            if msg.message == WM_TIMER && msg.wParam.0 == observer_timer {
                 APP_OBSERVER_STATE.with(|state| {
                     if let Ok(mut guard) = state.try_borrow_mut() {
                         if let Some(ref mut s) = *guard {
@@ -1993,6 +1996,9 @@ fn run_app_observer(
         // Cleanup
         if !hook.is_invalid() {
             let _ = UnhookWinEvent(hook);
+        }
+        if observer_timer != 0 {
+            let _ = KillTimer(HWND::default(), observer_timer);
         }
     }
 
