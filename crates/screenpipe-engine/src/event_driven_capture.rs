@@ -53,7 +53,7 @@ const TREE_WALK_WORKER_TIMEOUT_GRACE: Duration = Duration::from_millis(750);
 const WARM_VISUAL_CHECK_INTERVAL: Duration = Duration::from_secs(5);
 const WARM_FOCUS_BACKSTOP_INTERVAL: Duration = Duration::from_secs(1);
 #[cfg(target_os = "windows")]
-const WINDOWS_CONTEXT_CAPTURE_SETTLE: Duration = Duration::from_millis(250);
+const WINDOWS_CONTEXT_CAPTURE_SETTLE: Duration = Duration::from_millis(750);
 
 fn tree_walk_worker_timeout(config: &TreeWalkerConfig) -> Duration {
     config
