@@ -31,7 +31,7 @@ use screenpipe_screen::capture_screenshot_by_window::WindowFilters;
 use screenpipe_screen::frame_comparison::{FrameComparer, FrameComparisonConfig};
 use screenpipe_screen::monitor::{list_monitors, SafeMonitor};
 use screenpipe_screen::snapshot_writer::SnapshotWriter;
-use screenpipe_screen::utils::capture_monitor_image;
+use screenpipe_screen::utils::capture_monitor_image_with_freshness;
 use std::collections::HashMap;
 #[cfg(debug_assertions)]
 use std::sync::atomic::AtomicU8;
@@ -2505,6 +2505,18 @@ fn normalize_metadata_value(value: Option<&str>) -> Option<String> {
         .map(str::to_string)
 }
 
+// The macOS persistent stream may still hold the previous page when its new
+// title/focus event arrives. Ask for current pixels at these boundaries; keep
+// periodic scroll/idle capture on the existing stream and frame rate.
+fn transition_needs_fresh_pixels(trigger: &CaptureTrigger) -> bool {
+    matches!(
+        trigger,
+        CaptureTrigger::AppSwitch { .. }
+            | CaptureTrigger::WindowFocus { .. }
+            | CaptureTrigger::Click { .. }
+    )
+}
+
 fn should_query_lightweight_focus(trigger: &CaptureTrigger) -> bool {
     match trigger {
         CaptureTrigger::AppSwitch { app_name, .. } => app_name.trim().is_empty(),
@@ -3038,7 +3050,12 @@ async fn do_capture(
         let excluded_ids = storage_exclusions.unwrap_or_default();
 
         // Take screenshot (with ignored windows excluded at the OS level)
-        let (image, capture_dur) = capture_monitor_image(params.monitor, &excluded_ids).await?;
+        let (image, capture_dur) = capture_monitor_image_with_freshness(
+            params.monitor,
+            &excluded_ids,
+            transition_needs_fresh_pixels(trigger),
+        )
+        .await?;
         debug!(
             "screenshot captured in {:?} for monitor {}",
             capture_dur, params.monitor_id
@@ -4202,6 +4219,34 @@ mod tests {
         assert_eq!(CaptureTrigger::VisualChange.as_str(), "visual_change");
         assert_eq!(CaptureTrigger::Idle.as_str(), "idle");
         assert_eq!(CaptureTrigger::Manual.as_str(), "manual");
+    }
+
+    #[test]
+    fn surface_transitions_request_current_pixels_without_raising_polling_cost() {
+        for trigger in [
+            CaptureTrigger::AppSwitch {
+                app_name: "Browser".into(),
+                target: None,
+            },
+            CaptureTrigger::WindowFocus {
+                window_name: "Page B".into(),
+                target: None,
+            },
+            CaptureTrigger::Click { x: 10, y: 20 },
+        ] {
+            assert!(transition_needs_fresh_pixels(&trigger));
+        }
+        for trigger in [
+            CaptureTrigger::Idle,
+            CaptureTrigger::VisualChange,
+            CaptureTrigger::ScrollStop,
+            CaptureTrigger::TypingPause,
+            CaptureTrigger::KeyPress,
+            CaptureTrigger::Clipboard,
+            CaptureTrigger::Manual,
+        ] {
+            assert!(!transition_needs_fresh_pixels(&trigger));
+        }
     }
 
     #[test]
