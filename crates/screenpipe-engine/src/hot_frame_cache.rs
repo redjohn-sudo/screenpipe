@@ -493,17 +493,22 @@ mod tests {
 
     #[tokio::test]
     async fn cancelled_warmup_releases_timeline_waiters() {
+        let db = screenpipe_db::DatabaseManager::new("sqlite::memory:", Default::default())
+            .await
+            .unwrap();
         let cache = HotFrameCache::new();
-        let completion = WarmupCompletion(cache.warm_ready_tx.clone());
-        let (started, ready) = tokio::sync::oneshot::channel();
-        let worker = tokio::spawn(async move {
-            let _completion = completion;
-            started.send(()).unwrap();
-            std::future::pending::<()>().await;
-        });
-        ready.await.unwrap();
-        worker.abort();
-        assert!(worker.await.unwrap_err().is_cancelled());
+        // Prevent even an empty DB warm-up from finishing, then poll the real
+        // future once and cancel it. This covers its actual lifetime guard,
+        // rather than constructing a separate guard only for the test.
+        let frames = cache.frames.write().await;
+        let mut warmup = Box::pin(cache.warm_from_db(&db, 24));
+        std::future::poll_fn(|cx| {
+            assert!(std::future::Future::poll(warmup.as_mut(), cx).is_pending());
+            std::task::Poll::Ready(())
+        })
+        .await;
+        drop(warmup);
+        drop(frames);
         assert!(cache.wait_warm(std::time::Duration::from_millis(50)).await);
         assert!(cache.earliest_coverage().await.is_none());
     }
