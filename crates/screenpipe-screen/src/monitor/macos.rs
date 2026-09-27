@@ -432,7 +432,8 @@ impl SafeMonitor {
         &self,
         excluded_window_ids: &[u32],
     ) -> Result<DynamicImage> {
-        self.capture_image_excluding_inner(excluded_window_ids, false).await
+        self.capture_image_excluding_inner(excluded_window_ids, false)
+            .await
     }
 
     /// Capture after a focus/input transition, retaining the same privacy and
@@ -441,7 +442,8 @@ impl SafeMonitor {
         &self,
         excluded_window_ids: &[u32],
     ) -> Result<DynamicImage> {
-        self.capture_image_excluding_inner(excluded_window_ids, true).await
+        self.capture_image_excluding_inner(excluded_window_ids, true)
+            .await
     }
 
     async fn capture_image_excluding_inner(
@@ -453,7 +455,9 @@ impl SafeMonitor {
             return self.capture_image_inner(fresh).await;
         }
         debug_assert!(!core_graphics_fallback_allowed(excluded_window_ids));
-        let result = self.capture_sck_bounded(excluded_window_ids.to_vec(), fresh).await;
+        let result = self
+            .capture_sck_bounded(excluded_window_ids.to_vec(), fresh)
+            .await;
         if result.is_err() {
             self.release_capture_stream();
         }
