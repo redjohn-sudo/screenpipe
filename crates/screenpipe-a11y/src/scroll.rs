@@ -74,10 +74,10 @@ struct Burst {
 
 impl ScrollBuffer {
     /// Defaults: a 400 ms quiet gap ends a gesture (trackpad momentum keeps
-    /// ticks well under this while active); a 2 s ceiling splits marathon
+    /// ticks well under this while active); a 1 s ceiling splits marathon
     /// scrolls so long reads still yield periodic, timestamped rows.
     pub fn new() -> Self {
-        Self::with_timeouts(400, 2_000)
+        Self::with_timeouts(400, 1_000)
     }
 
     pub fn with_timeouts(gap_timeout_ms: u64, max_burst_ms: u64) -> Self {
@@ -105,7 +105,34 @@ impl ScrollBuffer {
         app_name: Option<String>,
         window_title: Option<String>,
     ) -> Option<ScrollFlush> {
-        let now = Instant::now();
+        self.push_at(
+            pid,
+            x,
+            y,
+            delta_x,
+            delta_y,
+            timestamp,
+            relative_ms,
+            app_name,
+            window_title,
+            Instant::now(),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn push_at(
+        &mut self,
+        pid: i32,
+        x: i32,
+        y: i32,
+        delta_x: i16,
+        delta_y: i16,
+        timestamp: DateTime<Utc>,
+        relative_ms: u64,
+        app_name: Option<String>,
+        window_title: Option<String>,
+        now: Instant,
+    ) -> Option<ScrollFlush> {
         let flushed = match &self.cur {
             Some(b)
                 if b.pid != pid
@@ -151,9 +178,12 @@ impl ScrollBuffer {
     /// True when an open burst has gone quiet (or overlong) and should be
     /// drained. Polled from the platform run loop (~10 ms slices).
     pub fn should_flush(&self) -> bool {
+        self.should_flush_at(Instant::now())
+    }
+
+    fn should_flush_at(&self, now: Instant) -> bool {
         match &self.cur {
             Some(b) => {
-                let now = Instant::now();
                 now.duration_since(b.last_tick).as_millis() as u64 >= self.gap_timeout_ms
                     || now.duration_since(b.started).as_millis() as u64 >= self.max_burst_ms
             }
@@ -194,6 +224,7 @@ impl Default for ScrollBuffer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::time::Duration;
 
     fn tick(buf: &mut ScrollBuffer, dx: i16, dy: i16, app: &str) -> Option<ScrollFlush> {
         tick_pid(buf, 777, dx, dy, app)
@@ -311,5 +342,113 @@ mod tests {
     fn idle_buffer_never_flushes() {
         let buf = ScrollBuffer::new();
         assert!(!buf.should_flush());
+    }
+
+    #[test]
+    fn sustained_scroll_emits_each_second_without_losing_movement() {
+        for hz in [60_u64, 120] {
+            let mut buf = ScrollBuffer::new();
+            let start = Instant::now();
+            let wall = Utc::now();
+            let mut rows = Vec::new();
+            for tick in 0..(hz * 30) {
+                let elapsed = Duration::from_micros(tick * 1_000_000 / hz);
+                if let Some(row) = buf.push_at(
+                    777,
+                    100,
+                    200,
+                    0,
+                    -1,
+                    wall + chrono::Duration::from_std(elapsed).unwrap(),
+                    elapsed.as_millis() as u64,
+                    None,
+                    None,
+                    start + elapsed,
+                ) {
+                    assert!(
+                        elapsed.as_millis() as u64 - row.relative_ms <= 1_020,
+                        "sustained scrolling must expose an intermediate position each second"
+                    );
+                    rows.push(row);
+                }
+            }
+            let last_tick = start + Duration::from_micros((hz * 30 - 1) * 1_000_000 / hz);
+            assert!(buf.should_flush_at(last_tick + Duration::from_millis(400)));
+            rows.push(buf.flush().unwrap());
+            assert_eq!(rows.len(), 30, "row volume stays bounded to one per second");
+            assert_eq!(
+                rows.iter().map(|r| i64::from(r.delta_y)).sum::<i64>(),
+                -(hz as i64 * 30)
+            );
+            assert!(!buf.should_flush_at(last_tick + Duration::from_secs(60)));
+        }
+    }
+
+    #[test]
+    fn final_scroll_position_flushes_after_quiet_without_another_tick() {
+        let mut buf = ScrollBuffer::new();
+        let now = Instant::now();
+        let wall = Utc::now();
+        assert!(buf
+            .push_at(
+                7,
+                12,
+                34,
+                0,
+                -80,
+                wall,
+                99,
+                Some("Browser".into()),
+                Some("Page A".into()),
+                now
+            )
+            .is_none());
+        assert!(!buf.should_flush_at(now + Duration::from_millis(399)));
+        assert!(buf.should_flush_at(now + Duration::from_millis(400)));
+        let row = buf.flush().unwrap();
+        assert_eq!(
+            (row.delta_y, row.relative_ms, row.timestamp),
+            (-80, 99, wall)
+        );
+        assert_eq!(row.window_title.as_deref(), Some("Page A"));
+        assert!(buf.flush().is_none());
+    }
+
+    #[test]
+    fn tab_change_splits_scroll_rows_without_mixing_page_context() {
+        let mut buf = ScrollBuffer::new();
+        let now = Instant::now();
+        let wall = Utc::now();
+        buf.push_at(
+            7,
+            12,
+            34,
+            0,
+            -10,
+            wall,
+            0,
+            Some("Browser".into()),
+            Some("Page A".into()),
+            now,
+        );
+        let old = buf
+            .push_at(
+                7,
+                12,
+                34,
+                0,
+                -20,
+                wall,
+                100,
+                Some("Browser".into()),
+                Some("Page B".into()),
+                now + Duration::from_millis(100),
+            )
+            .unwrap();
+        assert_eq!(old.window_title.as_deref(), Some("Page A"));
+        assert_eq!(old.delta_y, -10);
+        let new = buf.flush().unwrap();
+        assert_eq!(new.window_title.as_deref(), Some("Page B"));
+        assert_eq!(new.delta_y, -20);
     }
 }
