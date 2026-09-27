@@ -2506,14 +2506,16 @@ fn normalize_metadata_value(value: Option<&str>) -> Option<String> {
 }
 
 // The macOS persistent stream may still hold the previous page when its new
-// title/focus event arrives. Ask for current pixels at these boundaries; keep
-// periodic scroll/idle capture on the existing stream and frame rate.
-fn transition_needs_fresh_pixels(trigger: &CaptureTrigger) -> bool {
+// title/focus event arrives. Ask for current pixels at these boundaries and
+// when a visual probe detects a change. The probe itself and periodic scroll/
+// idle capture keep the existing stream and frame rate.
+fn capture_needs_fresh_pixels(trigger: &CaptureTrigger) -> bool {
     matches!(
         trigger,
         CaptureTrigger::AppSwitch { .. }
             | CaptureTrigger::WindowFocus { .. }
             | CaptureTrigger::Click { .. }
+            | CaptureTrigger::VisualChange
     )
 }
 
@@ -3053,7 +3055,7 @@ async fn do_capture(
         let (image, capture_dur) = capture_monitor_image_with_freshness(
             params.monitor,
             &excluded_ids,
-            transition_needs_fresh_pixels(trigger),
+            capture_needs_fresh_pixels(trigger),
         )
         .await?;
         debug!(
@@ -4233,19 +4235,19 @@ mod tests {
                 target: None,
             },
             CaptureTrigger::Click { x: 10, y: 20 },
+            CaptureTrigger::VisualChange,
         ] {
-            assert!(transition_needs_fresh_pixels(&trigger));
+            assert!(capture_needs_fresh_pixels(&trigger));
         }
         for trigger in [
             CaptureTrigger::Idle,
-            CaptureTrigger::VisualChange,
             CaptureTrigger::ScrollStop,
             CaptureTrigger::TypingPause,
             CaptureTrigger::KeyPress,
             CaptureTrigger::Clipboard,
             CaptureTrigger::Manual,
         ] {
-            assert!(!transition_needs_fresh_pixels(&trigger));
+            assert!(!capture_needs_fresh_pixels(&trigger));
         }
     }
 
