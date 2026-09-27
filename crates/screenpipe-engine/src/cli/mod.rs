@@ -746,12 +746,10 @@ pub struct RecordArgs {
     #[arg(long)]
     pub capture_on_clipboard: Option<bool>,
 
-    /// Override `UiRecorderConfig::capture_scroll` — record scroll wheel
-    /// events into `ui_events`. Off by default because wheel ticks fire
-    /// at ~60Hz and inflate the table fast. When on, the recorder's
-    /// `ScrollBurstTracker` retains every correlation ID while coalescing a
-    /// wheel flick into one `ScrollStop` trigger at burst-end, then links every
-    /// persisted scroll row in the settled burst to the resulting `frame_id`.
+    /// Record coalesced scroll events in `ui_events` (enabled by default on
+    /// macOS and Windows). Sustained scrolling produces periodic capture
+    /// checkpoints plus a settled tail. The recorder retains correlation IDs
+    /// so persisted scroll rows can link to their corresponding frames.
     #[arg(long)]
     pub capture_scroll: Option<bool>,
 
