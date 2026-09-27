@@ -979,15 +979,20 @@ mod tests {
 
     #[tokio::test]
     async fn timeline_websocket_completes_empty_cached_and_database_ranges() {
-        assert_timeline_ranges_complete(true).await;
+        assert_timeline_ranges_complete(true, false).await;
     }
 
     #[tokio::test]
     async fn timeline_websocket_reads_saved_history_with_screenshots_off() {
-        assert_timeline_ranges_complete(false).await;
+        assert_timeline_ranges_complete(false, false).await;
     }
 
-    async fn assert_timeline_ranges_complete(warm_cache: bool) {
+    #[tokio::test]
+    async fn timeline_websocket_survives_malformed_audio_during_real_warmup() {
+        assert_timeline_ranges_complete(false, true).await;
+    }
+
+    async fn assert_timeline_ranges_complete(warm_cache: bool, malformed_audio: bool) {
         let root = tempfile::tempdir().unwrap();
         let db = Arc::new(
             DatabaseManager::new_hybrid(root.path(), Default::default(), Default::default())
@@ -1008,6 +1013,29 @@ mod tests {
                 .bind(Utc::now()).execute(&mut **tx.conn()).await.unwrap();
         }
         tx.commit().await.unwrap();
+        if malformed_audio {
+            let at = Utc::now();
+            let chunk = db
+                .insert_audio_chunk("synthetic-audio.mp4", Some(at))
+                .await
+                .unwrap();
+            db.insert_audio_transcription(
+                chunk,
+                "malformed timing regression",
+                0,
+                "test",
+                &screenpipe_db::AudioDevice {
+                    name: "test output".into(),
+                    device_type: screenpipe_db::DeviceType::Output,
+                },
+                None,
+                Some(90.0),
+                Some(1.0),
+                Some(at),
+            )
+            .await
+            .unwrap();
+        }
         db.seal_frame_payloads().await.unwrap();
         let cache = Arc::new(crate::hot_frame_cache::HotFrameCache::new());
         if warm_cache {
@@ -1034,7 +1062,9 @@ mod tests {
             false,
             "balanced".into(),
         );
-        server.timeline_disabled = true;
+        // The malformed-row case uses the real background warm-up. Before the
+        // fix it panicked and left the websocket blocked on its 30-second gate.
+        server.timeline_disabled = !malformed_audio;
         server.advertise_mdns = false;
         server.hot_frame_cache = Some(cache);
         let router = server.try_create_router().await.unwrap();
@@ -1062,6 +1092,7 @@ mod tests {
             let end = day + chrono::Duration::days(1) - chrono::Duration::milliseconds(1);
             socket.send(tokio_tungstenite::tungstenite::Message::Text(serde_json::json!({"start_time":day,"end_time":end,"order":"descending","limit":2500}).to_string().into())).await.unwrap();
             let mut received = 0;
+            let mut retained_transcript = false;
             tokio::time::timeout(Duration::from_secs(2), async {
                 loop {
                     let message = socket.next().await.unwrap().unwrap();
@@ -1072,6 +1103,8 @@ mod tests {
                         serde_json::from_str(message.to_text().unwrap()).unwrap();
                     if let Some(batch) = value.as_array() {
                         received += batch.len();
+                        retained_transcript |=
+                            value.to_string().contains("malformed timing regression");
                     }
                     if value["type"] == "stream_complete" {
                         assert!(value.get("error").is_none(), "{value}");
@@ -1083,6 +1116,12 @@ mod tests {
             .await
             .expect("every range must finish without waiting for keepalive");
             assert_eq!(received, expected);
+            if malformed_audio && day == today {
+                assert!(
+                    retained_transcript,
+                    "the original transcript must survive warm-up and websocket delivery"
+                );
+            }
         }
         socket.close(None).await.unwrap();
         stop.send(()).unwrap();
