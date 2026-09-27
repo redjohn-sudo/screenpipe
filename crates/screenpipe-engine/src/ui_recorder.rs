@@ -927,7 +927,13 @@ pub async fn start_ui_recording(
 
                     if is_scroll {
                         if let Some(corr_id) = correlation_id {
-                            scroll_burst.record(corr_id);
+                            if let Some(full_ids) = scroll_burst.record(corr_id) {
+                                dispatch_scroll_capture(
+                                    full_ids,
+                                    capture_trigger_tx.as_ref(),
+                                    linker_tx.as_ref(),
+                                );
+                            }
                         }
                     } else if let (Some(ref trigger_tx), Some(trigger)) =
                         (&capture_trigger_tx, trigger_kind)
@@ -1034,19 +1040,7 @@ pub async fn start_ui_recording(
             // frame-linker update. If the broadcast has no receivers, notify
             // the linker about every ID immediately rather than waiting on TTL.
             if let Some(corr_ids) = scroll_burst.poll_burst_end() {
-                if let Some(ref trigger_tx) = capture_trigger_tx {
-                    use crate::event_driven_capture::{CaptureTrigger, CaptureTriggerMsg};
-                    let msg =
-                        CaptureTriggerMsg::with_correlations(CaptureTrigger::ScrollStop, corr_ids);
-                    if let Err(send_err) = trigger_tx.send(msg) {
-                        if let Some(ref linker) = linker_tx {
-                            let _ = linker.try_send(LinkerMessage::TriggerDropped {
-                                correlation_ids: send_err.0.correlation_ids,
-                                reason: crate::frame_linker::DropReason::Other,
-                            });
-                        }
-                    }
-                }
+                dispatch_scroll_capture(corr_ids, capture_trigger_tx.as_ref(), linker_tx.as_ref());
             }
         }
 
@@ -1301,6 +1295,26 @@ fn capture_trigger_kind(
 /// discard recorded input rows or throttle the durable capture path.
 const SCROLL_BURST_MAX_CORR_IDS: usize = 512;
 
+fn dispatch_scroll_capture(
+    corr_ids: Vec<CorrelationId>,
+    trigger_tx: Option<&crate::event_driven_capture::TriggerSender>,
+    linker: Option<&LinkerSender>,
+) {
+    let Some(trigger_tx) = trigger_tx else {
+        return;
+    };
+    use crate::event_driven_capture::{CaptureTrigger, CaptureTriggerMsg};
+    let msg = CaptureTriggerMsg::with_correlations(CaptureTrigger::ScrollStop, corr_ids);
+    if let Err(send_err) = trigger_tx.send(msg) {
+        if let Some(linker) = linker {
+            let _ = linker.try_send(LinkerMessage::TriggerDropped {
+                correlation_ids: send_err.0.correlation_ids,
+                reason: crate::frame_linker::DropReason::Other,
+            });
+        }
+    }
+}
+
 /// Capture shortly after a coalesced scroll row, or at the maximum wait even
 /// if more rows keep arriving. Draining starts a fresh capture window, so
 /// events do not all point to a single frame at the end of a long scroll.
@@ -1323,17 +1337,20 @@ impl ScrollBurstTracker {
         }
     }
 
-    fn record(&mut self, corr_id: CorrelationId) {
-        self.record_at(corr_id, Instant::now());
+    fn record(&mut self, corr_id: CorrelationId) -> Option<Vec<CorrelationId>> {
+        self.record_at(corr_id, Instant::now())
     }
 
-    fn record_at(&mut self, corr_id: CorrelationId, now: Instant) {
+    fn record_at(&mut self, corr_id: CorrelationId, now: Instant) -> Option<Vec<CorrelationId>> {
+        let full = if self.scroll_corr_ids.len() >= SCROLL_BURST_MAX_CORR_IDS {
+            self.take_pending()
+        } else {
+            None
+        };
         self.first_scroll_at.get_or_insert(now);
         self.last_scroll_at = Some(now);
-        if self.scroll_corr_ids.len() >= SCROLL_BURST_MAX_CORR_IDS {
-            self.scroll_corr_ids.pop_front();
-        }
         self.scroll_corr_ids.push_back(corr_id);
+        full
     }
 
     fn poll_burst_end(&mut self) -> Option<Vec<CorrelationId>> {
@@ -2335,15 +2352,16 @@ mod scroll_burst_tests {
     }
 
     #[test]
-    fn caps_retained_correlation_ids_and_keeps_the_newest() {
+    fn caps_retained_correlation_ids_without_orphaning_oldest() {
         let mut t = ScrollBurstTracker::new(Duration::from_millis(50));
         let overshoot = 37;
         let total = SCROLL_BURST_MAX_CORR_IDS + overshoot;
 
-        // A stalled consumer receives a backlog without polling. Pending
-        // linkage stays bounded while input rows remain independently stored.
+        let mut dispatched = Vec::new();
         for corr_id in 1..=total as CorrelationId {
-            t.record(corr_id);
+            if let Some(full) = t.record(corr_id) {
+                dispatched.extend(full);
+            }
             assert!(
                 t.scroll_corr_ids.len() <= SCROLL_BURST_MAX_CORR_IDS,
                 "retention must stay bounded mid-burst, saw {} after {} records",
@@ -2353,34 +2371,20 @@ mod scroll_burst_tests {
         }
 
         t.last_scroll_at = Some(Instant::now() - Duration::from_millis(60));
-        let drained = t.poll_burst_end().expect("settled burst must drain");
-
+        dispatched.extend(t.poll_burst_end().expect("settled burst must drain"));
+        let expected: Vec<CorrelationId> = (1..=total as CorrelationId).collect();
         assert_eq!(
-            drained.len(),
-            SCROLL_BURST_MAX_CORR_IDS,
-            "a burst past the cap drains exactly the cap"
-        );
-        // The oldest ids are the ones dropped, so the surviving window is the
-        // newest `SCROLL_BURST_MAX_CORR_IDS` ids in original order.
-        let expected: Vec<CorrelationId> =
-            ((overshoot + 1) as CorrelationId..=total as CorrelationId).collect();
-        assert_eq!(
-            drained, expected,
-            "the settle frame must link the rows the user actually landed on"
-        );
-        assert_eq!(
-            drained.last().copied(),
-            Some(total as CorrelationId),
-            "the tail row must never be evicted"
+            dispatched, expected,
+            "capacity pressure must dispatch, never silently orphan linker ids"
         );
 
-        // The capped batch still travels as one ScrollStop message, so the
-        // reducer sees a single trigger rather than a split burst.
+        // Every dispatched chunk remains representable as one ScrollStop
+        // message; capacity pressure may intentionally split a dense burst.
         let msg = crate::event_driven_capture::CaptureTriggerMsg::with_correlations(
             crate::event_driven_capture::CaptureTrigger::ScrollStop,
-            drained.clone(),
+            dispatched.clone(),
         );
-        assert_eq!(msg.correlation_ids, drained);
+        assert_eq!(msg.correlation_ids, dispatched);
 
         // State is reset, so the next burst starts from an empty deque.
         assert!(t.scroll_corr_ids.is_empty());
