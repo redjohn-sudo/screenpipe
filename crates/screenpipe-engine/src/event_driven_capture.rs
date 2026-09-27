@@ -2042,10 +2042,9 @@ pub(crate) async fn event_driven_capture_loop(
                     tokio::time::sleep(WINDOWS_CONTEXT_CAPTURE_SETTLE).await;
                 }
 
-                // Compute elements_ref for frame-to-frame element dedup.
-                // If the current content_hash matches the previous frame's hash
-                // for this device, reference that frame's elements instead of
-                // inserting duplicate element rows.
+                // Find a candidate element reference. do_capture validates it
+                // against the newly walked tree before reusing any elements;
+                // these hashes both describe earlier frames, not the new one.
                 let elements_ref = if let Some(hash) = last_content_hash {
                     if let Some(&(prev_frame_id, prev_hash)) = last_elements_cache.get(&device_name)
                     {
@@ -2517,6 +2516,27 @@ fn capture_needs_fresh_pixels(trigger: &CaptureTrigger) -> bool {
             | CaptureTrigger::Click { .. }
             | CaptureTrigger::VisualChange
     )
+}
+
+// The caller only knows the previous frame's hash before walking. Validate
+// its candidate against the current tree, and always retain fresh element
+// geometry for scrolling or visual/context changes even if text is unchanged.
+fn matching_elements_reference(
+    trigger: &CaptureTrigger,
+    candidate: Option<i64>,
+    previous_hash: Option<i64>,
+    current_hash: Option<i64>,
+    coherent: bool,
+) -> Option<i64> {
+    if !coherent
+        || capture_needs_fresh_pixels(trigger)
+        || matches!(trigger, CaptureTrigger::ScrollStop)
+        || current_hash.is_none_or(|hash| hash == 0 || Some(hash) != previous_hash)
+    {
+        None
+    } else {
+        candidate
+    }
 }
 
 fn should_query_lightweight_focus(trigger: &CaptureTrigger) -> bool {
@@ -3621,6 +3641,16 @@ async fn do_capture(
         image
     };
 
+    let elements_ref_frame_id = matching_elements_reference(
+        trigger,
+        elements_ref_frame_id,
+        previous_content_hash,
+        tree_snapshot
+            .as_ref()
+            .map(|snapshot| snapshot.content_hash as i64),
+        ax_screenshot_coherent,
+    );
+
     let ctx = CaptureContext {
         db: params.db,
         snapshot_writer: params.snapshot_writer,
@@ -4221,6 +4251,26 @@ mod tests {
         assert_eq!(CaptureTrigger::VisualChange.as_str(), "visual_change");
         assert_eq!(CaptureTrigger::Idle.as_str(), "idle");
         assert_eq!(CaptureTrigger::Manual.as_str(), "manual");
+    }
+
+    #[test]
+    fn element_reference_cannot_cross_changed_text_or_scroll_geometry() {
+        let reuse = |trigger: CaptureTrigger, hash, coherent| {
+            matching_elements_reference(&trigger, Some(10), Some(123), hash, coherent)
+        };
+        assert_eq!(reuse(CaptureTrigger::Idle, Some(123), true), Some(10));
+        // OCR from Page B must never become the element source for fresh Page A.
+        assert_eq!(reuse(CaptureTrigger::Idle, Some(456), true), None);
+        assert_eq!(reuse(CaptureTrigger::Idle, None, true), None);
+        assert_eq!(reuse(CaptureTrigger::Idle, Some(123), false), None);
+        // A whole-page AX text hash may be unchanged while the visible element
+        // positions move; these checkpoints need their own current elements.
+        assert_eq!(reuse(CaptureTrigger::ScrollStop, Some(123), true), None);
+        assert_eq!(reuse(CaptureTrigger::VisualChange, Some(123), true), None);
+        assert_eq!(
+            reuse(CaptureTrigger::Click { x: 1, y: 2 }, Some(123), true),
+            None
+        );
     }
 
     #[test]
