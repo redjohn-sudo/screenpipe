@@ -1,0 +1,200 @@
+// screenpipe — AI that knows everything you've seen, said, or heard
+// https://screenpipe.com
+
+// Deliberately outside the Worker import graph. These tools prepare and test a
+// destination account; they do not select a production route or assign a plan.
+export const EXPERIENTIAL_ORIGIN = 'https://api.experientiallabs.ai';
+export type Fetcher = (url: string, init: RequestInit) => Promise<Response>;
+type Json = Record<string, any>;
+export type ProbeProtocol = 'chat' | 'stream' | 'tools' | 'json-schema' | 'responses' | 'messages';
+const KEY = /^xpl_[0-9a-f]{40}$/;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+export class MigrationCheckError extends Error {
+  constructor(public readonly code: string, public readonly status?: number) {
+    // Never include upstream error bodies, request headers, or credential values.
+    super(status === undefined ? code : `${code} (HTTP ${status})`);
+    this.name = 'MigrationCheckError';
+  }
+}
+
+async function request(key: string, path: string, fetcher: Fetcher, body?: Json): Promise<Response> {
+  if (!KEY.test(key)) throw new MigrationCheckError('invalid_credential_format');
+  const response = await fetcher(`${EXPERIENTIAL_ORIGIN}${path}`, {
+    method: body === undefined ? 'GET' : 'POST',
+    redirect: 'error',
+    signal: AbortSignal.timeout(30_000),
+    headers: { Authorization: `Bearer ${key}`, Accept: 'application/json',
+      ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  }).catch(() => { throw new MigrationCheckError('transport_failed_no_retry'); });
+  if (!response.ok) {
+    await response.body?.cancel();
+    throw new MigrationCheckError('request_rejected_no_retry', response.status);
+  }
+  // Defense in depth for injected transports as well as native redirect:error.
+  if (response.url && new URL(response.url).origin !== EXPERIENTIAL_ORIGIN) {
+    await response.body?.cancel();
+    throw new MigrationCheckError('unexpected_response_origin');
+  }
+  return response;
+}
+
+async function read(key: string, path: string, fetcher: Fetcher): Promise<Json> {
+  const response = await request(key, path, fetcher);
+  try { return await response.json() as Json; }
+  catch { throw new MigrationCheckError('invalid_json_response'); }
+}
+
+export async function inspectExperientialAccount(key: string, sourceModels: string[], fetcher: Fetcher = fetch) {
+  const who = await read(key, '/api/whoami', fetcher);
+  if (typeof who.org_id !== 'string' || !UUID.test(who.org_id)) {
+    throw new MigrationCheckError('invalid_organization_response');
+  }
+  // Read only. No key creation, customer export, card, inference, or settings writes.
+  const [catalog, telemetry, providers] = await Promise.all([
+    read(key, '/v1/models', fetcher),
+    read(key, `/api/orgs/${who.org_id}/telemetry-settings`, fetcher),
+    read(key, `/api/orgs/${who.org_id}/provider-policy`, fetcher),
+  ]);
+  if (!Array.isArray(catalog.data) || catalog.data.some((m: any) => typeof m?.id !== 'string')) {
+    throw new MigrationCheckError('invalid_catalog_response');
+  }
+  const models = new Set<string>(catalog.data.map((m: any) => m.id));
+  return {
+    org_id: who.org_id as string,
+    checks: {
+      prompt_capture_disabled: telemetry.capture_prompt_content === false,
+      upstream_no_training: providers.policy?.require_no_training === true,
+      upstream_zero_retention: providers.policy?.require_zdr === true,
+    },
+    models: [...new Set(sourceModels)].map((id) => ({ id, exact_catalog_match: models.has(id) })),
+    // These need live operator/provider evidence; a catalog read cannot pass them.
+    unverified: [
+      'native_customer_plan_enforcement', 'per_customer_identity_and_key_isolation',
+      'shared_total_and_frontier_caps', 'reset_window_and_usage_carry_in',
+      'settled_and_pending_usage_reconciliation', 'protocol_and_price_parity',
+      'billing_activation', 'live_cloudflare_rules_and_deployed_baseline',
+    ],
+    production_ready: false as const,
+    cutover_authorized: false as const,
+  };
+}
+
+const PROMPT = 'Reply with OK.';
+const tool = { type: 'function', function: { name: 'confirm', description: 'Return confirmation.',
+  parameters: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'], additionalProperties: false } } };
+
+export function syntheticRequest(model: string, protocol: ProbeProtocol): { path: string; body: Json } {
+  // Excludes aliases, auto, confidential/custom, audio and background rescue routes.
+  if (!/^(gpt-[a-z0-9.-]+|claude-[a-z0-9.-]+)$/.test(model)) throw new MigrationCheckError('unsupported_probe_model');
+  if (protocol === 'messages') {
+    if (!model.startsWith('claude-')) throw new MigrationCheckError('messages_requires_claude');
+    return { path: '/v1/messages', body: { model, max_tokens: 64, messages: [{ role: 'user', content: PROMPT }] } };
+  }
+  if (protocol === 'responses') {
+    if (model !== 'gpt-6-astra') throw new MigrationCheckError('responses_probe_requires_astra');
+    return { path: '/v1/responses', body: { model, input: [{ role: 'user', content: PROMPT }],
+      max_output_tokens: 64, reasoning: { effort: 'low' }, service_tier: 'standard', store: false } };
+  }
+  if (!['chat', 'stream', 'tools', 'json-schema'].includes(protocol)) throw new MigrationCheckError('unsupported_protocol');
+  const body: Json = { model, messages: [{ role: 'user', content: PROMPT }], max_completion_tokens: 64 };
+  if (protocol === 'stream') Object.assign(body, { stream: true, stream_options: { include_usage: true } });
+  if (protocol === 'tools') Object.assign(body, { tools: [tool], tool_choice: { type: 'function', function: { name: 'confirm' } } });
+  if (protocol === 'json-schema') body.response_format = { type: 'json_schema', json_schema: {
+    name: 'confirmation', strict: true, schema: tool.function.parameters,
+  } };
+  return { path: '/v1/chat/completions', body };
+}
+
+function validateCompletion(data: Json, protocol: ProbeProtocol): void {
+  if (data.error) throw new MigrationCheckError('upstream_error_in_success_body');
+  if (protocol === 'responses') {
+    if (data.status !== 'completed' || !Array.isArray(data.output) || data.output.length === 0) {
+      throw new MigrationCheckError('responses_not_completed');
+    }
+  } else if (protocol === 'messages') {
+    if (!Array.isArray(data.content) || data.content.length === 0 || !data.stop_reason) {
+      throw new MigrationCheckError('messages_not_completed');
+    }
+  } else {
+    const choice = data.choices?.[0];
+    if (!choice?.finish_reason || choice.finish_reason === 'length') throw new MigrationCheckError('chat_not_completed');
+    if (protocol === 'tools') {
+      const call = choice.message?.tool_calls?.[0];
+      if (choice.finish_reason !== 'tool_calls' || call?.function?.name !== 'confirm') throw new MigrationCheckError('tool_call_missing');
+      try { if (JSON.parse(call.function.arguments)?.ok !== true) throw new Error(); }
+      catch { throw new MigrationCheckError('tool_arguments_invalid'); }
+    } else if (protocol === 'json-schema') {
+      try { const value = JSON.parse(choice.message?.content); if (value?.ok !== true || Object.keys(value).length !== 1) throw new Error(); }
+      catch { throw new MigrationCheckError('structured_output_invalid'); }
+    } else if (typeof choice.message?.content !== 'string' || !choice.message.content.trim()) {
+      throw new MigrationCheckError('chat_content_missing');
+    }
+  }
+}
+
+async function readStream(response: Response): Promise<Json> {
+  if (!response.headers.get('content-type')?.includes('text/event-stream')) throw new MigrationCheckError('expected_event_stream');
+  if (!response.body) throw new MigrationCheckError('stream_body_missing');
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let pending = '', size = 0, done = false, finished = false, content = false;
+  let usage: Json | undefined;
+  try {
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      size += chunk.value.byteLength;
+      if (size > 1_048_576) throw new MigrationCheckError('probe_response_too_large');
+      pending += decoder.decode(chunk.value, { stream: true });
+      let end: number;
+      while ((end = pending.indexOf('\n')) >= 0) {
+        const line = pending.slice(0, end).replace(/\r$/, ''); pending = pending.slice(end + 1);
+        if (!line.startsWith('data:')) continue;
+        const value = line.slice(5).trim();
+        if (!value) continue;
+        if (value === '[DONE]') { done = true; continue; }
+        if (done) throw new MigrationCheckError('data_after_stream_done');
+        let data: Json;
+        try { data = JSON.parse(value); } catch { throw new MigrationCheckError('invalid_stream_json'); }
+        if (data.error) throw new MigrationCheckError('stream_error');
+        if (data.usage) usage = data.usage;
+        const choice = data.choices?.[0];
+        if (choice?.finish_reason === 'stop') finished = true;
+        if (typeof choice?.delta?.content === 'string' && choice.delta.content.length > 0) content = true;
+      }
+    }
+    if (!done || !finished || !content) throw new MigrationCheckError('incomplete_stream_no_retry');
+    return { usage };
+  } finally { await reader.cancel().catch(() => {}); }
+}
+
+export async function runSyntheticProbe(options: {
+  key: string; model: string; protocol: ProbeProtocol; allowSpend: boolean;
+}, fetcher: Fetcher = fetch) {
+  if (options.allowSpend !== true) throw new MigrationCheckError('explicit_spend_authorization_required');
+  const spec = syntheticRequest(options.model, options.protocol);
+  const before = await inspectExperientialAccount(options.key, [options.model], fetcher);
+  if (!before.checks.prompt_capture_disabled || !before.checks.upstream_no_training) throw new MigrationCheckError('privacy_preflight_failed');
+  if (!before.models[0]?.exact_catalog_match) throw new MigrationCheckError('model_not_in_authenticated_catalog');
+  // Exactly one synthetic POST. No retries, provider fallback, customer data,
+  // previous_response_id, BYOK upload or production configuration changes.
+  const response = await request(options.key, spec.path, fetcher, spec.body);
+  let data: Json;
+  try { data = options.protocol === 'stream' ? await readStream(response) : await response.json() as Json; }
+  catch (error) { if (error instanceof MigrationCheckError) throw error; throw new MigrationCheckError('invalid_probe_response_no_retry'); }
+  if (options.protocol !== 'stream') validateCompletion(data, options.protocol);
+  const usage = data.usage;
+  if (!usage || typeof usage !== 'object') throw new MigrationCheckError('usage_missing_no_retry');
+  const input = usage.input_tokens ?? usage.prompt_tokens;
+  const output = usage.output_tokens ?? usage.completion_tokens;
+  if (!Number.isInteger(input) || input < 0 || !Number.isInteger(output) || output < 0) throw new MigrationCheckError('usage_invalid');
+  const requestId = response.headers.get('x-request-id');
+  return { protocol: options.protocol, model: options.model, request_id: requestId,
+    input_tokens: input, output_tokens: output,
+    // Optional inline cost is not authoritative settlement or allowance proof.
+    inline_cost_usd: typeof usage.cost === 'number' && Number.isFinite(usage.cost) && usage.cost >= 0 ? usage.cost : null,
+    settlement_verified: false, native_policy_verified: false, production_ready: false,
+  };
+}
