@@ -181,6 +181,22 @@ impl ScrollBuffer {
         self.should_flush_at(Instant::now())
     }
 
+    /// Time until either the quiet-tail or maximum-burst deadline. Consumers
+    /// use this as their receive timeout so a continuous input stream cannot
+    /// postpone an intermediate flush indefinitely.
+    pub fn time_until_flush(&self) -> Option<std::time::Duration> {
+        self.time_until_flush_at(Instant::now())
+    }
+
+    fn time_until_flush_at(&self, now: Instant) -> Option<std::time::Duration> {
+        let b = self.cur.as_ref()?;
+        let quiet = std::time::Duration::from_millis(self.gap_timeout_ms)
+            .saturating_sub(now.saturating_duration_since(b.last_tick));
+        let maximum = std::time::Duration::from_millis(self.max_burst_ms)
+            .saturating_sub(now.saturating_duration_since(b.started));
+        Some(quiet.min(maximum))
+    }
+
     fn should_flush_at(&self, now: Instant) -> bool {
         match &self.cur {
             Some(b) => {
@@ -382,6 +398,31 @@ mod tests {
             );
             assert!(!buf.should_flush_at(last_tick + Duration::from_secs(60)));
         }
+    }
+
+    #[test]
+    fn wake_deadline_includes_maximum_burst_age() {
+        let mut buf = ScrollBuffer::with_timeouts(500, 1_000);
+        let start = Instant::now();
+        buf.push_at(1, 0, 0, 0, -1, Utc::now(), 0, None, None, start);
+        for elapsed_ms in [400, 800, 900] {
+            buf.push_at(
+                1,
+                0,
+                0,
+                0,
+                -1,
+                Utc::now(),
+                elapsed_ms,
+                None,
+                None,
+                start + Duration::from_millis(elapsed_ms),
+            );
+        }
+        assert_eq!(
+            buf.time_until_flush_at(start + Duration::from_millis(900)),
+            Some(Duration::from_millis(100))
+        );
     }
 
     #[test]
