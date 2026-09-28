@@ -1,0 +1,4 @@
+<!doctype html><meta charset="utf-8"><title>ScrollBench Page A</title>
+<style>body{margin:0;font:24px Segoe UI;background:#eef;color:#112}header{position:fixed;inset:0 0 auto 0;height:90px;background:#123;color:white;padding:18px;z-index:2}#side{position:fixed;left:30px;top:120px;width:420px;height:560px;overflow:auto;background:white;border:5px solid #267}section{height:180px;padding:25px;border-bottom:2px solid #9bc}a{color:#ffdf45}</style>
+<header><b>PR #7335 native Windows scroll benchmark — PAGE A — <span id="build"></span></b><br><a id="to-b" href="fixture-b.html">Navigate to Page B</a></header>
+<div id="side"></div><script>build.textContent=new URLSearchParams(location.search).get('build')||'unlabeled';document.querySelector('#to-b').search=location.search;const s=document.querySelector('#side');for(let i=0;i<80;i++)s.insertAdjacentHTML('beforeend',`<section>PAGE A — row ${i}<br>native wheel target</section>`)</script>

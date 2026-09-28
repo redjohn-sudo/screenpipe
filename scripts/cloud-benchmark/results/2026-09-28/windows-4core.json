@@ -1,0 +1,691 @@
+{
+  "sourceSha": "c369f333f2752bd6e0c243c2d665dafc49b9f21c",
+  "profile": "debug-dev",
+  "binarySha256": "9e872d6d0b7d86d4e3d34a0f5401ddc2aba76974c28aafebf60b6b8ab32c1db1",
+  "hardware": {
+    "computerSystem": {
+      "manufacturer": "Microsoft Corporation",
+      "model": "Virtual Machine",
+      "logicalProcessors": 4,
+      "physicalMemoryBytes": 17174319104
+    },
+    "cpu": [
+      {
+        "name": "AMD EPYC 9V74 80-Core Processor                ",
+        "cores": 2,
+        "logicalProcessors": 4,
+        "maxClockMHz": 2596
+      }
+    ],
+    "os": {
+      "caption": "Microsoft Windows 11 Pro",
+      "version": "10.0.26100",
+      "build": "26100",
+      "lastBootUtc": "2026-09-28T17:32:03.2301680Z",
+      "freePhysicalMemoryKiB": 13649892
+    },
+    "gpu": [
+      {
+        "name": "Microsoft Hyper-V Video",
+        "driverVersion": "10.0.26100.1150",
+        "horizontalResolution": 1024,
+        "verticalResolution": 768
+      }
+    ],
+    "monitors": [
+      {
+        "deviceName": "\\\\.\\DISPLAY1",
+        "primary": true,
+        "bounds": "1024x768+0+0",
+        "workingArea": "1024x720"
+      }
+    ],
+    "edge": {
+      "path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "version": "154.0.4258.37"
+    },
+    "powerScheme": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)"
+  },
+  "modes": {
+    "automatic": {
+      "verifiedSettings": {
+        "recordingDetail": "auto",
+        "powerMode": "auto",
+        "videoQuality": "balanced",
+        "idleCaptureIntervalMs": null,
+        "captureScroll": true,
+        "disableAudio": true
+      },
+      "powerBefore": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "auto",
+          "scroll_interval_ms": 2000,
+          "reason": "preference"
+        }
+      },
+      "powerAfter": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "auto",
+          "scroll_interval_ms": 5000,
+          "reason": "capture_cost"
+        }
+      },
+      "dbFrames": 87,
+      "images": 87,
+      "dbIntegrityCheck": "not run: local SQLite lacks required vec_length extension; DB rows and every screenshot matched",
+      "textSources": {
+        "accessibility": 66,
+        "ocr": 21
+      },
+      "trials": [
+        {
+          "case": "trial-1-scroll60",
+          "frameCountActive": 14,
+          "scrollCheckpointCountActive": 13,
+          "frameGapMedianSeconds": 4.930738,
+          "frameGapMaxSeconds": 5.051903,
+          "savedImageBytesActive": 1470951,
+          "cpu": {
+            "mode": "automatic",
+            "case": "trial-1-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 60.030508,
+            "sampledIntervalSeconds": 59.458458,
+            "sampleCount": 43,
+            "engineCpuOneCoreAvgPercent": 24.25538011766131,
+            "engineCpuMachineAvgPercent": 6.063845029415328,
+            "engineCpuOneCoreP95Percent": 38.29022004713751,
+            "engineRssMedianMiB": 96.40234375,
+            "engineRssActiveSampleMaxMiB": 99.49609375,
+            "engineRssLifetimePeakMiB": 118.33984375,
+            "otherEngineDescendantsObserved": [
+              "bun",
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "automatic",
+            "case": "trial-1-scroll60",
+            "durationSeconds": 60.030508,
+            "storedActiveFrames": 14,
+            "firstObservedBottomSeconds": 55.468806,
+            "observedBoundaryTailSeconds": 4.561701999999997,
+            "distinctVisibleRowSets": 13
+          },
+          "storedTailTimestampDelayMs": 800,
+          "tailDbFirstObservationUpperBoundMs": 2732,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-2-scroll60",
+          "frameCountActive": 13,
+          "scrollCheckpointCountActive": 11,
+          "frameGapMedianSeconds": 4.9441735,
+          "frameGapMaxSeconds": 5.187272,
+          "savedImageBytesActive": 1367500,
+          "cpu": {
+            "mode": "automatic",
+            "case": "trial-2-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.951127,
+            "sampledIntervalSeconds": 58.957089,
+            "sampleCount": 44,
+            "engineCpuOneCoreAvgPercent": 30.848707608342057,
+            "engineCpuMachineAvgPercent": 7.712176902085514,
+            "engineCpuOneCoreP95Percent": 53.34720814763965,
+            "engineRssMedianMiB": 56.97265625,
+            "engineRssActiveSampleMaxMiB": 73.44140625,
+            "engineRssLifetimePeakMiB": 118.33984375,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "automatic",
+            "case": "trial-2-scroll60",
+            "durationSeconds": 59.951127,
+            "storedActiveFrames": 13,
+            "firstObservedBottomSeconds": 55.140822,
+            "observedBoundaryTailSeconds": 4.810305,
+            "distinctVisibleRowSets": 12
+          },
+          "storedTailTimestampDelayMs": 707,
+          "tailDbFirstObservationUpperBoundMs": 1924,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-3-scroll60",
+          "frameCountActive": 14,
+          "scrollCheckpointCountActive": 11,
+          "frameGapMedianSeconds": 4.934363,
+          "frameGapMaxSeconds": 5.249395,
+          "savedImageBytesActive": 1478273,
+          "cpu": {
+            "mode": "automatic",
+            "case": "trial-3-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.960237,
+            "sampledIntervalSeconds": 58.675289,
+            "sampleCount": 44,
+            "engineCpuOneCoreAvgPercent": 30.33112457273112,
+            "engineCpuMachineAvgPercent": 7.58278114318278,
+            "engineCpuOneCoreP95Percent": 46.13755310544893,
+            "engineRssMedianMiB": 54.767578125,
+            "engineRssActiveSampleMaxMiB": 57.89453125,
+            "engineRssLifetimePeakMiB": 118.33984375,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "automatic",
+            "case": "trial-3-scroll60",
+            "durationSeconds": 59.960237,
+            "storedActiveFrames": 14,
+            "firstObservedBottomSeconds": 55.431451,
+            "observedBoundaryTailSeconds": 4.528785999999997,
+            "distinctVisibleRowSets": 13
+          },
+          "storedTailTimestampDelayMs": 676,
+          "tailDbFirstObservationUpperBoundMs": 1586,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        }
+      ],
+      "engineCpuMachinePercentMedianOfTrialAverages": 7.58278114318278
+    },
+    "low-impact": {
+      "verifiedSettings": {
+        "recordingDetail": "low_impact",
+        "powerMode": "auto",
+        "videoQuality": "balanced",
+        "idleCaptureIntervalMs": null,
+        "captureScroll": true,
+        "disableAudio": true
+      },
+      "powerBefore": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "low_impact",
+          "scroll_interval_ms": 5000,
+          "reason": "preference"
+        }
+      },
+      "powerAfter": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "low_impact",
+          "scroll_interval_ms": 5000,
+          "reason": "preference"
+        }
+      },
+      "dbFrames": 88,
+      "images": 88,
+      "dbIntegrityCheck": "not run: local SQLite lacks required vec_length extension; DB rows and every screenshot matched",
+      "textSources": {
+        "accessibility": 65,
+        "ocr": 23
+      },
+      "trials": [
+        {
+          "case": "trial-1-scroll60",
+          "frameCountActive": 12,
+          "scrollCheckpointCountActive": 11,
+          "frameGapMedianSeconds": 5.038559,
+          "frameGapMaxSeconds": 5.140966,
+          "savedImageBytesActive": 1257656,
+          "cpu": {
+            "mode": "low-impact",
+            "case": "trial-1-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.982144,
+            "sampledIntervalSeconds": 59.91552,
+            "sampleCount": 45,
+            "engineCpuOneCoreAvgPercent": 24.774465781153197,
+            "engineCpuMachineAvgPercent": 6.193616445288299,
+            "engineCpuOneCoreP95Percent": 42.47127931390656,
+            "engineRssMedianMiB": 99.48046875,
+            "engineRssActiveSampleMaxMiB": 107.61328125,
+            "engineRssLifetimePeakMiB": 121.16015625,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "low-impact",
+            "case": "trial-1-scroll60",
+            "durationSeconds": 59.982144,
+            "storedActiveFrames": 12,
+            "firstObservedBottomSeconds": 55.637881,
+            "observedBoundaryTailSeconds": 4.344262999999998,
+            "distinctVisibleRowSets": 12
+          },
+          "storedTailTimestampDelayMs": 633,
+          "tailDbFirstObservationUpperBoundMs": 1507,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-2-scroll60",
+          "frameCountActive": 13,
+          "scrollCheckpointCountActive": 11,
+          "frameGapMedianSeconds": 5.0014515,
+          "frameGapMaxSeconds": 5.251321,
+          "savedImageBytesActive": 1377603,
+          "cpu": {
+            "mode": "low-impact",
+            "case": "trial-2-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.954702,
+            "sampledIntervalSeconds": 58.892975,
+            "sampleCount": 44,
+            "engineCpuOneCoreAvgPercent": 28.812859258680685,
+            "engineCpuMachineAvgPercent": 7.203214814670171,
+            "engineCpuOneCoreP95Percent": 48.27057117049791,
+            "engineRssMedianMiB": 66.818359375,
+            "engineRssActiveSampleMaxMiB": 71.94140625,
+            "engineRssLifetimePeakMiB": 121.16015625,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "low-impact",
+            "case": "trial-2-scroll60",
+            "durationSeconds": 59.954702,
+            "storedActiveFrames": 13,
+            "firstObservedBottomSeconds": 55.675164,
+            "observedBoundaryTailSeconds": 4.279537999999995,
+            "distinctVisibleRowSets": 13
+          },
+          "storedTailTimestampDelayMs": 644,
+          "tailDbFirstObservationUpperBoundMs": 1908,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-3-scroll60",
+          "frameCountActive": 13,
+          "scrollCheckpointCountActive": 11,
+          "frameGapMedianSeconds": 4.9396955,
+          "frameGapMaxSeconds": 5.203315,
+          "savedImageBytesActive": 1357793,
+          "cpu": {
+            "mode": "low-impact",
+            "case": "trial-3-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.95578,
+            "sampledIntervalSeconds": 58.884363,
+            "sampleCount": 44,
+            "engineCpuOneCoreAvgPercent": 28.047556530415385,
+            "engineCpuMachineAvgPercent": 7.011889132603846,
+            "engineCpuOneCoreP95Percent": 48.242892765146614,
+            "engineRssMedianMiB": 54.59765625,
+            "engineRssActiveSampleMaxMiB": 58.8203125,
+            "engineRssLifetimePeakMiB": 121.16015625,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "low-impact",
+            "case": "trial-3-scroll60",
+            "durationSeconds": 59.95578,
+            "storedActiveFrames": 13,
+            "firstObservedBottomSeconds": 55.332122,
+            "observedBoundaryTailSeconds": 4.623657999999999,
+            "distinctVisibleRowSets": 12
+          },
+          "storedTailTimestampDelayMs": 659,
+          "tailDbFirstObservationUpperBoundMs": 1814,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        }
+      ],
+      "engineCpuMachinePercentMedianOfTrialAverages": 7.011889132603846
+    },
+    "more-detail": {
+      "verifiedSettings": {
+        "recordingDetail": "more_detail",
+        "powerMode": "auto",
+        "videoQuality": "balanced",
+        "idleCaptureIntervalMs": null,
+        "captureScroll": true,
+        "disableAudio": true
+      },
+      "powerBefore": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "more_detail",
+          "scroll_interval_ms": 1000,
+          "reason": "preference"
+        }
+      },
+      "powerAfter": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "more_detail",
+          "scroll_interval_ms": 1000,
+          "reason": "preference"
+        }
+      },
+      "dbFrames": 231,
+      "images": 231,
+      "dbIntegrityCheck": "not run: local SQLite lacks required vec_length extension; DB rows and every screenshot matched",
+      "textSources": {
+        "accessibility": 209,
+        "hybrid": 1,
+        "ocr": 21
+      },
+      "trials": [
+        {
+          "case": "trial-1-scroll60",
+          "frameCountActive": 57,
+          "scrollCheckpointCountActive": 57,
+          "frameGapMedianSeconds": 1.0486985,
+          "frameGapMaxSeconds": 1.267786,
+          "savedImageBytesActive": 5938347,
+          "cpu": {
+            "mode": "more-detail",
+            "case": "trial-1-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.964422,
+            "sampledIntervalSeconds": 58.981894,
+            "sampleCount": 44,
+            "engineCpuOneCoreAvgPercent": 46.30658350849161,
+            "engineCpuMachineAvgPercent": 11.576645877122903,
+            "engineCpuOneCoreP95Percent": 63.52552891355373,
+            "engineRssMedianMiB": 100.36328125,
+            "engineRssActiveSampleMaxMiB": 109.11328125,
+            "engineRssLifetimePeakMiB": 122.23828125,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "more-detail",
+            "case": "trial-1-scroll60",
+            "durationSeconds": 59.964422,
+            "storedActiveFrames": 57,
+            "firstObservedBottomSeconds": 53.928157,
+            "observedBoundaryTailSeconds": 6.036265,
+            "distinctVisibleRowSets": 52
+          },
+          "storedTailTimestampDelayMs": 221,
+          "tailDbFirstObservationUpperBoundMs": 1967,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-2-scroll60",
+          "frameCountActive": 58,
+          "scrollCheckpointCountActive": 58,
+          "frameGapMedianSeconds": 1.031629,
+          "frameGapMaxSeconds": 1.268234,
+          "savedImageBytesActive": 6056748,
+          "cpu": {
+            "mode": "more-detail",
+            "case": "trial-2-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.964244,
+            "sampledIntervalSeconds": 58.706729,
+            "sampleCount": 44,
+            "engineCpuOneCoreAvgPercent": 46.52362764070878,
+            "engineCpuMachineAvgPercent": 11.630906910177195,
+            "engineCpuOneCoreP95Percent": 60.68729303385398,
+            "engineRssMedianMiB": 61.23828125,
+            "engineRssActiveSampleMaxMiB": 73.82421875,
+            "engineRssLifetimePeakMiB": 122.23828125,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "more-detail",
+            "case": "trial-2-scroll60",
+            "durationSeconds": 59.964244,
+            "storedActiveFrames": 58,
+            "firstObservedBottomSeconds": 54.856173,
+            "observedBoundaryTailSeconds": 5.1080710000000025,
+            "distinctVisibleRowSets": 53
+          },
+          "storedTailTimestampDelayMs": 738,
+          "tailDbFirstObservationUpperBoundMs": 1608,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-3-scroll60",
+          "frameCountActive": 59,
+          "scrollCheckpointCountActive": 58,
+          "frameGapMedianSeconds": 1.04305,
+          "frameGapMaxSeconds": 1.281911,
+          "savedImageBytesActive": 6181698,
+          "cpu": {
+            "mode": "more-detail",
+            "case": "trial-3-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.951523,
+            "sampledIntervalSeconds": 58.889766,
+            "sampleCount": 44,
+            "engineCpuOneCoreAvgPercent": 47.2811354013531,
+            "engineCpuMachineAvgPercent": 11.820283850338274,
+            "engineCpuOneCoreP95Percent": 60.78985520544678,
+            "engineRssMedianMiB": 53.5,
+            "engineRssActiveSampleMaxMiB": 57.2734375,
+            "engineRssLifetimePeakMiB": 122.23828125,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "more-detail",
+            "case": "trial-3-scroll60",
+            "durationSeconds": 59.951523,
+            "storedActiveFrames": 59,
+            "firstObservedBottomSeconds": 54.828233,
+            "observedBoundaryTailSeconds": 5.123290000000004,
+            "distinctVisibleRowSets": 53
+          },
+          "storedTailTimestampDelayMs": 866,
+          "tailDbFirstObservationUpperBoundMs": 1839,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        }
+      ],
+      "engineCpuMachinePercentMedianOfTrialAverages": 11.630906910177195
+    }
+  },
+  "visibleContentAudit": {
+    "totalDbFrames": 406,
+    "totalOcrImages": 406,
+    "missingSnapshots": 0,
+    "ocrErrors": 0,
+    "framesWithVisibleRowMarkers": 400,
+    "fullTextZeroVisibleMarkerCoverage": 0,
+    "fullTextCompleteVisibleMarkerCoverage": 354,
+    "note": "Vision OCR provides independently observed visible row IDs; row OCR errors possible. Boundary timing is first stored image showing only final rows, so actual arrival lies between it and preceding capture.",
+    "normalizedO0CoverageClasses": {
+      "complete_after_O0_normalization": 45,
+      "strict_complete": 354,
+      "still_partial_after_O0_normalization": 1
+    },
+    "remainingPartialExamples": [
+      {
+        "mode": "more-detail",
+        "id": 3,
+        "visibleRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            1
+          ]
+        ],
+        "textSource": "ocr",
+        "visibleRowRecallO0Normalized": 0.5
+      }
+    ]
+  },
+  "tests": [
+    {
+      "name": "engine-recording-detail",
+      "command": "cargo test --profile debug-dev -p screenpipe-engine --lib recording_detail -- --nocapture",
+      "profile": "debug-dev",
+      "startedUtc": "2026-09-28T18:58:11.9680293Z",
+      "finishedUtc": "2026-09-28T18:58:22.8462674Z",
+      "exitCode": 0,
+      "log": "logs/test-engine-recording-detail.log"
+    },
+    {
+      "name": "engine-power",
+      "command": "cargo test --profile debug-dev -p screenpipe-engine --lib power -- --nocapture",
+      "profile": "debug-dev",
+      "startedUtc": "2026-09-28T18:58:22.8476889Z",
+      "finishedUtc": "2026-09-28T18:58:25.0277045Z",
+      "exitCode": 0,
+      "log": "logs/test-engine-power.log"
+    },
+    {
+      "name": "engine-event-driven-capture",
+      "command": "cargo test --profile debug-dev -p screenpipe-engine --lib event_driven_capture -- --nocapture",
+      "profile": "debug-dev",
+      "startedUtc": "2026-09-28T18:58:25.0282919Z",
+      "finishedUtc": "2026-09-28T18:58:27.9216606Z",
+      "exitCode": 0,
+      "log": "logs/test-engine-event-driven-capture.log"
+    },
+    {
+      "name": "windows-a11y-scroll",
+      "command": "cargo test --profile debug-dev -p screenpipe-a11y --lib scroll -- --nocapture",
+      "profile": "debug-dev",
+      "startedUtc": "2026-09-28T18:58:27.9218136Z",
+      "finishedUtc": "2026-09-28T19:04:28.0230210Z",
+      "exitCode": 0,
+      "log": "logs/test-windows-a11y-scroll.log"
+    },
+    {
+      "name": "tauri-recording-detail-persistence",
+      "command": "bun run test:tauri recording_detail -- --nocapture",
+      "exitCode": null,
+      "status": "skipped_budget",
+      "reason": "Optional if cache/budget permits; a11y test-only compilation consumed remaining native-test budget."
+    }
+  ],
+  "limitations": [
+    "debug-dev Azure VM diagnostic; not release performance",
+    "synthetic AC VM has no physical battery and cannot support battery-life, thermal-device-age, or physical-device claims",
+    "foreground responsiveness was not separately measured; recorder CPU is not proof of no UI lag",
+    "Automatic navigation click did not change pages; preserved as an invalid navigation observation, while the other modes verified Page B focus-away/back",
+    "CPU recomputed for recorder process only from first/last samples strictly inside input interval. Sample coverage58.7\u201359.9s; no extrapolation to60s. Original guest summary included engine descendants and uses a different statistic.",
+    "Each60s trial visibly moved for roughly54\u201355s then reached the final rows for4.3\u20136.0s. Retain this boundary tail; no claim of60s unlimited moving content.",
+    "Low-impact and More-detail final power bounds remained5s and1s. Auto was2s before and5s after; exact intermediate switch time unmeasured.",
+    "DB tail first-observation values are upper bounds: all nine continuous tail frames were already present at the first delayed poll. Frame-link update delay unmeasured.",
+    "Idle windows contain reset/focus-related key_press/manual frames; they are quiet-input samples, not a perfectly quiescent background baseline.",
+    "Different quality, display resolution, fixture and native features from macOS prohibit direct cross-OS rankings."
+  ],
+  "cleanup": "exact disposable resource group deletion requested; verification pending",
+  "evidenceAvailability": "Raw native guest archive, images, stopped-database copies, logs, counter samples and independent OCR are retained in the originating task workspace. This file contains compact per-case results.",
+  "nativeTestCounts": {
+    "engine-recording-detail": 6,
+    "engine-power": 39,
+    "engine-event-driven-capture": 98,
+    "windows-a11y-scroll": 16,
+    "note": "Focused test filters overlap; these are not a unique-test total."
+  },
+  "cpuDefinition": "Median of three per-trial recorder-only CPU-time delta averages, divided by logical processor count. Samples strictly inside active input window, no endpoint extrapolation.",
+  "vmSku": "Standard_D4as_v5",
+  "videoProvenance": {
+    "durationSeconds": 15.0,
+    "bytes": 355858,
+    "purpose": "15-second illustrative VM desktop clip, recorder process off. Native wheel inputs200 over10seconds; separate from benchmark. Not full-trial capture or Screenpipe saved-frame replay.",
+    "guestDecodeValidation": "worker ffmpeg -v error -xerror -i windows-desktop.mp4 -f null - succeeded before success manifest"
+  }
+}

@@ -1867,6 +1867,55 @@
         "hasCpu": true,
         "hasAx": true,
         "hasPolicy": true
+      },
+      "endHealth": {
+        "status": "healthy",
+        "pipeline": {
+          "uptime_secs": 471.234237209,
+          "frames_captured": 122,
+          "frames_db_written": 122,
+          "frames_dropped": 0,
+          "frame_drop_rate": 0.0,
+          "frames_dropped_timeout": 0,
+          "frames_dropped_error": 0,
+          "silent_loss": 0,
+          "silent_loss_rate": 0.0,
+          "capture_attempts": 124,
+          "capture_loop_heartbeats": 1641,
+          "dedup_skips": 2,
+          "frames_corrupt_black": 0,
+          "frames_corrupt_green": 0,
+          "last_capture_attempt_ts": 1790620097,
+          "last_capture_loop_heartbeat_ts": 1790620103,
+          "capture_fps_actual": 0.2588946013824777,
+          "avg_ocr_latency_ms": 5985.0,
+          "avg_db_latency_ms": 318.03278688524586,
+          "ocr_queue_depth": 0,
+          "video_queue_depth": 0,
+          "time_to_first_frame_ms": 7795.578,
+          "pipeline_stall_count": 0,
+          "ocr_cache_hit_rate": 0.0,
+          "ocr_empty": 0
+        },
+        "accessibility": {
+          "walks_total": 122,
+          "walks_stored": 122,
+          "walks_deduped": 0,
+          "walks_empty": 0,
+          "walks_error": 0,
+          "walks_worker_timeout": 0,
+          "walks_worker_saturated": 0,
+          "worker_restarts": 0,
+          "walks_truncated": 122,
+          "walks_truncated_timeout": 122,
+          "walks_truncated_max_nodes": 0,
+          "truncation_rate": 1.0,
+          "avg_walk_duration_ms": 105,
+          "max_walk_duration_ms": 158,
+          "avg_nodes_per_walk": 277,
+          "max_depth_reached": 2,
+          "total_text_chars": 1346558
+        }
       }
     },
     "low_impact": {
@@ -3015,6 +3064,55 @@
         "hasCpu": true,
         "hasAx": true,
         "hasPolicy": true
+      },
+      "endHealth": {
+        "status": "healthy",
+        "pipeline": {
+          "uptime_secs": 470.833937792,
+          "frames_captured": 57,
+          "frames_db_written": 57,
+          "frames_dropped": 0,
+          "frame_drop_rate": 0.0,
+          "frames_dropped_timeout": 0,
+          "frames_dropped_error": 0,
+          "silent_loss": 0,
+          "silent_loss_rate": 0.0,
+          "capture_attempts": 59,
+          "capture_loop_heartbeats": 1756,
+          "dedup_skips": 2,
+          "frames_corrupt_black": 0,
+          "frames_corrupt_green": 0,
+          "last_capture_attempt_ts": 1790620570,
+          "last_capture_loop_heartbeat_ts": 1790620575,
+          "capture_fps_actual": 0.12106179148279846,
+          "avg_ocr_latency_ms": 0.0,
+          "avg_db_latency_ms": 276.17543859649123,
+          "ocr_queue_depth": 0,
+          "video_queue_depth": 0,
+          "time_to_first_frame_ms": 1412.483,
+          "pipeline_stall_count": 0,
+          "ocr_cache_hit_rate": 0.0,
+          "ocr_empty": 0
+        },
+        "accessibility": {
+          "walks_total": 57,
+          "walks_stored": 57,
+          "walks_deduped": 0,
+          "walks_empty": 0,
+          "walks_error": 0,
+          "walks_worker_timeout": 0,
+          "walks_worker_saturated": 0,
+          "worker_restarts": 0,
+          "walks_truncated": 57,
+          "walks_truncated_timeout": 57,
+          "walks_truncated_max_nodes": 0,
+          "truncation_rate": 1.0,
+          "avg_walk_duration_ms": 103,
+          "max_walk_duration_ms": 108,
+          "avg_nodes_per_walk": 251,
+          "max_depth_reached": 2,
+          "total_text_chars": 569863
+        }
       }
     },
     "more_detail": {
@@ -4163,6 +4261,55 @@
         "hasCpu": true,
         "hasAx": true,
         "hasPolicy": true
+      },
+      "endHealth": {
+        "status": "healthy",
+        "pipeline": {
+          "uptime_secs": 471.955208084,
+          "frames_captured": 222,
+          "frames_db_written": 222,
+          "frames_dropped": 0,
+          "frame_drop_rate": 0.0,
+          "frames_dropped_timeout": 0,
+          "frames_dropped_error": 0,
+          "silent_loss": 0,
+          "silent_loss_rate": 0.0,
+          "capture_attempts": 224,
+          "capture_loop_heartbeats": 1468,
+          "dedup_skips": 2,
+          "frames_corrupt_black": 0,
+          "frames_corrupt_green": 0,
+          "last_capture_attempt_ts": 1790621044,
+          "last_capture_loop_heartbeat_ts": 1790621049,
+          "capture_fps_actual": 0.4703836215755623,
+          "avg_ocr_latency_ms": 0.0,
+          "avg_db_latency_ms": 309.665,
+          "ocr_queue_depth": 0,
+          "video_queue_depth": 0,
+          "time_to_first_frame_ms": 1482.005,
+          "pipeline_stall_count": 0,
+          "ocr_cache_hit_rate": 0.0,
+          "ocr_empty": 0
+        },
+        "accessibility": {
+          "walks_total": 222,
+          "walks_stored": 222,
+          "walks_deduped": 0,
+          "walks_empty": 0,
+          "walks_error": 0,
+          "walks_worker_timeout": 0,
+          "walks_worker_saturated": 0,
+          "worker_restarts": 0,
+          "walks_truncated": 222,
+          "walks_truncated_timeout": 222,
+          "walks_truncated_max_nodes": 0,
+          "truncation_rate": 1.0,
+          "avg_walk_duration_ms": 104,
+          "max_walk_duration_ms": 203,
+          "avg_nodes_per_walk": 206,
+          "max_depth_reached": 2,
+          "total_text_chars": 1815258
+        }
       }
     }
   },
@@ -4240,7 +4387,9 @@
       "referenceErrors": 0,
       "contextMismatches": 0,
       "missingTextMarker": 0,
-      "uniqueImages": 115
+      "uniqueImages": 115,
+      "standaloneDatabaseMatchesExport": true,
+      "completeDefinition": "All exported images and element references audited; standalone database coverage is reported separately."
     },
     "low_impact": {
       "complete": true,
@@ -4261,7 +4410,9 @@
       "referenceErrors": 0,
       "contextMismatches": 0,
       "missingTextMarker": 0,
-      "uniqueImages": 57
+      "uniqueImages": 57,
+      "standaloneDatabaseMatchesExport": true,
+      "completeDefinition": "All exported images and element references audited; standalone database coverage is reported separately."
     },
     "more_detail": {
       "complete": true,
@@ -4282,7 +4433,9 @@
       "referenceErrors": 0,
       "contextMismatches": 0,
       "missingTextMarker": 0,
-      "uniqueImages": 216
+      "uniqueImages": 216,
+      "standaloneDatabaseMatchesExport": false,
+      "completeDefinition": "All exported images and element references audited; standalone database coverage is reported separately."
     }
   }
 }
