@@ -2055,6 +2055,37 @@ pub fn get_focused_pid_fresh() -> Option<i32> {
     }
 }
 
+/// A cheap point-in-time identity for the foreground window. Capture samples
+/// this around screenshot/text extraction so same-process and same-HWND title
+/// transitions cannot pair one context's pixels with another's metadata.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ForegroundWindowIdentity {
+    pub hwnd: isize,
+    pub pid: i32,
+    pub title: String,
+}
+
+pub fn get_foreground_window_identity_fresh() -> Option<ForegroundWindowIdentity> {
+    unsafe {
+        let hwnd = GetForegroundWindow();
+        if hwnd.is_invalid() || is_transient_shell_window(hwnd) {
+            return None;
+        }
+        let mut pid = 0;
+        GetWindowThreadProcessId(hwnd, Some(&mut pid));
+        if pid == 0 {
+            return None;
+        }
+        let mut title = [0u16; 1024];
+        let copied = GetWindowTextW(hwnd, &mut title).max(0) as usize;
+        Some(ForegroundWindowIdentity {
+            hwnd: hwnd.0 as isize,
+            pid: pid as i32,
+            title: String::from_utf16_lossy(&title[..copied]),
+        })
+    }
+}
+
 /// Resolve a process name for screenshot attribution after focus has moved.
 pub fn app_name_for_pid(pid: i32) -> Option<String> {
     u32::try_from(pid).ok().and_then(get_process_name)
