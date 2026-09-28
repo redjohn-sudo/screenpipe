@@ -674,6 +674,10 @@ export function createBrowserIpcMock(options: BrowserIpcMockOptions) {
     }
 
     switch (command) {
+      case "get_monitors":
+        return [{ id: 1, stableId: "Browser_1280x720_0,0", name: "Browser dev display", isDefault: true, width: 1280, height: 720 }];
+      case "get_audio_devices":
+        return [{ name: "Browser dev microphone (input)", isDefault: true, isComboBluetoothMic: false }];
       case "get_env":
         return options.mode === "mock" && input.name === "SCREENPIPE_STARTUP_AUTHENTICATION_STATUS" ? "authenticated" : "";
       case "get_onboarding_status":

@@ -643,12 +643,14 @@ pub struct EventDrivenCapture {
     /// `meeting`). Caps the idle-capture interval to
     /// `MEETING_IDLE_CAPTURE_INTERVAL_MS` while true.
     in_meeting: bool,
+    user_jpeg_quality: u8,
 }
 
 impl EventDrivenCapture {
     pub fn new(config: EventDrivenCaptureConfig) -> Self {
         let now = Instant::now();
         Self {
+            user_jpeg_quality: config.jpeg_quality,
             config,
             last_capture: now,
             last_idle_reference: now,
@@ -669,20 +671,23 @@ impl EventDrivenCapture {
         }
     }
 
-    /// Apply a PowerProfile's idle-capture interval, honoring a user pin.
-    ///
-    /// Power profiles set the idle floor per power state (30s on AC, up to
-    /// 300s on the most aggressive battery-saver). But a user who pinned an
-    /// explicit floor via
-    /// `idleCaptureIntervalMs` ("always capture at least every N seconds")
-    /// must keep that floor regardless of power state — otherwise plugging
-    /// out silently relaxes their guaranteed cadence to minutes. The pin
-    /// always wins; with no pin we adopt the profile's value as before.
-    pub fn apply_power_profile_idle_interval(&mut self, profile_ms: u64) {
-        self.config.idle_capture_interval_ms = self
+    /// Preserve the saved idle preference; battery protection temporarily
+    /// lowers sampling. Meeting capture retains its separate bounded override.
+    pub fn apply_power_profile_idle_interval(&mut self, profile_ms: u64, protected: bool) {
+        let preferred = self
             .config
             .idle_capture_interval_override_ms
             .unwrap_or(profile_ms);
+        self.config.idle_capture_interval_ms = if protected {
+            preferred.max(profile_ms)
+        } else {
+            preferred
+        };
+    }
+
+    fn apply_power_profile_quality(&mut self, quality: u8) -> u8 {
+        self.config.jpeg_quality = self.user_jpeg_quality.min(quality);
+        self.config.jpeg_quality
     }
 
     /// Check if enough time has passed since the last capture (debounce).
@@ -1059,8 +1064,10 @@ pub(crate) async fn event_driven_capture_loop(
 
     let mut state = EventDrivenCapture::new(config);
     let mut power_profile_rx = power_profile_rx;
-    if let Some(ref rx) = power_profile_rx {
+    if let Some(ref mut rx) = power_profile_rx {
         recording_detail.set_power_profile(rx.borrow().name);
+        // Apply the initial profile even if it was already observed before this loop.
+        rx.mark_changed();
     }
     // High-FPS override: takes ownership of `min_capture_interval_ms` while
     // active (manual toggle or auto-detected meeting). The reducer forwards
@@ -1617,16 +1624,13 @@ pub(crate) async fn event_driven_capture_loop(
                 // the bookkeeper so the post-override cadence is still correct.
                 state.config.min_capture_interval_ms =
                     high_fps.on_baseline_change(profile.min_capture_interval_ms);
-                // A user-pinned idle floor (`idleCaptureIntervalMs`) wins over
-                // the profile's value so a power transition can't relax the
-                // guaranteed "capture at least every N s" cadence.
-                state.apply_power_profile_idle_interval(profile.idle_capture_interval_ms);
-                // Power profile can only LOWER quality from the user's baseline,
-                // never raise it — picking "max" in settings shouldn't be silently
-                // bumped above the profile's value, but a user on saver mode also
-                // shouldn't see "max" honored when battery is critical.
-                let effective_q = profile.jpeg_quality.min(state.config.jpeg_quality);
-                state.config.jpeg_quality = effective_q;
+                state.apply_power_profile_idle_interval(
+                    profile.idle_capture_interval_ms,
+                    profile.name != crate::power::ProfileName::Performance,
+                );
+                // Always derive from the saved baseline so AC recovery restores
+                // clarity instead of repeatedly taking min of an already lowered value.
+                let effective_q = state.apply_power_profile_quality(profile.jpeg_quality);
                 snapshot_writer.set_quality(effective_q);
                 visual_check_interval = Duration::from_millis(profile.visual_check_interval_ms);
                 visual_change_threshold = profile.visual_change_threshold;
@@ -5305,31 +5309,25 @@ mod tests {
         };
         let mut state = EventDrivenCapture::new(config);
 
-        state.apply_power_profile_idle_interval(300_000);
+        state.apply_power_profile_idle_interval(300_000, true);
         assert_eq!(state.config.idle_capture_interval_ms, 300_000);
     }
 
     #[test]
-    fn user_idle_pin_survives_power_profile_change() {
-        // User pinned "capture at least every 2s". A later PowerProfile update
-        // (e.g. unplugging → battery-saver wants 300s) must NOT relax it.
-        let config = EventDrivenCaptureConfig {
+    fn user_idle_pin_and_quality_restore_after_temporary_power_limits() {
+        let mut state = EventDrivenCapture::new(EventDrivenCaptureConfig {
             idle_capture_interval_ms: 2_000,
             idle_capture_interval_override_ms: Some(2_000),
+            jpeg_quality: 75,
             ..Default::default()
-        };
-        let mut state = EventDrivenCapture::new(config);
-
-        state.apply_power_profile_idle_interval(300_000);
-        assert_eq!(
-            state.config.idle_capture_interval_ms, 2_000,
-            "pinned idle floor must win over the power-profile value"
-        );
-
-        // Even a tighter profile value (e.g. a meeting/HD-driven 1s) does not
-        // override the user's explicit choice — the pin is authoritative.
-        state.apply_power_profile_idle_interval(1_000);
+        });
+        state.apply_power_profile_idle_interval(120_000, true);
+        assert_eq!(state.config.idle_capture_interval_ms, 120_000);
+        assert_eq!(state.apply_power_profile_quality(40), 40);
+        state.apply_power_profile_idle_interval(30_000, false);
         assert_eq!(state.config.idle_capture_interval_ms, 2_000);
+        assert_eq!(state.apply_power_profile_quality(80), 75);
+        assert_eq!(state.config.idle_capture_interval_override_ms, Some(2_000));
     }
 
     #[test]

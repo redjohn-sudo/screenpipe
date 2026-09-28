@@ -42,8 +42,8 @@ use screenpipe_engine::{
     crash_log,
     high_fps_controller::HighFpsController,
     hot_frame_cache::HotFrameCache,
-    start_meeting_watcher, start_power_manager, start_sleep_monitor, start_speaker_identification,
-    start_ui_recording,
+    start_meeting_watcher, start_power_manager_with_recording_policy, start_sleep_monitor,
+    start_speaker_identification, start_ui_recording,
     vision_manager::{start_monitor_watcher, stop_monitor_watcher, VisionManager},
     watch_pid, ResourceTelemetryReporter, SCServer,
 };
@@ -1244,7 +1244,16 @@ async fn main() -> anyhow::Result<()> {
     let vision_metrics = Arc::new(screenpipe_screen::PipelineMetrics::new());
 
     // Start power manager — polls battery/thermal state and broadcasts profile changes
-    let power_manager = start_power_manager();
+    let initial_power_pref = config
+        .power_mode
+        .as_ref()
+        .and_then(|s| serde_json::from_value(serde_json::Value::String(s.clone())).ok())
+        .unwrap_or_default();
+    let power_manager = start_power_manager_with_recording_policy(
+        initial_power_pref,
+        config.pause_audio_on_low_battery,
+        config.recording_detail.clone(),
+    );
 
     // Start background snapshot compaction (JPEG → MP4) unless explicitly disabled.
     // Skipping the worker avoids the ffmpeg H.265 encoding load for users who don't

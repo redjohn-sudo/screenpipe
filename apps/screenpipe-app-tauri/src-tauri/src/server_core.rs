@@ -23,7 +23,7 @@ use screenpipe_audio::transcription::stt::{
 use screenpipe_db::DatabaseManager;
 use screenpipe_engine::{
     analytics, hot_frame_cache::HotFrameCache, power::PowerManagerHandle, server::bind_listener,
-    start_power_manager_with_pref, start_sleep_monitor, RecordingConfig, ResourceTelemetryReporter,
+    start_power_manager_with_recording_policy, start_sleep_monitor, RecordingConfig, ResourceTelemetryReporter,
     SCServer,
 };
 use tokio::sync::Notify;
@@ -612,7 +612,9 @@ impl ServerCore {
                 .ok()
             })
             .unwrap_or_default();
-        let power_manager = start_power_manager_with_pref(initial_power_pref);
+        let power_manager = start_power_manager_with_recording_policy(
+            initial_power_pref, config.pause_audio_on_low_battery, config.recording_detail.clone(),
+        );
         if let Err(e) =
             screenpipe_engine::power::set_keep_awake_async(config.keep_computer_awake).await
         {

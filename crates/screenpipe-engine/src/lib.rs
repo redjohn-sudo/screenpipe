@@ -115,7 +115,10 @@ pub use recording_config::RecordingConfig;
 pub use calendar_speaker_id::start_speaker_identification;
 pub use cloud_search::{CloudSearchClient, CloudSearchMetadata, CloudStatus};
 pub use meeting_watcher::start_meeting_watcher;
-pub use power::{start_power_manager, start_power_manager_with_pref, PowerManagerHandle};
+pub use power::{
+    start_power_manager, start_power_manager_with_pref, start_power_manager_with_recording_policy,
+    PowerManagerHandle,
+};
 pub use resource_monitor::{ResourceMonitor, ResourceTelemetryReporter, RestartSignal};
 pub use screenpipe_core::Language;
 pub use server::health_check_handler as health_check;

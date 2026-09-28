@@ -30,7 +30,7 @@ export function RecordingDetailCard({ value, onChange }: {
             <div className="min-w-0">
               <h3 id="recording-detail-label" className="text-sm font-medium text-foreground">Recording detail</h3>
               <p id="recording-detail-description" className="text-xs text-muted-foreground mt-0.5">{message(descriptions[value])}</p>
-              <p className="text-xs text-muted-foreground mt-1">On macOS and Windows, all modes keep capture after scrolling stops. Audio and image quality use their own settings.</p>
+              <p className="text-xs text-muted-foreground mt-1">Battery and thermal limits can temporarily reduce detail. Audio and image quality use their own settings.</p>
             </div>
           </div>
           <Select value={value} onValueChange={(next) => onChange(next as RecordingDetail)}>

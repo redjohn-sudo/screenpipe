@@ -4230,6 +4230,11 @@ port: number;
  */
 powerMode?: string | null;
 /**
+ * Pause audio at <=20% battery in automatic power mode. Critical battery
+ * pause at <=10% is separate. Missing values preserve the existing policy.
+ */
+pauseAudioOnLowBattery?: boolean;
+/**
  * Bounds intermediate scroll checkpoints and accessibility extraction work.
  */
 recordingDetail?: RecordingDetail;

@@ -11,6 +11,13 @@ import { mockLocalApiResponse, createMockHealth } from "./browser-engine-mock";
 import { createBrowserIpcMock } from "./browser-tauri-mock";
 
 describe("browser development runtime", () => {
+  it("provides non-null synthetic devices and power status for recording settings", async () => {
+    const mock = createBrowserIpcMock({ mode: "mock", apiPort: 3030 });
+    expect(mock("get_audio_devices")).toEqual([expect.objectContaining({ isDefault: true, isComboBluetoothMic: false })]);
+    expect(mock("get_monitors")).toEqual([expect.objectContaining({ stableId: "Browser_1280x720_0,0" })]);
+    const response = mockLocalApiResponse(new URL("http://localhost:3030/power"), undefined, "ready");
+    expect(await response.json()).toMatchObject({ active_profile: "performance", recording_detail: { preferred_mode: "auto" } });
+  });
   it("supplies startup authentication only for the fictional mock environment", () => {
     const mock = createBrowserIpcMock({ mode: "mock", apiPort: 3030 });
     const live = createBrowserIpcMock({ mode: "live", apiPort: 3030 });

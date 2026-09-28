@@ -812,6 +812,11 @@ pub struct RecordingSettings {
     #[serde(rename = "powerMode", default)]
     pub power_mode: Option<String>,
 
+    /// Pause audio at <=20% battery in automatic power mode. Critical battery
+    /// pause at <=10% is separate. Missing values preserve the existing policy.
+    #[serde(rename = "pauseAudioOnLowBattery", default = "default_true")]
+    pub pause_audio_on_low_battery: bool,
+
     /// Bounds intermediate scroll checkpoints and accessibility extraction work.
     #[serde(rename = "recordingDetail", default)]
     pub recording_detail: RecordingDetail,
@@ -999,6 +1004,7 @@ impl Default for RecordingSettings {
             openai_compatible_raw_audio: false,
             port: 3030,
             power_mode: None,
+            pause_audio_on_low_battery: true,
             recording_detail: RecordingDetail::Auto,
             keep_computer_awake: false,
             use_chinese_mirror: false,

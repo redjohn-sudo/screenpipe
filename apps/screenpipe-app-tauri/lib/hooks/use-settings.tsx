@@ -829,6 +829,7 @@ let DEFAULT_SETTINGS: Settings = {
 			firstRunGuideDone: false,
 			videoQuality: "balanced",
 			recordingDetail: "auto",
+			pauseAudioOnLowBattery: true,
 			transcriptionMode: "batch",
 			cloudArchiveEnabled: false,
 			cloudArchiveRetentionDays: 7,

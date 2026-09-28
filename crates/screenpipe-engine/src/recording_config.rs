@@ -179,6 +179,7 @@ pub struct RecordingConfig {
     /// Persisted power mode preference ("auto", "performance", "battery_saver").
     /// Restored from settings on startup so the user's choice survives app restarts.
     pub power_mode: Option<String>,
+    pub pause_audio_on_low_battery: bool,
     pub recording_detail: Arc<crate::recording_detail::RecordingDetailController>,
 
     /// Keep the computer awake while screenpipe is running.
@@ -399,6 +400,7 @@ impl RecordingConfig {
                 .collect(),
             batch_max_duration_secs: settings.batch_max_duration_secs.filter(|&v| v > 0),
             power_mode: settings.power_mode.clone(),
+            pause_audio_on_low_battery: settings.pause_audio_on_low_battery,
             recording_detail: Arc::new(crate::recording_detail::RecordingDetailController::new(
                 settings.recording_detail,
             )),
