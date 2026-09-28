@@ -359,6 +359,12 @@ jobs:
         # opt-level) exists exactly for this; see root Cargo.toml.
         run: cargo test -p screenpipe-screen test_process_ocr_task_windows --profile release-dev --target x86_64-pc-windows-msvc
 
+      - name: Verify Windows OCR cancellation and language helpers
+        env:
+          RUSTFLAGS: ""
+          AWS_LC_SYS_PREBUILT_NASM: "1"
+        run: cargo test --locked -p screenpipe-screen --lib microsoft::tests --profile release-dev --target x86_64-pc-windows-msvc
+
       - name: Run PII removal tests
         env:
           RUSTFLAGS: ""  # LTCG removed: aligns CI test codegen with release builds (LTCG could emit AVX-512 on Xeon runners)
