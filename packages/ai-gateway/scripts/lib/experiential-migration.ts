@@ -1,6 +1,8 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
 
+import type { ResponseCreateParamsNonStreaming } from 'openai/resources/responses/responses';
+
 // Deliberately outside the Worker import graph. These tools prepare and test a
 // destination account; they do not select a production route or assign a plan.
 export const EXPERIENTIAL_ORIGIN = 'https://api.experientiallabs.ai';
@@ -88,6 +90,9 @@ export async function inspectExperientialAccount(key: string, sourceModels: stri
 }
 
 const PROMPT = 'Reply with OK.';
+// OpenAI's wire value for Standard service is "default", not "standard".
+const STATELESS_RESPONSES_OPTIONS = { service_tier: 'default', store: false } satisfies
+  Pick<ResponseCreateParamsNonStreaming, 'service_tier' | 'store'>;
 const tool = { type: 'function', function: { name: 'confirm', description: 'Return confirmation.',
   parameters: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'], additionalProperties: false } } };
 
@@ -104,7 +109,7 @@ export function syntheticRequest(model: string, protocol: ProbeProtocol): { path
   if (protocol === 'responses') {
     if (model !== 'gpt-6-astra') throw new MigrationCheckError('responses_probe_requires_astra');
     return { path: '/v1/responses', body: { model, provider, input: [{ role: 'user', content: PROMPT }],
-      max_output_tokens: 64, reasoning: { effort: 'low' }, service_tier: 'standard', store: false } };
+      max_output_tokens: 64, reasoning: { effort: 'low' }, ...STATELESS_RESPONSES_OPTIONS } };
   }
   if (!['chat', 'stream', 'tools', 'json-schema'].includes(protocol)) throw new MigrationCheckError('unsupported_protocol');
   const body: Json = { model, provider, messages: [{ role: 'user', content: PROMPT }], max_completion_tokens: 64 };
@@ -119,19 +124,23 @@ export function syntheticRequest(model: string, protocol: ProbeProtocol): { path
 function validateCompletion(data: Json, protocol: ProbeProtocol): void {
   if (data.error) throw new MigrationCheckError('upstream_error_in_success_body');
   if (protocol === 'responses') {
-    if (data.status !== 'completed' || !Array.isArray(data.output) || data.output.length === 0) {
+    if (data.status !== 'completed' || !Array.isArray(data.output) || !data.output.some((item: Json) =>
+      item?.type === 'message' && item.role === 'assistant' && item.status === 'completed' &&
+      Array.isArray(item.content) && item.content.some((part: Json) =>
+        part?.type === 'output_text' && typeof part.text === 'string' && part.text.trim()))) {
       throw new MigrationCheckError('responses_not_completed');
     }
   } else if (protocol === 'messages') {
-    if (!Array.isArray(data.content) || data.content.length === 0 || !data.stop_reason) {
+    if (data.stop_reason !== 'end_turn' || !Array.isArray(data.content) || !data.content.some((part: Json) =>
+      part?.type === 'text' && typeof part.text === 'string' && part.text.trim())) {
       throw new MigrationCheckError('messages_not_completed');
     }
   } else {
     const choice = data.choices?.[0];
-    if (!choice?.finish_reason || choice.finish_reason === 'length') throw new MigrationCheckError('chat_not_completed');
+    if (protocol !== 'tools' && choice?.finish_reason !== 'stop') throw new MigrationCheckError('chat_not_completed');
     if (protocol === 'tools') {
-      const call = choice.message?.tool_calls?.[0];
-      if (choice.finish_reason !== 'tool_calls' || call?.function?.name !== 'confirm') throw new MigrationCheckError('tool_call_missing');
+      const call = choice?.message?.tool_calls?.[0];
+      if (choice?.finish_reason !== 'tool_calls' || call?.function?.name !== 'confirm') throw new MigrationCheckError('tool_call_missing');
       try { if (JSON.parse(call.function.arguments)?.ok !== true) throw new Error(); }
       catch { throw new MigrationCheckError('tool_arguments_invalid'); }
     } else if (protocol === 'json-schema') {

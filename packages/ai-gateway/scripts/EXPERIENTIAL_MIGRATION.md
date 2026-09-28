@@ -64,9 +64,15 @@ bun scripts/experiential-smoke.ts --allow-spend claude-sonnet-5 messages
 
 Run only approved cases. These are examples, not a batch command. An unavailable
 model fails without substitution. Responses keeps Astra stateless with low
-reasoning and standard tier. Confidential/custom, classifier, Auto and background
+reasoning and Standard service (OpenAI wire value `service_tier: "default"`, checked
+against the installed SDK type). Confidential/custom, classifier, Auto and background
 rescue IDs are excluded. Streaming requires content, successful finish, usage and
-DONE. Tool/schema checks inspect actual arguments or JSON, not just HTTP status.
+DONE. Plain Chat and schema probes require `finish_reason: "stop"`; filtered,
+truncated and unexpected finish reasons fail. Messages requires `end_turn` and
+nonempty text. Responses requires overall completion and a completed assistant
+message containing nonempty output text. Reasoning alone, refusals and partial
+answers do not pass; reasoning alongside a completed answer is allowed.
+Tool/schema checks inspect actual arguments or JSON, not just HTTP status.
 The output omits prompts, completion content, raw headers and secrets. It records
 only the boolean ZDR request/response confirmations and existing usage fields. Inline cost is
 optional and never proves settlement or customer allowance accounting.

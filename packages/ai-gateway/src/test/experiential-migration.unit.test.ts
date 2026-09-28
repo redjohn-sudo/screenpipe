@@ -6,6 +6,7 @@ const key = `xpl_${'0'.repeat(40)}`;
 const org = '00000000-0000-0000-0000-000000000001';
 const json = (body: any, status = 200) => Response.json(body, { status, headers: { 'x-gateway-zdr': 'true' } });
 const completion = { choices: [{ finish_reason: 'stop', message: { content: 'OK' } }], usage: { prompt_tokens: 7, completion_tokens: 1, cost: 0.00001 } };
+const responseMessage = { type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: 'OK' }] };
 function fixture(overrides: { capture?: unknown; training?: unknown; entitled?: unknown; policy?: any; catalog?: any; reply?: () => Response | Promise<Response> } = {}) {
   const calls: Array<{ url: string; init: RequestInit }> = [];
   const transport: Fetcher = async (url, init) => {
@@ -162,9 +163,57 @@ describe('Experiential migration preparation', () => {
   });
   it('pins stateless Astra and keeps native Messages separate', () => {
     const astra = syntheticRequest('gpt-6-astra', 'responses'); expect(astra.path).toBe('/v1/responses');
-    expect(astra.body).toMatchObject({ store: false, reasoning: { effort: 'low' }, service_tier: 'standard', max_output_tokens: 64 });
+    expect(astra.body).toMatchObject({ store: false, reasoning: { effort: 'low' }, service_tier: 'default', max_output_tokens: 64 });
     expect(astra.body.previous_response_id).toBeUndefined();
     const anthropic = syntheticRequest('claude-sonnet-5', 'messages'); expect(anthropic.path).toBe('/v1/messages'); expect(anthropic.body.max_tokens).toBe(64);
     expect(() => syntheticRequest('claude-sonnet-5', 'responses')).toThrow(); expect(() => syntheticRequest('gpt-6-astra', 'messages')).toThrow();
+  });
+  it.each(['max_tokens', 'tool_use', 'refusal', 'pause_turn', 'unknown', null])('rejects unfinished Messages stop reason %j without replay', async stop_reason => {
+    const model = 'claude-sonnet-5';
+    const { transport, calls } = fixture({ catalog: { data: [{ id: model, data_policy: { zdr: true } }] },
+      reply: () => json({ content: [{ type: 'text', text: 'partial' }], stop_reason, usage: completion.usage }) });
+    await expect(runSyntheticProbe({ key, model, protocol: 'messages', allowSpend: true }, transport)).rejects.toMatchObject({ code: 'messages_not_completed' });
+    expect(calls.filter(c => c.init.method === 'POST')).toHaveLength(1);
+  });
+  it.each([
+    { status: 'completed', output: [{ type: 'reasoning', summary: [] }] },
+    { status: 'completed', output: [{ ...responseMessage, content: [{ type: 'refusal', refusal: 'no' }] }] },
+    { status: 'completed', output: [{ ...responseMessage, content: [{ type: 'output_text', text: '  ' }] }] },
+    { status: 'completed', output: [{ ...responseMessage, status: 'incomplete' }] },
+    { status: 'completed', output: [{ ...responseMessage, role: 'user' }] },
+    { status: 'incomplete', output: [responseMessage] },
+  ])('rejects Responses without a completed assistant answer %j', async reply => {
+    const model = 'gpt-6-astra';
+    const { transport, calls } = fixture({ catalog: { data: [{ id: model, data_policy: { zdr: true } }] },
+      reply: () => json({ ...reply, usage: completion.usage }) });
+    await expect(runSyntheticProbe({ key, model, protocol: 'responses', allowSpend: true }, transport)).rejects.toMatchObject({ code: 'responses_not_completed' });
+    expect(calls.filter(c => c.init.method === 'POST')).toHaveLength(1);
+  });
+  it.each(['content_filter', 'length', 'tool_calls', 'unknown', null])('rejects unsuccessful Chat finish reason %j for text and schema probes', async finish_reason => {
+    for (const protocol of ['chat', 'json-schema'] as ProbeProtocol[]) {
+      const { transport, calls } = fixture({ reply: () => json({ choices: [{ finish_reason, message: { content: protocol === 'chat' ? 'partial' : '{"ok":true}' } }], usage: completion.usage }) });
+      await expect(probe(transport, protocol)).rejects.toMatchObject({ code: 'chat_not_completed' });
+      expect(calls.filter(c => c.init.method === 'POST')).toHaveLength(1);
+    }
+  });
+  it.each([{ content: [] }, { content: [{ type: 'thinking', thinking: 'hidden' }] }, { content: [{ type: 'text', text: ' ' }] }])('rejects Messages without a text answer %j', async ({ content }) => {
+    const model = 'claude-sonnet-5';
+    const { transport } = fixture({ catalog: { data: [{ id: model, data_policy: { zdr: true } }] },
+      reply: () => json({ content, stop_reason: 'end_turn', usage: completion.usage }) });
+    await expect(runSyntheticProbe({ key, model, protocol: 'messages', allowSpend: true }, transport)).rejects.toMatchObject({ code: 'messages_not_completed' });
+  });
+  it('accepts complete Messages and Responses with preceding reasoning', async () => {
+    for (const protocol of ['messages', 'responses'] as ProbeProtocol[]) {
+      const model = protocol === 'messages' ? 'claude-sonnet-5' : 'gpt-6-astra';
+      const reply = protocol === 'messages'
+        ? { content: [{ type: 'thinking', thinking: 'hidden' }, { type: 'text', text: 'OK' }], stop_reason: 'end_turn' }
+        : { status: 'completed', output: [{ type: 'reasoning', summary: [] }, responseMessage] };
+      const { transport, calls } = fixture({ catalog: { data: [{ id: model, data_policy: { zdr: true } }] }, reply: () => json({ ...reply, usage: completion.usage }) });
+      const result = await runSyntheticProbe({ key, model, protocol, allowSpend: true }, transport);
+      expect(result).toMatchObject({ output_tokens: 1, zdr_requested: true, zdr_response_confirmed: true, production_ready: false });
+      const posts = calls.filter(c => c.init.method === 'POST'); expect(posts).toHaveLength(1);
+      expect(JSON.parse(posts[0].init.body as string).provider).toEqual({ zdr: true });
+      expect(JSON.stringify(result)).not.toContain('hidden');
+    }
   });
 });
