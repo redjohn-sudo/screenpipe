@@ -175,6 +175,7 @@ pub struct UiRecorderConfig {
     pub capture_window_focus: bool,
     /// Capture scroll events
     pub capture_scroll: bool,
+    pub scroll_interval_ms: Option<Arc<std::sync::atomic::AtomicU64>>,
     /// Capture element context via accessibility
     pub capture_context: bool,
     /// Mirror of `EventDrivenCaptureConfig::capture_on_keystroke`. When on,
@@ -242,6 +243,7 @@ impl Default for UiRecorderConfig {
             // Linux's evdev path still emits one row per wheel detent, so it
             // keeps the old default until it grows a coalescer.
             capture_scroll: !cfg!(target_os = "linux"),
+            scroll_interval_ms: None,
             capture_context: true,
             capture_on_keystroke: true,
             capture_on_clipboard: true,
@@ -283,6 +285,7 @@ impl UiRecorderConfig {
         // a false value in UiRecorderConfig.
         config.capture_window_focus = true;
         config.capture_scroll = self.capture_scroll;
+        config.scroll_interval_ms = self.scroll_interval_ms.clone();
         config.capture_context = self.capture_context;
         config.prioritize_input_latency = self.prioritize_input_latency;
         config.extraction_thread_priority = self.extraction_thread_priority;

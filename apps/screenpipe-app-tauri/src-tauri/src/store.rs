@@ -5643,6 +5643,50 @@ mod tests {
     }
 
     #[test]
+    fn recording_detail_survives_desktop_store_round_trip_and_reaches_capture_restart() {
+        use screenpipe_config::RecordingDetail;
+        use std::sync::atomic::Ordering;
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("test-recording-settings.json");
+        let mut store = SettingsStore::default();
+        store.recording.disable_audio = true;
+        store.recording.ignored_windows = vec!["Private".into()];
+        for (mode, cadence) in [
+            (RecordingDetail::LowImpact, 5_000),
+            (RecordingDetail::MoreDetail, 1_000),
+            (RecordingDetail::Auto, 2_000),
+        ] {
+            store.recording.recording_detail = mode;
+            std::fs::write(&path, serde_json::to_vec(&store).unwrap()).unwrap();
+            let reloaded: SettingsStore =
+                serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+            let settings = reloaded.to_recording_settings();
+            assert_eq!(settings.recording_detail, mode);
+            let config = screenpipe_engine::RecordingConfig::from_settings(
+                &settings,
+                dir.path().to_path_buf(),
+                None,
+            );
+            assert_eq!(
+                config
+                    .recording_detail
+                    .scroll_interval()
+                    .load(Ordering::Relaxed),
+                cadence
+            );
+            assert!(config.disable_audio);
+            assert_eq!(config.ignored_windows, vec!["Private"]);
+        }
+        let mut legacy = serde_json::to_value(store).unwrap();
+        legacy.as_object_mut().unwrap().remove("recordingDetail");
+        let reloaded: SettingsStore = serde_json::from_value(legacy).unwrap();
+        assert_eq!(
+            reloaded.to_recording_settings().recording_detail,
+            RecordingDetail::Auto
+        );
+    }
+
+    #[test]
     fn smart_recording_is_automatic_for_legacy_stores_before_frontend_startup() {
         let mut store = SettingsStore::default();
         store.recording.experimental_meeting_piggyback = false;

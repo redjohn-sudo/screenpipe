@@ -21,6 +21,10 @@
 //! Platform-agnostic and pure so the logic is unit-testable on every OS.
 
 use chrono::{DateTime, Utc};
+use std::sync::{
+    atomic::{AtomicU64, Ordering},
+    Arc,
+};
 use std::time::Instant;
 
 /// One coalesced scroll gesture, ready to be emitted as a `ui_events` row.
@@ -46,6 +50,7 @@ pub struct ScrollFlush {
 pub struct ScrollBuffer {
     gap_timeout_ms: u64,
     max_burst_ms: u64,
+    live_max_burst_ms: Option<Arc<AtomicU64>>,
     // current burst (None = idle)
     cur: Option<Burst>,
 }
@@ -84,8 +89,26 @@ impl ScrollBuffer {
         Self {
             gap_timeout_ms,
             max_burst_ms,
+            live_max_burst_ms: None,
             cur: None,
         }
+    }
+
+    /// Shared runtime cadence, read without locking on the input path.
+    /// Updating it never discards the open gesture or changes its quiet tail.
+    pub fn with_live_interval(interval: Option<Arc<AtomicU64>>) -> Self {
+        Self {
+            live_max_burst_ms: interval,
+            ..Self::new()
+        }
+    }
+
+    fn burst_limit_ms(&self) -> u64 {
+        self.live_max_burst_ms
+            .as_ref()
+            .map_or(self.max_burst_ms, |value| {
+                value.load(Ordering::Relaxed).clamp(1_000, 5_000)
+            })
     }
 
     /// Add one raw tick. Returns a finished burst when this tick starts a NEW
@@ -140,7 +163,8 @@ impl ScrollBuffer {
                     || b.window_title != window_title
                     || now.duration_since(b.last_tick).as_millis() as u64
                         >= self.gap_timeout_ms
-                    || now.duration_since(b.started).as_millis() as u64 >= self.max_burst_ms =>
+                    || now.duration_since(b.started).as_millis() as u64
+                        >= self.burst_limit_ms() =>
             {
                 self.flush()
             }
@@ -192,7 +216,7 @@ impl ScrollBuffer {
         let b = self.cur.as_ref()?;
         let quiet = std::time::Duration::from_millis(self.gap_timeout_ms)
             .saturating_sub(now.saturating_duration_since(b.last_tick));
-        let maximum = std::time::Duration::from_millis(self.max_burst_ms)
+        let maximum = std::time::Duration::from_millis(self.burst_limit_ms())
             .saturating_sub(now.saturating_duration_since(b.started));
         Some(quiet.min(maximum))
     }
@@ -201,7 +225,7 @@ impl ScrollBuffer {
         match &self.cur {
             Some(b) => {
                 now.duration_since(b.last_tick).as_millis() as u64 >= self.gap_timeout_ms
-                    || now.duration_since(b.started).as_millis() as u64 >= self.max_burst_ms
+                    || now.duration_since(b.started).as_millis() as u64 >= self.burst_limit_ms()
             }
             None => false,
         }
@@ -241,6 +265,80 @@ impl Default for ScrollBuffer {
 mod tests {
     use super::*;
     use std::time::Duration;
+
+    #[test]
+    fn every_preset_keeps_quiet_tail_and_all_motion() {
+        for interval_ms in [1_000, 2_000, 5_000] {
+            let interval = Arc::new(AtomicU64::new(interval_ms));
+            let mut buf = ScrollBuffer::with_live_interval(Some(interval));
+            let start = Instant::now();
+            let mut deltas = 0;
+            let mut rows = 0;
+            for i in 0..101 {
+                if let Some(row) = buf.push_at(
+                    777,
+                    0,
+                    0,
+                    0,
+                    1,
+                    Utc::now(),
+                    i * 100,
+                    Some("Editor".into()),
+                    Some("Document".into()),
+                    start + Duration::from_millis(i * 100),
+                ) {
+                    deltas += row.delta_y as i32;
+                    rows += 1;
+                }
+            }
+            assert_eq!(rows, 10_000 / interval_ms);
+            assert!(!buf.should_flush_at(start + Duration::from_millis(10_399)));
+            assert!(buf.should_flush_at(start + Duration::from_millis(10_400)));
+            deltas += buf.flush().unwrap().delta_y as i32;
+            assert_eq!(deltas, 101);
+        }
+    }
+
+    #[test]
+    fn adaptive_interval_change_preserves_open_reversal_and_context_boundary() {
+        let interval = Arc::new(AtomicU64::new(5_000));
+        let mut buf = ScrollBuffer::with_live_interval(Some(interval.clone()));
+        let start = Instant::now();
+        for i in 0..12 {
+            assert!(buf
+                .push_at(
+                    1,
+                    0,
+                    0,
+                    0,
+                    if i % 2 == 0 { 1 } else { -1 },
+                    Utc::now(),
+                    i * 100,
+                    Some("Editor".into()),
+                    None,
+                    start + Duration::from_millis(i * 100)
+                )
+                .is_none());
+        }
+        interval.store(1_000, Ordering::Relaxed);
+        assert!(buf.should_flush_at(start + Duration::from_millis(1_100)));
+        assert_eq!(
+            buf.time_until_flush_at(start + Duration::from_millis(1_100)),
+            Some(Duration::ZERO)
+        );
+        let row = buf.flush().unwrap();
+        assert_eq!(row.delta_y, 0); // Reversals still produce evidence.
+        interval.store(5_000, Ordering::Relaxed);
+        assert!(tick_pid(&mut buf, 1, 0, 1, "Editor").is_none());
+        assert_eq!(
+            tick_pid(&mut buf, 2, 0, 2, "Browser")
+                .unwrap()
+                .app_name
+                .as_deref(),
+            Some("Editor")
+        );
+        assert_eq!(buf.flush().unwrap().delta_y, 2);
+    }
 
     fn tick(buf: &mut ScrollBuffer, dx: i16, dy: i16, app: &str) -> Option<ScrollFlush> {
         tick_pid(buf, 777, dx, dy, app)
