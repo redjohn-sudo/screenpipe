@@ -114,7 +114,7 @@ describe('Experiential migration preparation', () => {
     await expect(probe(transport)).rejects.toMatchObject({ code: 'model_not_in_authenticated_catalog' });
     expect(calls).toHaveLength(4);
   });
-  it.each(['auto', 'glm-5.3-flash-reap50-iq3m', 'screenpipe-event-classifier', 'argus-trace-1', 'gemma4-e4b'])('excludes %s', async model => {
+  it.each(['auto', 'glm-5.3-flash-reap50-iq3m', 'screenpipe-event-classifier', 'argus-trace-1', 'gemma4-e4b', 'gpt-unreviewed', 'claude-unreviewed', 'GPT-5.4-nano'])('excludes %s', async model => {
     const { transport, calls } = fixture();
     await expect(runSyntheticProbe({ key, model, protocol: 'chat', allowSpend: true }, transport)).rejects.toMatchObject({ code: 'unsupported_probe_model' });
     expect(calls).toHaveLength(0);
@@ -161,12 +161,24 @@ describe('Experiential migration preparation', () => {
     const toolReply = fixture({ reply: () => json({ choices: [{ finish_reason: 'tool_calls', message: { tool_calls: [{ id: 'call_1', type: 'function', function: { name: 'confirm', arguments: '{"ok":true}' } }] } }], usage: completion.usage }) });
     expect((await probe(toolReply.transport, 'tools')).output_tokens).toBe(1);
   });
+  it.each([
+    ['messages', 'claude-sonnet-5', { stop_reason: 'max_tokens', content: [{ type: 'text', text: 'partial' }] }],
+    ['messages', 'claude-sonnet-5', { stop_reason: 'end_turn', content: [{ type: 'thinking', thinking: 'not an answer' }] }],
+    ['responses', 'gpt-6-astra', { status: 'completed', output: [{ type: 'reasoning', summary: [] }] }],
+    ['responses', 'gpt-6-astra', { status: 'incomplete', output: [{ type: 'message', content: [{ type: 'output_text', text: 'partial' }] }] }],
+  ] as const)('rejects unsuccessful native completion %s', async (protocol, model, reply) => {
+    const { transport, calls } = fixture({ catalog: { data: [{ id: model, data_policy: { zdr_on_request: true } }] },
+      reply: () => json({ ...reply, usage: { input_tokens: 7, output_tokens: 1 } }) });
+    await expect(runSyntheticProbe({ key, model, protocol, allowSpend: true }, transport)).rejects.toMatchObject({ code: `${protocol}_not_completed` });
+    expect(calls.filter(c => c.init.method === 'POST')).toHaveLength(1);
+  });
   it('pins stateless Astra and keeps native Messages separate', () => {
     const astra = syntheticRequest('gpt-6-astra', 'responses'); expect(astra.path).toBe('/v1/responses');
     expect(astra.body).toMatchObject({ store: false, reasoning: { effort: 'low' }, service_tier: 'default', max_output_tokens: 64 });
     expect(astra.body.previous_response_id).toBeUndefined();
     const anthropic = syntheticRequest('claude-sonnet-5', 'messages'); expect(anthropic.path).toBe('/v1/messages'); expect(anthropic.body.max_tokens).toBe(64);
     expect(() => syntheticRequest('claude-sonnet-5', 'responses')).toThrow(); expect(() => syntheticRequest('gpt-6-astra', 'messages')).toThrow();
+    expect(() => syntheticRequest('gpt-6-astra', 'chat')).toThrow('astra_requires_responses');
   });
   it.each(['max_tokens', 'tool_use', 'refusal', 'pause_turn', 'unknown', null])('rejects unfinished Messages stop reason %j without replay', async stop_reason => {
     const model = 'claude-sonnet-5';

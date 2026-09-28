@@ -117,6 +117,75 @@ cross-account or client-supplied consent cannot relax privacy. Exercise these
 cases, account switching, all protocol paths and fallbacks in the future runtime
 adapter; neither this report nor these synthetic tests prove those customer flows.
 
+## Inactive adapter and local tests
+
+`lib/experiential-adapter.ts` is outside the Worker import graph. Its default
+mode refuses all activity; only an explicit `isolated-test` caller can prepare
+one request. It does not select a production provider, synchronize entitlements,
+or activate a cutover. The existing Bun tests are its consumers:
+
+```sh
+bun test src/test/experiential-migration.unit.test.ts src/test/experiential-adapter.unit.test.ts src/test/experiential-sdk-parity.unit.test.ts
+```
+
+The SDK tests exercise the installed OpenAI and Anthropic serializers and stream
+parsers using injected synthetic transports. They cover tools, images, cache
+usage, structured-output serialization, and Astra Responses-to-Chat translation.
+Astra stays Low, Standard (`service_tier: "default"` on the wire), and stateless
+(`store: false`). Anthropic's existing schema support remains system-prompt
+instructions, not a claim of native constrained decoding.
+
+The adapter requires server-verified Screenpipe authentication and a trusted
+server registry binding the actor to a customer identity, customer key, source
+plan, and expected destination plan key/version/assignment revision. The
+provisioning identity and management credential stay separate from inference.
+It performs these actual reads before preparing a request:
+
+- Management key: organization, ZDR entitlement, no-training policy, disabled
+  ZDR continuation storage, authenticated model ZDR capability, exact catalog
+  slug, and `/api/models/{slug}` canonical UUID. Account capture may remain on
+  because per-request ZDR suppresses capture under the vendor contract.
+- Customer key: `/api/whoami` with both identity fields matching the registry
+  and `is_provisioning: false`, customer-visible model listing, and its own
+  `customer-plan` assignment matching the pinned tuple with no pending change.
+
+Older servers without identity proof fail closed. Missing models, alternate
+model guesses, stale assignments, shared management/customer keys, and privacy
+failures never dispatch. Gateway identities are artifact IDs; organization and
+canonical model IDs are UUIDs. The adapter sends at most one inference POST per
+prepared connection, refuses replay, strips caller/provider/Cloudflare auth
+headers, overwrites caller provider preferences with `provider: { zdr: true }`,
+and requires exactly `x-gateway-zdr: true` before the SDK consumes JSON or SSE.
+Missing or unsafe verdicts cancel the body without retry. Every user requires
+ZDR, with no consent-based retention exception. It defaults to 64 output tokens. An operator may explicitly select
+128 for an isolated probe; higher or missing request bounds are refused. Neither
+bound is a dollar guarantee or permission to spend.
+
+The opt-in HTTP integration test uses a separately provisioned, synthetic-only
+local platform stack. It reads a private JSON fixture from the environment and
+refuses non-loopback URLs, any model other than `gpt-5.4-mini`, or a fixture not
+marked `syntheticUpstream: true`:
+
+```sh
+SCREENPIPE_EXPERIENTIAL_LOCAL_FIXTURE=/absolute/private-fixture.json \
+  bun test src/test/experiential-adapter.integration.test.ts --timeout=30000
+```
+
+The fixture contains `controlBaseUrl`, `gatewayBaseUrl`, `managementKey`, `orgId`,
+`provisioningIdentityId`, `canonicalModelUuid`, `model`, `syntheticUpstream`, and
+two `customers`. Each customer has `userId`, `identityId`, `customerKey`,
+`accountPlan`, and `expectedPlan: { plan_key, plan_version, revision }`. Obtain
+these values from the isolated stack's actual control API; do not fabricate
+policy readbacks. Keep the fixture outside source control. Without it, the test
+is skipped. It exercises one JSON and one streaming request under distinct
+customer keys, but neither provisions policy nor proves real-provider behavior.
+
+The provider fixes preserve OpenAI's upstream nonstream `finish_reason` and
+normalize Anthropic nonstream tool-call IDs/types and terminal reasons into Chat
+format. Regression tests cover a second tool turn. These fixes do not change
+routing or imply deployment. Encrypted Tinfoil/EHBP, ordinary custom GLM,
+Vertex, classifier, audio, and background rescue routes remain unchanged.
+
 ## Gates before implementing production selection
 
 1. Pin deployed behavior and read actual Cloudflare limits, reset windows,
