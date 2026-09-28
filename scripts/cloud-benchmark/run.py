@@ -86,6 +86,9 @@ try:
                     status=health();write(folder/'health-start.json',status);break
                 except Exception:time.sleep(2)
             else:raise RuntimeError('Recorder API failed to start')
+            write(folder/'power-first-install.json',api('power'))
+            request=urllib.request.Request('http://127.0.0.1:3030/power',data=json.dumps({'mode':'auto'}).encode(),headers={'Content-Type':'application/json'},method='POST')
+            with urllib.request.urlopen(request,timeout=5) as response:write(folder/'power-controlled.json',json.load(response))
             poll_stop.clear();poller=threading.Thread(target=poll_policy,args=(folder,),daemon=True);poller.start()
             time.sleep(15)
         try:run_cases(mode,folder)
