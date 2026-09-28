@@ -96,19 +96,21 @@ impl DeferredOcrProcessor {
         #[cfg(not(target_os = "windows"))]
         let (text, json, _) = {
             let permit = ocr_semaphore().acquire().await?;
-            tokio::task::spawn_blocking(move || {
+            tokio::task::spawn_blocking(move || -> Result<_> {
                 let _permit = permit;
                 #[cfg(target_os = "macos")]
                 {
-                    screenpipe_screen::perform_ocr_apple(&input, &languages)
+                    screenpipe_screen::apple::perform_ocr_apple_checked(&input, &languages)
                 }
                 #[cfg(not(target_os = "macos"))]
                 {
-                    screenpipe_screen::perform_ocr_tesseract(&input, languages)
+                    let result = screenpipe_screen::perform_ocr_tesseract(&input, languages);
+                    anyhow::ensure!(result.2.is_some(), "Tesseract OCR failed or is unavailable");
+                    Ok(result)
                 }
             })
             .await
-            .context("native OCR task failed")?
+            .context("native OCR task failed")??
         };
         let json = match crop {
             Some(r) => remap_ocr_json_to_frame(&json, r, width, height),

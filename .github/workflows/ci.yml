@@ -493,6 +493,9 @@ jobs:
         # Only test vision package to avoid whisper-rs build issues on macOS CI
         run: cargo test -p screenpipe-screen test_apple_native_ocr
 
+      - name: Distinguish Apple OCR failures from blank frames
+        run: cargo test --locked -p screenpipe-screen --lib apple::tests::checked_ocr
+
       - name: Run PII removal tests
         run: cargo test -p screenpipe-core pii_removal
 
