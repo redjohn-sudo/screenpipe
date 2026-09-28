@@ -15,6 +15,7 @@
 //! snapshot to disk. Callers own the *trigger* (1 Hz tick, event-driven,
 //! cron — doesn't matter to this crate).
 
+pub mod deferred_ocr;
 pub mod ocr_gate;
 pub mod paired_capture;
 pub mod tree_walker_worker;

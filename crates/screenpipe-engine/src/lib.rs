@@ -50,6 +50,7 @@ pub mod compaction_encoder;
 pub mod connections_api;
 pub mod core;
 pub mod crash_log;
+mod deferred_ocr_worker;
 pub mod disk_pressure;
 pub mod drm_detector;
 pub mod event_driven_capture;

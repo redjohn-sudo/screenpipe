@@ -407,6 +407,16 @@ pub fn start_snapshot_compaction(
 
 /// One compaction cycle: find eligible snapshots, group by monitor, encode to MP4.
 /// Returns the number of frames compacted.
+const ELIGIBLE_SNAPSHOTS: &str = r#"
+        SELECT id, snapshot_path, device_name, timestamp
+        FROM frames
+        WHERE snapshot_path IS NOT NULL
+          AND timestamp < ?1
+          AND NOT EXISTS (SELECT 1 FROM frame_ocr_jobs j WHERE j.frame_id = frames.id)
+        ORDER BY device_name, timestamp ASC
+        LIMIT 5000
+        "#;
+
 async fn run_compaction_cycle(
     db: &DatabaseManager,
     video_quality: &str,
@@ -420,19 +430,10 @@ async fn run_compaction_cycle(
 
     let cutoff = Utc::now() - Duration::seconds(MIN_AGE_SECS);
 
-    let rows: Vec<(i64, String, String, String)> = sqlx::query_as(
-        r#"
-        SELECT id, snapshot_path, device_name, timestamp
-        FROM frames
-        WHERE snapshot_path IS NOT NULL
-          AND timestamp < ?1
-        ORDER BY device_name, timestamp ASC
-        LIMIT 5000
-        "#,
-    )
-    .bind(cutoff)
-    .fetch_all(&db.pool)
-    .await?;
+    let rows: Vec<(i64, String, String, String)> = sqlx::query_as(ELIGIBLE_SNAPSHOTS)
+        .bind(cutoff)
+        .fetch_all(&db.pool)
+        .await?;
 
     if rows.is_empty() {
         debug!("snapshot compaction: no eligible frames");
@@ -893,6 +894,49 @@ fn calculate_fps(frames: &[(i64, String, String)]) -> f64 {
 
 #[cfg(test)]
 mod tests {
+    #[tokio::test]
+    async fn pending_ocr_keeps_source_snapshot_until_acknowledged() {
+        let db = DatabaseManager::new("sqlite::memory:", Default::default())
+            .await
+            .unwrap();
+        let id = db
+            .insert_snapshot_frame_with_ocr_job(
+                "display",
+                Utc::now() - Duration::hours(1),
+                "/keep.jpg",
+                None,
+                None,
+                None,
+                None,
+                true,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some("{}".into()),
+            )
+            .await
+            .unwrap();
+        let rows: Vec<(i64, String, String, String)> = sqlx::query_as(ELIGIBLE_SNAPSHOTS)
+            .bind(Utc::now())
+            .fetch_all(&db.pool)
+            .await
+            .unwrap();
+        assert!(rows.is_empty());
+        db.finish_frame_ocr_job(id).await.unwrap();
+        let rows: Vec<(i64, String, String, String)> = sqlx::query_as(ELIGIBLE_SNAPSHOTS)
+            .bind(Utc::now())
+            .fetch_all(&db.pool)
+            .await
+            .unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].1, "/keep.jpg");
+    }
+
     use super::*;
 
     fn make_frame(id: i64, path: &str, ts: &str) -> (i64, String, String) {

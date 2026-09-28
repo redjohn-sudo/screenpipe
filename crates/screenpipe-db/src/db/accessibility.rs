@@ -525,19 +525,21 @@ impl DatabaseManager {
 
     /// Set `ui_events.frame_id` for a previously inserted row. Idempotent:
     /// the `WHERE frame_id IS NULL` guard prevents overwriting an
-    /// already-linked frame if a duplicate update arrives.
+    /// already-linked frame if a duplicate update arrives. A link also requires
+    /// matching nonempty app/window identity and the event's URL when known.
+    /// Returns false for unknown/mismatched identity or an already linked row.
     pub async fn update_ui_event_frame_id(
         &self,
         row_id: i64,
         frame_id: i64,
-    ) -> Result<(), sqlx::Error> {
+    ) -> Result<bool, sqlx::Error> {
         use crate::write_queue::{WriteOp, WriteResult};
         let result = self
             .write_queue
             .submit(WriteOp::UpdateUiEventFrameId { row_id, frame_id })
             .await?;
         match result {
-            WriteResult::Unit => Ok(()),
+            WriteResult::Updated(changed) => Ok(changed),
             _ => unreachable!(),
         }
     }

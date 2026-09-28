@@ -44,7 +44,7 @@ use tracing::{debug, warn};
 /// information. A run of 30+ digits (optionally separated by whitespace) is
 /// almost certainly a gutter — real prose rarely has that density. Phone
 /// numbers, UUIDs, and timestamps are all shorter than the 30-digit threshold.
-fn strip_gutter_noise(text: &str) -> String {
+pub(crate) fn strip_gutter_noise(text: &str) -> String {
     static GUTTER: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"(?:\d[\s]*){30,}").expect("valid regex"));
     GUTTER.replace_all(text, " ").into_owned()
@@ -260,14 +260,23 @@ pub async fn paired_capture(
     tree_snapshot: Option<&TreeSnapshot>,
     ocr_gate: Option<&mut OcrGate>,
 ) -> Result<PairedCaptureResult> {
-    paired_capture_inner(ctx, tree_snapshot, ocr_gate, false).await
+    paired_capture_inner(ctx, tree_snapshot, ocr_gate, false, false).await
 }
 
 /// Save an authorized screenshot while expensive text extraction is deferred.
 /// Never reuse accessibility or OCR text from an earlier image. The normal
 /// capture path can resume extraction on the next admitted walk.
 pub async fn paired_capture_deferred(ctx: &CaptureContext<'_>) -> Result<PairedCaptureResult> {
-    paired_capture_inner(ctx, None, None, true).await
+    paired_capture_inner(ctx, None, None, true, false).await
+}
+
+/// Save pixels and enqueue required OCR in the same database transaction.
+/// The engine owns a serial worker that resumes these jobs after a restart.
+pub async fn paired_capture_queued(
+    ctx: &CaptureContext<'_>,
+    tree_snapshot: Option<&TreeSnapshot>,
+) -> Result<PairedCaptureResult> {
+    paired_capture_inner(ctx, tree_snapshot, None, false, true).await
 }
 
 async fn paired_capture_inner(
@@ -275,6 +284,7 @@ async fn paired_capture_inner(
     tree_snapshot: Option<&TreeSnapshot>,
     ocr_gate: Option<&mut OcrGate>,
     defer_text_extraction: bool,
+    queue_ocr: bool,
 ) -> Result<PairedCaptureResult> {
     let start = Instant::now();
 
@@ -378,10 +388,11 @@ async fn paired_capture_inner(
     let meeting_matched = app_name.map(is_meeting_app).unwrap_or(false)
         || browser_url.map(is_meeting_url).unwrap_or(false);
     let meeting_trigger = ctx.in_meeting && meeting_matched && ctx.monitor_hosts_focus;
-    let wants_ocr = !defer_text_extraction
+    let needs_ocr = !defer_text_extraction
         && !ctx.screenshot_disabled
         && (app_prefers_ocr || meeting_trigger || !has_accessibility_text || a11y_is_thin_generic);
 
+    let wants_ocr = needs_ocr && !queue_ocr;
     let mut ocr_gate = ocr_gate;
     let mut ocr_gate_escalated = false;
     let mut ocr_gate_decision: Option<OcrGateDecision> = None;
@@ -559,10 +570,11 @@ async fn paired_capture_inner(
         // to limit concurrent OCR and avoid CPU spikes on multi-monitor setups.
         #[cfg(not(target_os = "windows"))]
         let raw = {
-            let _permit = ocr_semaphore().acquire().await.unwrap();
+            let permit = ocr_semaphore().acquire().await.unwrap();
             let image_for_ocr = ocr_input.clone();
             let languages = ctx.languages.clone();
             match tokio::task::spawn_blocking(move || {
+                let _permit = permit;
                 #[cfg(target_os = "macos")]
                 {
                     let (text, json, _confidence) =
@@ -742,7 +754,7 @@ async fn paired_capture_inner(
 
     let frame_id = ctx
         .db
-        .insert_snapshot_frame_with_ocr(
+        .insert_snapshot_frame_with_ocr_job(
             ctx.device_name,
             ctx.captured_at,
             &snapshot_path_str,
@@ -761,6 +773,24 @@ async fn paired_capture_inner(
             (!defer_text_extraction && ctx.monitor_hosts_focus && ctx.ax_screenshot_coherent)
                 .then_some(ctx.elements_ref_frame_id)
                 .flatten(),
+            if queue_ocr && needs_ocr {
+                Some(serde_json::to_string(&crate::deferred_ocr::OcrOptions {
+                    languages: ctx.languages.iter().map(ToString::to_string).collect(),
+                    remove_pii: ctx.use_pii_removal,
+                    // Only coherent AX text belongs in this image's search index.
+                    include_ax: ctx.ax_screenshot_coherent && tree_json.is_some(),
+                    crop: window_crop.map(|r| {
+                        [
+                            r.x as f64 / frame_w as f64,
+                            r.y as f64 / frame_h as f64,
+                            r.width as f64 / frame_w as f64,
+                            r.height as f64 / frame_h as f64,
+                        ]
+                    }),
+                })?)
+            } else {
+                None
+            },
         )
         .await?;
 
@@ -975,7 +1005,7 @@ pub(crate) fn is_meeting_url(url: &str) -> bool {
 /// was the meeting-gate union crop, downstream consumers (text-position
 /// overlays) still expect full-frame coordinates. Unparseable JSON is
 /// stored unchanged rather than dropped.
-fn remap_ocr_json_to_frame(
+pub(crate) fn remap_ocr_json_to_frame(
     text_json: &str,
     crop: TextRegion,
     frame_w: u32,
@@ -1085,6 +1115,11 @@ fn a11y_content_is_thin(
     let mut total_chars: usize = 0;
 
     for node in &snap.nodes {
+        // A long off-screen prefix is not evidence that the viewport was read.
+        // Unknown geometry in a truncated walk cannot establish coverage either.
+        if node.on_screen == Some(false) || (snap.truncated && node.on_screen != Some(true)) {
+            continue;
+        }
         let len = node.text.len();
         if len == 0 {
             continue;
@@ -1119,7 +1154,7 @@ fn a11y_content_is_thin(
 /// Sanitize PII from OCR text_json (a JSON string of bounding-box entries).
 /// Parses the JSON array, applies `remove_pii` to each "text" field,
 /// and serializes back. Returns the original string on parse failure.
-fn sanitize_ocr_text_json(text_json: &str) -> String {
+pub(crate) fn sanitize_ocr_text_json(text_json: &str) -> String {
     let Ok(entries) =
         serde_json::from_str::<Vec<std::collections::HashMap<String, String>>>(text_json)
     else {
@@ -1196,6 +1231,116 @@ mod tests {
                 (None, None)
             );
         }
+
+        let mut recovered = make_snap(vec![AccessibilityTreeNode {
+            role: "AXStaticText".into(),
+            text: "Accessibility capture recovered with fresh page content".into(),
+            ..Default::default()
+        }]);
+        recovered.truncated = true;
+        recovered.truncation_reason = screenpipe_a11y::tree::TruncationReason::Timeout;
+        let ctx = CaptureContext {
+            db: &db,
+            captured_at: Utc::now() + chrono::Duration::seconds(2),
+            elements_ref_frame_id: None,
+            ..ctx
+        };
+        let result = paired_capture(&ctx, Some(&recovered), None).await.unwrap();
+        assert_eq!(
+            result.accessibility_text.as_deref(),
+            Some(recovered.text_content.as_str())
+        );
+        assert!(std::path::Path::new(&result.snapshot_path).is_file());
+        assert_eq!(
+            db.get_frame_accessibility_data(result.frame_id)
+                .await
+                .unwrap()
+                .0
+                .as_deref(),
+            Some(recovered.text_content.as_str())
+        );
+        db.close().await;
+    }
+
+    #[tokio::test]
+    async fn queued_extraction_persists_while_ocr_blocked_and_resumes_after_reopen() {
+        let tmp = TempDir::new().unwrap();
+        let path = tmp.path().join("capture.sqlite");
+        let db = DatabaseManager::new(path.to_str().unwrap(), Default::default())
+            .await
+            .unwrap();
+        let writer = SnapshotWriter::new(tmp.path(), 80, 1920);
+        let mut ctx = CaptureContext {
+            db: &db,
+            snapshot_writer: &writer,
+            image: test_image(),
+            captured_at: Utc::now(),
+            monitor_id: 0,
+            device_name: "test_monitor",
+            app_name: Some("msedge.exe"),
+            window_name: Some("CPU list"),
+            browser_url: None,
+            document_path: None,
+            focused: true,
+            capture_trigger: "visual_change",
+            use_pii_removal: false,
+            languages: vec![],
+            elements_ref_frame_id: Some(999_999),
+            screenshot_disabled: false,
+            in_meeting: false,
+            monitor_hosts_focus: true,
+            ax_screenshot_coherent: true,
+            focused_window_bounds: None,
+        };
+        let blocked_ocr = ocr_semaphore().acquire().await.unwrap();
+        let first = paired_capture_queued(&ctx, None).await.unwrap();
+        ctx.captured_at += chrono::Duration::seconds(1);
+        let second = paired_capture_queued(&ctx, None).await.unwrap();
+        for frame in [&first, &second] {
+            assert!(std::path::Path::new(&frame.snapshot_path).is_file());
+            assert_eq!(frame.ocr_duration_ms, None);
+            assert_eq!(frame.accessibility_text, None);
+            assert_eq!(frame.text_source, None);
+        }
+        assert_ne!(first.frame_id, second.frame_id);
+        assert_eq!(db.deferred_ocr_status().await.unwrap().pending, 2);
+        drop(blocked_ocr);
+        db.close().await;
+
+        let db = DatabaseManager::new(path.to_str().unwrap(), Default::default())
+            .await
+            .unwrap();
+        for frame in [&first, &second] {
+            let stored = db.get_frame(frame.frame_id).await.unwrap().unwrap();
+            assert_eq!(stored.0, frame.snapshot_path);
+            assert!(stored.2);
+            assert_eq!(
+                db.get_frame_accessibility_data(frame.frame_id)
+                    .await
+                    .unwrap(),
+                (None, None)
+            );
+        }
+
+        let first_job = db.next_frame_ocr_job().await.unwrap().unwrap();
+        assert_eq!(first_job.frame_id, first.frame_id);
+        let mut worker = crate::deferred_ocr::DeferredOcrProcessor::default();
+        worker.process(&db, &first_job).await.unwrap();
+        assert_eq!(db.deferred_ocr_status().await.unwrap().pending, 1);
+        let second_job = db.next_frame_ocr_job().await.unwrap().unwrap();
+        assert_eq!(second_job.frame_id, second.frame_id);
+        // A missing file retries durably; later frames remain recorded.
+        std::fs::rename(
+            &second.snapshot_path,
+            format!("{}.saved", second.snapshot_path),
+        )
+        .unwrap();
+        assert!(worker.process(&db, &second_job).await.is_err());
+        db.retry_frame_ocr_job(second.frame_id, second_job.attempts)
+            .await
+            .unwrap();
+        assert!(db.next_frame_ocr_job().await.unwrap().is_none());
+        assert_eq!(db.deferred_ocr_status().await.unwrap().pending, 1);
 
         let mut recovered = make_snap(vec![AccessibilityTreeNode {
             role: "AXStaticText".into(),
@@ -1885,6 +2030,24 @@ mod tests {
 
     /// Content-dense snapshot: enough real text that the generic density
     /// heuristic does NOT flag it as thin.
+    #[test]
+    fn offscreen_prefix_does_not_suppress_visible_ocr_fallback() {
+        let mut snap = rich_meeting_snap();
+        for node in &mut snap.nodes {
+            node.on_screen = Some(false);
+        }
+        assert!(a11y_content_is_thin(&snap, None, None));
+        for node in &mut snap.nodes {
+            node.on_screen = None;
+        }
+        snap.truncated = true;
+        assert!(a11y_content_is_thin(&snap, None, None));
+        for node in &mut snap.nodes {
+            node.on_screen = Some(true);
+        }
+        assert!(!a11y_content_is_thin(&snap, None, None));
+    }
+
     fn rich_meeting_snap() -> TreeSnapshot {
         make_snap(vec![AccessibilityTreeNode {
             role: "AXStaticText".into(),

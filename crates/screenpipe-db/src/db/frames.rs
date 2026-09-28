@@ -712,6 +712,49 @@ impl DatabaseManager {
         ocr_data: Option<(&str, &str, &str)>, // (text, text_json, ocr_engine)
         elements_ref_frame_id: Option<i64>,
     ) -> Result<i64, sqlx::Error> {
+        self.insert_snapshot_frame_with_ocr_job(
+            device_name,
+            timestamp,
+            snapshot_path,
+            app_name,
+            window_name,
+            browser_url,
+            document_path,
+            focused,
+            capture_trigger,
+            accessibility_text,
+            text_source,
+            accessibility_tree_json,
+            content_hash,
+            simhash,
+            ocr_data,
+            elements_ref_frame_id,
+            None,
+        )
+        .await
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub async fn insert_snapshot_frame_with_ocr_job(
+        &self,
+        device_name: &str,
+        timestamp: DateTime<Utc>,
+        snapshot_path: &str,
+        app_name: Option<&str>,
+        window_name: Option<&str>,
+        browser_url: Option<&str>,
+        document_path: Option<&str>,
+        focused: bool,
+        capture_trigger: Option<&str>,
+        accessibility_text: Option<&str>,
+        text_source: Option<&str>,
+        accessibility_tree_json: Option<&str>,
+        content_hash: Option<i64>,
+        simhash: Option<i64>,
+        ocr_data: Option<(&str, &str, &str)>, // (text, text_json, ocr_engine)
+        elements_ref_frame_id: Option<i64>,
+        deferred_ocr_options: Option<String>,
+    ) -> Result<i64, sqlx::Error> {
         use crate::write_queue::{WriteOp, WriteResult};
 
         // Compute full_text before submitting to queue (pure computation, no DB)
@@ -768,6 +811,7 @@ impl DatabaseManager {
                 ocr_text_json: ocr_data.map(|(_, j, _)| j.to_string()),
                 full_text,
                 elements_ref_frame_id,
+                deferred_ocr_options,
             })
             .await?;
 

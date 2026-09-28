@@ -3,14 +3,14 @@
 
 //! User-authorized history sampling and bounded text extraction. This never
 //! gates capture admission, changes privacy filters, or changes audio settings.
-//! Native input reads one atomic; adaptation runs only after a durable capture.
+//! Native input reads one atomic; adaptation uses durable captures and processing health.
 use crate::power::ProfileName;
 use screenpipe_config::RecordingDetail;
 use std::sync::{
     atomic::{AtomicU64, Ordering},
     Arc, Mutex,
 };
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 #[derive(Debug)]
 pub struct RecordingDetailController {
@@ -25,6 +25,11 @@ struct Adaptive {
     power_floor: u64,
     slow: u8,
     fast: u8,
+    in_flight: Option<Instant>,
+    failed: bool,
+    last_success: Option<Instant>,
+    text_pending: u64,
+    text_oldest_age_seconds: u64,
 }
 
 impl RecordingDetailController {
@@ -42,6 +47,11 @@ impl RecordingDetailController {
                 power_floor: 1_000,
                 slow: 0,
                 fast: 0,
+                in_flight: None,
+                failed: false,
+                last_success: None,
+                text_pending: 0,
+                text_oldest_age_seconds: 0,
             }),
         }
     }
@@ -85,6 +95,15 @@ impl RecordingDetailController {
         RecordingDetailStatus {
             preferred_mode: self.mode,
             scroll_interval_ms: interval,
+            capture_delayed: state.failed
+                || state
+                    .in_flight
+                    .is_some_and(|started| started.elapsed() >= Duration::from_secs(3)),
+            last_success_age_ms: state
+                .last_success
+                .map(|at| at.elapsed().as_millis().min(u64::MAX as u128) as u64),
+            text_pending: state.text_pending,
+            text_oldest_age_seconds: state.text_oldest_age_seconds,
             reason: if state.power_floor > state.cost_interval {
                 "power".to_string()
             } else if self.mode == RecordingDetail::Auto && state.cost_interval > 2_000 {
@@ -95,15 +114,66 @@ impl RecordingDetailController {
         }
     }
 
+    /// Background OCR never blocks saving pixels. Auto slows optional scroll
+    /// sampling while processing is behind; fixed user preferences stay fixed.
+    pub fn observe_text_queue(&self, pending: u64, oldest_age_seconds: u64) {
+        let mut state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
+        state.text_pending = pending;
+        state.text_oldest_age_seconds = oldest_age_seconds;
+        if self.mode == RecordingDetail::Auto && pending > 0 && oldest_age_seconds >= 5 {
+            state.cost_interval = 5_000;
+            state.fast = 0;
+            self.interval.store(
+                state.cost_interval.max(state.power_floor),
+                Ordering::Relaxed,
+            );
+        }
+    }
+
+    /// Track actual capture work, not idle time, pauses or privacy exclusions.
+    pub fn capture_started(&self) {
+        self.adaptive
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .in_flight = Some(Instant::now());
+    }
+
+    pub fn capture_skipped(&self) {
+        self.adaptive
+            .lock()
+            .unwrap_or_else(|p| p.into_inner())
+            .in_flight = None;
+    }
+
+    /// A timeout is pressure even if no successful duration was observed.
+    /// Keep fixed preferences intact; all modes expose the recording failure.
+    pub fn observe_failure(&self) {
+        let mut state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
+        state.in_flight = None;
+        state.failed = true;
+        state.fast = 0;
+        state.slow = 0;
+        if self.mode == RecordingDetail::Auto {
+            state.cost_interval = 5_000;
+            self.interval.store(
+                state.cost_interval.max(state.power_floor),
+                Ordering::Relaxed,
+            );
+        }
+    }
+
     /// Duration is a recording-cost proxy, not a whole-machine CPU measurement.
     /// Three consecutive captures above 750 ms back off one level; ten below
     /// 250 ms recover one level. The dead band prevents mode flapping.
     /// Call only for successful durable captures on the focused monitor.
     pub fn observe_capture(&self, elapsed: Duration) {
+        let mut state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
+        state.in_flight = None;
+        state.failed = false;
+        state.last_success = Some(Instant::now());
         if self.mode != RecordingDetail::Auto {
             return;
         }
-        let mut state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
         if elapsed > Duration::from_millis(750) {
             state.fast = 0;
             state.slow += 1;
@@ -115,7 +185,7 @@ impl RecordingDetailController {
                 };
                 state.slow = 0;
             }
-        } else if elapsed < Duration::from_millis(250) {
+        } else if elapsed < Duration::from_millis(250) && state.text_pending == 0 {
             state.slow = 0;
             state.fast += 1;
             if state.fast >= 10 {
@@ -142,6 +212,10 @@ pub struct RecordingDetailStatus {
     pub preferred_mode: RecordingDetail,
     pub scroll_interval_ms: u64,
     pub reason: String,
+    pub capture_delayed: bool,
+    pub last_success_age_ms: Option<u64>,
+    pub text_pending: u64,
+    pub text_oldest_age_seconds: u64,
 }
 
 #[cfg(test)]
@@ -154,6 +228,22 @@ mod tests {
         for _ in 0..n {
             c.observe_capture(Duration::from_millis(ms));
         }
+    }
+
+    #[test]
+    fn pending_text_prevents_false_fast_capture_recovery() {
+        let c = RecordingDetailController::new(RecordingDetail::Auto);
+        c.observe_text_queue(3, 10);
+        assert_eq!(interval(&c), 5_000);
+        samples(&c, 50, 10);
+        assert_eq!(interval(&c), 5_000);
+        assert_eq!(c.status().text_pending, 3);
+        c.observe_text_queue(0, 0);
+        samples(&c, 10, 10);
+        assert_eq!(interval(&c), 2_000);
+        let fixed = RecordingDetailController::new(RecordingDetail::MoreDetail);
+        fixed.observe_text_queue(100, 100);
+        assert_eq!(interval(&fixed), 1_000);
     }
 
     #[test]
@@ -222,5 +312,38 @@ mod tests {
         assert_eq!(interval(&c), 2_000);
         samples(&c, 3, 900);
         assert_eq!(interval(&other), 2_000);
+    }
+    #[test]
+    fn failed_capture_backs_off_auto_without_misreading_idle_cpu_as_recovery() {
+        let c = RecordingDetailController::new(RecordingDetail::Auto);
+        samples(&c, 9, 100);
+        c.capture_started();
+        c.observe_failure();
+        assert_eq!(interval(&c), 5_000);
+        assert!(c.status().capture_delayed);
+        c.capture_started();
+        c.capture_skipped();
+        assert!(c.status().capture_delayed);
+        samples(&c, 9, 100);
+        assert!(!c.status().capture_delayed);
+        assert_eq!(interval(&c), 5_000);
+        samples(&c, 1, 100);
+        assert_eq!(interval(&c), 2_000);
+        assert!(c.status().last_success_age_ms.is_some());
+    }
+
+    #[test]
+    fn delayed_status_does_not_treat_idle_as_stalled_or_change_fixed_detail() {
+        let c = RecordingDetailController::new(RecordingDetail::MoreDetail);
+        assert!(!c.status().capture_delayed);
+        c.adaptive.lock().unwrap().in_flight = Some(Instant::now() - Duration::from_secs(4));
+        assert!(c.status().capture_delayed);
+        c.capture_skipped();
+        assert!(!c.status().capture_delayed);
+        c.observe_failure();
+        assert_eq!(interval(&c), 1_000);
+        assert!(c.status().capture_delayed);
+        c.observe_capture(Duration::from_millis(100));
+        assert!(!c.status().capture_delayed);
     }
 }

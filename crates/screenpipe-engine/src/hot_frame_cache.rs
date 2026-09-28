@@ -74,6 +74,8 @@ impl HotAudio {
 /// Broadcast channels push live updates to WS handlers without polling.
 pub struct HotFrameCache {
     frames: RwLock<BTreeMap<(DateTime<Utc>, i64), HotFrame>>,
+    // Bounded handoff when a fast OCR result beats capture publication.
+    pending_text: RwLock<BTreeMap<(DateTime<Utc>, i64), Arc<str>>>,
     audio: RwLock<BTreeMap<DateTime<Utc>, Vec<HotAudio>>>,
     frame_notify: broadcast::Sender<HotFrame>,
     audio_notify: broadcast::Sender<HotAudio>,
@@ -114,6 +116,7 @@ impl HotFrameCache {
         let (warm_tx, warm_rx) = watch::channel(false);
         Self {
             frames: RwLock::new(BTreeMap::new()),
+            pending_text: RwLock::new(BTreeMap::new()),
             audio: RwLock::new(BTreeMap::new()),
             frame_notify: frame_tx,
             audio_notify: audio_tx,
@@ -134,6 +137,7 @@ impl HotFrameCache {
                 *day, today
             );
             self.frames.write().await.clear();
+            self.pending_text.write().await.clear();
             self.audio.write().await.clear();
             *self.cache_warm_start.write().await = None;
             *day = today;
@@ -141,7 +145,7 @@ impl HotFrameCache {
     }
 
     /// Push a captured frame into the cache and broadcast to subscribers.
-    pub async fn push_frame(&self, frame: HotFrame) {
+    pub async fn push_frame(&self, mut frame: HotFrame) {
         self.maybe_rollover().await;
         let key = (frame.timestamp, frame.frame_id);
         // Extend cache coverage if this frame is earlier than current warm_start
@@ -153,9 +157,35 @@ impl HotFrameCache {
                 _ => {}
             }
         }
-        self.frames.write().await.insert(key, frame.clone());
+        {
+            let mut frames = self.frames.write().await;
+            if let Some(text) = self.pending_text.write().await.remove(&key) {
+                frame.ocr_text_preview = text;
+            }
+            frames.insert(key, frame.clone());
+        }
         // Broadcast to WS handlers — ignore errors (no subscribers = fine)
         let _ = self.frame_notify.send(frame);
+    }
+
+    /// Update a saved frame when deferred text becomes available. The exact
+    /// timestamp/id key avoids scanning today's history or changing its order.
+    pub async fn update_frame_text(&self, timestamp: DateTime<Utc>, frame_id: i64, text: &str) {
+        let updated = {
+            let mut frames = self.frames.write().await;
+            let preview: Arc<str> = text.chars().take(200).collect::<String>().into();
+            let Some(frame) = frames.get_mut(&(timestamp, frame_id)) else {
+                let mut pending = self.pending_text.write().await;
+                pending.insert((timestamp, frame_id), preview);
+                while pending.len() > 64 {
+                    pending.pop_first();
+                }
+                return;
+            };
+            frame.ocr_text_preview = preview;
+            frame.clone()
+        };
+        let _ = self.frame_notify.send(updated);
     }
 
     /// Push an audio transcription into the cache and broadcast.
@@ -522,6 +552,47 @@ mod tests {
         cache.warm_from_db(&db, 24).await;
         assert!(cache.wait_warm(std::time::Duration::from_millis(50)).await);
         assert!(cache.earliest_coverage().await.is_none());
+    }
+
+    #[tokio::test]
+    async fn deferred_text_updates_before_and_after_frame_publication() {
+        let cache = HotFrameCache::new();
+        let now = Utc::now();
+
+        let frame = HotFrame {
+            frame_id: 1,
+            timestamp: now,
+            device_name: "monitor_0".into(),
+            app_name: "TestApp".into(),
+            window_name: "TestWindow".into(),
+            ocr_text_preview: "hello world".into(),
+            snapshot_path: "/tmp/test.jpg".into(),
+            browser_url: None,
+            capture_trigger: "click".into(),
+            offset_index: 0,
+            fps: 0.033,
+            machine_id: None,
+        };
+
+        cache.update_frame_text(now, 1, "early OCR").await;
+        cache.push_frame(frame).await;
+        assert_eq!(
+            &*cache.frames.read().await[&(now, 1)].ocr_text_preview,
+            "early OCR"
+        );
+        let mut updates = cache.subscribe_frames();
+        cache.update_frame_text(now, 1, "completed OCR").await;
+        assert_eq!(
+            &*updates.recv().await.unwrap().ocr_text_preview,
+            "completed OCR"
+        );
+        assert_eq!(cache.frames.read().await.len(), 1);
+        for id in 2..100 {
+            cache
+                .update_frame_text(now, id, "late historical job")
+                .await;
+        }
+        assert_eq!(cache.pending_text.read().await.len(), 64);
     }
 
     #[tokio::test]

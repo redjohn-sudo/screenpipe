@@ -269,8 +269,15 @@ pub fn spawn_frame_linker(
 
 async fn apply_update(db: &Arc<DatabaseManager>, row_id: i64, frame_id: i64) {
     match db.update_ui_event_frame_id(row_id, frame_id).await {
-        Ok(_) => {
+        Ok(true) => {
             debug!(row_id, frame_id, "frame_linker: ui_events.frame_id updated");
+        }
+        Ok(false) => {
+            debug!(
+                row_id,
+                frame_id,
+                "frame_linker: context mismatch, unknown identity or duplicate; link unchanged"
+            );
         }
         Err(e) => {
             UPDATES_FAILED.fetch_add(1, Ordering::Relaxed);

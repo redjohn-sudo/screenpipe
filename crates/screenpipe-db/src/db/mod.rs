@@ -461,10 +461,12 @@ async fn flush_ax_bulk(
 mod accessibility;
 mod activity_ledger;
 mod audio;
+mod deferred_ocr;
 mod display_layout;
 mod elements;
 mod feedback;
 mod frames;
+pub use deferred_ocr::{DeferredFrameOcr, DeferredOcrStatus};
 mod maintenance;
 mod meetings;
 mod memories;

@@ -270,6 +270,7 @@
         "src/vision_manager/monitor_watcher.rs",
         "src/visual_probe.rs",
         "src/semantic_worker.rs",
+        "src/deferred_ocr_worker.rs",
         "tests/audio_vision_integration_test.rs",
         "tests/compaction_encoder_test.rs",
         "tests/first_frames_test.rs",
@@ -672,6 +673,7 @@
       "crate": "screenpipe-db",
       "files": [
         "src/db/activity_ledger.rs",
+        "src/db/deferred_ocr.rs",
         "src/db/feedback.rs",
         "src/db/maintenance.rs",
         "src/db/setup.rs",

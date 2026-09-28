@@ -1223,6 +1223,8 @@ struct WalkState {
     window_y: f64,
     window_w: f64,
     window_h: f64,
+    /// Intersect nested scroll viewports without querying ancestors per node.
+    viewport_clip: Option<(f64, f64, f64, f64)>,
     /// Monitor origin and size in screen points (for normalizing to monitor-relative coords).
     /// When > 0, used instead of window dimensions so that bounds match the full-screen capture.
     monitor_x: f64,
@@ -1295,6 +1297,7 @@ impl WalkState {
             window_y: 0.0,
             window_w: 0.0,
             window_h: 0.0,
+            viewport_clip: None,
             monitor_x: config.monitor_x,
             monitor_y: config.monitor_y,
             monitor_w: config.monitor_width,
@@ -2173,12 +2176,57 @@ fn walk_element(elem: &ax::UiElement, depth: usize, state: &mut WalkState) {
                 *in_terminal_subtree = true;
             }
         }
+        let previous_clip = state.viewport_clip;
+        if role_str == "AXScrollArea" {
+            if let Some(rect) = attrs.frame.filter(|r| r.2 > 0.0 && r.3 > 0.0) {
+                state.viewport_clip = Some(intersect_viewports(
+                    previous_clip.unwrap_or((
+                        state.window_x,
+                        state.window_y,
+                        state.window_w,
+                        state.window_h,
+                    )),
+                    rect,
+                ));
+            }
+        }
+        // Large document containers can enumerate thousands of off-screen
+        // children first. Prefer the provider's visible subset when available,
+        // then spend any remaining budget on the ordinary children.
+        let visible = if children.len() > 64 && !state.should_stop() {
+            elem.attr_value(ax::attr::visible_children())
+                .ok()
+                .filter(|v| v.get_type_id() == cf::Array::type_id())
+        } else {
+            None
+        };
+        let visible: Option<&cf::ArrayOf<cf::Type>> = visible
+            .as_ref()
+            .map(|v| unsafe { std::mem::transmute(&**v) });
+        let mut visited_visible = std::collections::HashSet::<&cf::Type>::new();
+        if let Some(visible) = visible {
+            for child in visible.iter() {
+                if state.should_stop() {
+                    break;
+                }
+                if child.get_type_id() == ax::UiElement::type_id() && visited_visible.insert(child)
+                {
+                    let child: &ax::UiElement = unsafe { std::mem::transmute(child) };
+                    walk_element(child, next_depth, state);
+                }
+            }
+        }
         for i in 0..children.len() {
             if state.should_stop() {
                 break;
             }
+            let child_type: &cf::Type = &children[i];
+            if visited_visible.contains(child_type) {
+                continue;
+            }
             walk_element(&children[i], next_depth, state);
         }
+        state.viewport_clip = previous_clip;
         if let AppState::VsCode {
             in_terminal_subtree,
             ..
@@ -2352,13 +2400,8 @@ fn get_element_frame(elem: &ax::UiElement) -> Option<(f64, f64, f64, f64)> {
 /// emit the node, callers see the unknown state and treat it as
 /// "no information" rather than assuming on-screen.
 ///
-/// Note: this is a window-level check, not a scroll-container-level
-/// check. Text inside a fully-on-screen scroll viewport but past its
-/// visible region (e.g. terminal scroll buffer in iTerm) will still
-/// report `Some(true)` if iTerm returns frame coords inside the
-/// window. The proper second-pass clip walks up to the nearest
-/// `AXScrollArea` ancestor and intersects with its visible rect —
-/// follow-up.
+/// Nested AXScrollArea viewports are intersected during traversal. Geometry
+/// supplied incorrectly by the accessibility provider remains unverifiable.
 fn is_on_screen(
     elem_x: f64,
     elem_y: f64,
@@ -2369,16 +2412,26 @@ fn is_on_screen(
     if state.window_w <= 0.0 || state.window_h <= 0.0 {
         return None;
     }
-    Some(super::rects_intersect(
-        elem_x,
-        elem_y,
-        elem_w,
-        elem_h,
+    let (clip_x, clip_y, clip_w, clip_h) = state.viewport_clip.unwrap_or((
         state.window_x,
         state.window_y,
         state.window_w,
         state.window_h,
+    ));
+    Some(super::rects_intersect(
+        elem_x, elem_y, elem_w, elem_h, clip_x, clip_y, clip_w, clip_h,
     ))
+}
+
+fn intersect_viewports(a: (f64, f64, f64, f64), b: (f64, f64, f64, f64)) -> (f64, f64, f64, f64) {
+    let x = a.0.max(b.0);
+    let y = a.1.max(b.1);
+    (
+        x,
+        y,
+        ((a.0 + a.2).min(b.0 + b.2) - x).max(0.0),
+        ((a.1 + a.3).min(b.1 + b.3) - y).max(0.0),
+    )
 }
 
 /// Keep proof of off-window geometry before screenshot normalization drops it.
@@ -3560,5 +3613,20 @@ mod tests {
                 bundle.display()
             );
         }
+    }
+    #[test]
+    fn nested_scroll_viewports_clip_offscreen_content() {
+        assert_eq!(
+            intersect_viewports((0.0, 0.0, 800.0, 600.0), (20.0, 100.0, 700.0, 400.0)),
+            (20.0, 100.0, 700.0, 400.0)
+        );
+        assert_eq!(
+            intersect_viewports((20.0, 100.0, 700.0, 400.0), (40.0, 450.0, 600.0, 200.0)),
+            (40.0, 450.0, 600.0, 50.0)
+        );
+        assert_eq!(
+            intersect_viewports((0.0, 0.0, 100.0, 100.0), (0.0, 200.0, 100.0, 10.0)).3,
+            0.0
+        );
     }
 }

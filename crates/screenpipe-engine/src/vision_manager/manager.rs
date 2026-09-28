@@ -140,6 +140,7 @@ pub struct VisionManager {
     linker_tx: LinkerSender,
     /// Stop flag for the linker actor task.
     linker_stop: Arc<AtomicBool>,
+    ocr_worker_started: AtomicBool,
     /// Hot frame cache — capture pushes frames here for zero-DB timeline reads.
     hot_frame_cache: Option<Arc<HotFrameCache>>,
     /// Power profile receiver — each monitor gets a clone.
@@ -236,6 +237,7 @@ impl VisionManager {
             trigger_tx,
             linker_tx,
             linker_stop,
+            ocr_worker_started: AtomicBool::new(false),
             hot_frame_cache: None,
             power_profile_rx: None,
             focus_controller,
@@ -350,6 +352,19 @@ impl VisionManager {
             return Ok(());
         }
 
+        if !self
+            .ocr_worker_started
+            .swap(true, std::sync::atomic::Ordering::Relaxed)
+        {
+            let _guard = self.vision_handle.enter();
+            crate::deferred_ocr_worker::spawn(
+                self.db.clone(),
+                self.config.recording_detail.clone(),
+                self.linker_stop.clone(),
+                self.hot_frame_cache.clone(),
+                self.power_profile_rx.clone(),
+            );
+        }
         info!("Starting VisionManager");
         *status = VisionManagerStatus::Running;
         drop(status);

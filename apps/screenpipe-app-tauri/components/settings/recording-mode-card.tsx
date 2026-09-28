@@ -41,7 +41,7 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
     more_detail: ui("More intermediate moments and searchable text. Uses more resources when power allows."),
     custom: ui("You have custom recording preferences. Battery protection can temporarily limit them."),
   };
-  const interrupted = status?.capture_paused || status?.screenshot_disabled || status?.active_profile === "full_pause" || status?.active_profile === "audio_paused";
+  const interrupted = status?.recording_detail?.capture_delayed || status?.capture_paused || status?.screenshot_disabled || status?.active_profile === "full_pause" || status?.active_profile === "audio_paused";
   return <>
     <Card className="border-border bg-card">
       <CardContent className="p-4 space-y-3">

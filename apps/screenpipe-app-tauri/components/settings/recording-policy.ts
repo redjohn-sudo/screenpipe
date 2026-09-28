@@ -36,7 +36,7 @@ export interface RecordingPowerStatus {
   audio_disabled?: boolean;
   screenshot_disabled?: boolean;
   capture_paused?: boolean;
-  recording_detail?: { preferred_mode: RecordingDetail; scroll_interval_ms: number; reason: string };
+  recording_detail?: { preferred_mode: RecordingDetail; scroll_interval_ms: number; reason: string; capture_delayed?: boolean; text_pending?: number; text_oldest_age_seconds?: number };
 }
 
 export function isRecordingPowerStatus(value: unknown): value is RecordingPowerStatus {
@@ -53,6 +53,8 @@ export function recordingStatusText(status: RecordingPowerStatus | null): string
   if (status.capture_paused || status.active_profile === "full_pause") return "Recording paused at critical battery. Connect power to resume.";
   if (status.active_profile === "audio_paused") return "Audio and screenshots paused at low battery. Searchable screen text continues. Connect power to resume.";
   if (status.screenshot_disabled) return "Screenshots paused at low battery. Audio and searchable screen text continue according to your capture preferences.";
+  if (status.recording_detail?.capture_delayed) return "Screen capture is delayed. Recent moments may be missing while capture recovers.";
+  if ((status.recording_detail?.text_pending ?? 0) > 0 && (status.recording_detail?.text_oldest_age_seconds ?? 0) >= 5) return "Screen images are saved. Searchable text is catching up in the background.";
   if (["serious", "critical"].includes(status.state.thermal_state)) return "Temporarily reducing recording work because your device is hot. Your preferences are preserved.";
   if (status.user_pref === "performance") return "Battery limits are overridden. Thermal protection still applies.";
   if (status.user_pref === "battery_saver") return "Battery saver is always on, including while plugged in.";

@@ -36,6 +36,14 @@ describe("recording preference hierarchy", () => {
       }
     }
   });
+  it("reports capture failure and text backlog ahead of manual power overrides, without hiding a pause", () => {
+    const delayed = { ...active, user_pref: "performance" as const, recording_detail: { ...active.recording_detail!, capture_delayed: true, text_pending: 4, text_oldest_age_seconds: 12 } };
+    expect(recordingStatusText(delayed)).toContain("Screen capture is delayed");
+    expect(recordingStatusText({ ...delayed, capture_paused: true })).toContain("Recording paused");
+    const catchingUp = { ...delayed, recording_detail: { ...delayed.recording_detail, capture_delayed: false } };
+    expect(recordingStatusText(catchingUp)).toContain("Searchable text is catching up");
+    expect(recordingStatusText({ ...catchingUp, recording_detail: { ...catchingUp.recording_detail, text_pending: 0 } })).toContain("overridden");
+  });
   it("reports actual interruptions, temporary limits, recovery and unavailable status", () => {
     expect(recordingStatusText(null)).toContain("unavailable");
     expect(recordingStatusText({ ...active, active_profile: "full_pause" })).toContain("Recording paused");

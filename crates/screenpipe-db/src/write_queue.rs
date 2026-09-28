@@ -638,6 +638,14 @@ pub(crate) enum WriteOp {
         /// When Some, this frame references another frame's elements (dedup).
         /// The frame row is still inserted but element insertions are skipped.
         elements_ref_frame_id: Option<i64>,
+        deferred_ocr_options: Option<String>,
+    },
+    FinishFrameOcr {
+        frame_id: i64,
+    },
+    RetryFrameOcr {
+        frame_id: i64,
+        delay_seconds: i64,
     },
     InsertVideoChunkWithFps {
         file_path: String,
@@ -886,6 +894,7 @@ pub(crate) enum WriteResult {
     /// Callers need this so frame-linker correlation ids can be paired with
     /// the actual `ui_events.id` after batch flush.
     Ids(Vec<i64>),
+    Updated(bool),
 }
 
 /// A pending write: the operation plus a channel to send the result back.
@@ -1759,7 +1768,17 @@ async fn execute_single_write(
             ocr_text_json,
             full_text,
             elements_ref_frame_id,
+            deferred_ocr_options,
         } => {
+            // Individual operation failures do not abort the writer batch.
+            // Keep this frame and its recovery job atomic within that batch.
+            if deferred_ocr_options.is_some() {
+                sqlx::query("SAVEPOINT snapshot_ocr")
+                    .execute(&mut **conn)
+                    .await?;
+            }
+            let result = async {
+
             let id = sqlx::query(
                 r#"INSERT INTO frames (
                     video_chunk_id, offset_index, timestamp, name,
@@ -1805,6 +1824,11 @@ async fn execute_single_write(
             .await?
             .last_insert_rowid();
 
+            if let Some(options) = deferred_ocr_options {
+                sqlx::query("INSERT INTO frame_ocr_jobs(frame_id,snapshot_path,options_json) VALUES(?,?,?)")
+                    .bind(id).bind(snapshot_path).bind(options).execute(&mut **conn).await?;
+            }
+
             // OCR text/metadata now lives on the frame itself: full_text feeds
             // frames_fts (search) and text_json holds the per-word bounds. The
             // ocr_text table was retired in 2026-06. Element rows are still
@@ -1822,6 +1846,34 @@ async fn execute_single_write(
                 id, capture_trigger
             );
             Ok(WriteResult::Id(id))
+            }.await;
+            if deferred_ocr_options.is_some() {
+                if result.is_err() {
+                    sqlx::query("ROLLBACK TO SAVEPOINT snapshot_ocr")
+                        .execute(&mut **conn)
+                        .await?;
+                }
+                sqlx::query("RELEASE SAVEPOINT snapshot_ocr")
+                    .execute(&mut **conn)
+                    .await?;
+            }
+            result
+        }
+
+        WriteOp::FinishFrameOcr { frame_id } => {
+            sqlx::query("DELETE FROM frame_ocr_jobs WHERE frame_id=?")
+                .bind(frame_id)
+                .execute(&mut **conn)
+                .await?;
+            Ok(WriteResult::Unit)
+        }
+        WriteOp::RetryFrameOcr {
+            frame_id,
+            delay_seconds,
+        } => {
+            sqlx::query("UPDATE frame_ocr_jobs SET attempts=attempts+1,retry_after=unixepoch()+? WHERE frame_id=?")
+                .bind(delay_seconds).bind(frame_id).execute(&mut **conn).await?;
+            Ok(WriteResult::Unit)
         }
 
         WriteOp::InsertDeferredElements {
@@ -1929,12 +1981,24 @@ async fn execute_single_write(
             // FrameLinker emits UPDATEs after pairing a trigger event with
             // the frame it caused us to capture. `frame_id IS NULL` guards
             // against accidental clobber if a duplicate update is enqueued.
-            sqlx::query("UPDATE ui_events SET frame_id = ?1 WHERE id = ?2 AND frame_id IS NULL")
-                .bind(frame_id)
-                .bind(row_id)
-                .execute(&mut **conn)
-                .await?;
-            Ok(WriteResult::Unit)
+            // Correlations can span a focus switch while capture is busy. Check
+            // the persisted identities inside the writer transaction, regardless
+            // of whether the event or frame reached the linker first.
+            let changed = sqlx::query(
+                "UPDATE ui_events SET frame_id = ?1 WHERE id = ?2 AND frame_id IS NULL
+                 AND EXISTS (SELECT 1 FROM frames f WHERE f.id = ?1
+                   AND NULLIF(ui_events.app_name, '') = NULLIF(f.app_name, '')
+                   AND NULLIF(ui_events.window_title, '') = NULLIF(f.window_name, '')
+                   AND (NULLIF(ui_events.browser_url, '') IS NULL
+                        OR ui_events.browser_url = NULLIF(f.browser_url, '')))",
+            )
+            .bind(frame_id)
+            .bind(row_id)
+            .execute(&mut **conn)
+            .await?
+            .rows_affected()
+                > 0;
+            Ok(WriteResult::Updated(changed))
         }
 
         WriteOp::DeleteAudioChunksBatch { chunk_ids } => {
@@ -3698,6 +3762,7 @@ mod tests {
                 ocr_text_json: None,
                 full_text: Some("page content".to_string()),
                 elements_ref_frame_id: None,
+                deferred_ocr_options: None,
             })
             .await
             .unwrap();

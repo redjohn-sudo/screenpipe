@@ -390,14 +390,17 @@ export function mockLocalApiResponse(
     if (power === "unavailable") return Response.json({}, { status: 503 });
     const active = power === "critical" ? "full_pause" : power === "low" ? "audio_paused" : power === "hot" ? "saver" : power === "battery" ? "balanced" : "performance";
     return Response.json({
-      state: { on_ac: power === "ac" || power === "hot", battery_pct: power === "critical" ? 8 : power === "low" ? 15 : 75,
+      state: { on_ac: ["ac", "hot", "delayed", "text"].includes(power), battery_pct: power === "critical" ? 8 : power === "low" ? 15 : 75,
         os_low_power: false, thermal_state: power === "hot" ? "serious" : "nominal" },
       active_profile: active, user_pref: "auto", pause_audio_on_low_battery: true,
       audio_disabled: active === "audio_paused" || active === "full_pause",
       screenshot_disabled: active === "audio_paused" || active === "full_pause",
       capture_paused: active === "full_pause",
       recording_detail: { preferred_mode: "auto", scroll_interval_ms: ["saver", "audio_paused", "full_pause"].includes(active) ? 5000 : 2000,
-        reason: power === "ac" ? "preference" : "power" },
+        reason: power === "ac" ? "preference" : "power",
+        capture_delayed: power === "delayed",
+        text_pending: power === "text" ? 4 : 0,
+        text_oldest_age_seconds: power === "text" ? 12 : 0 },
     });
   }
   if (url.pathname === "/search") {

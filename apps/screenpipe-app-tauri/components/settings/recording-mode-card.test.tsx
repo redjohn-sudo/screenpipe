@@ -106,6 +106,14 @@ describe("recording mode consent and runtime state", () => {
     expect(screen.getByRole("combobox").textContent).toContain("More detail");
     expect(screen.getByText(/Changes pending/)).toBeTruthy();
   });
+  it("announces a delayed capture while keeping the selected mode and image clarity", async () => {
+    fetchStatus.mockResolvedValue({ ok: true, json: async () => ({ active_profile: "performance", user_pref: "auto", state: { on_ac: true, battery_pct: 90, thermal_state: "nominal" }, recording_detail: { preferred_mode: "more_detail", scroll_interval_ms: 1000, reason: "preference", capture_delayed: true } }) });
+    const change = vi.fn();
+    render(<RecordingModeCard settings={{ ...recordingPreset("more_detail"), videoQuality: "high" }} onChange={change} onCustomize={() => {}} pending={false} />);
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toContain("Screen capture is delayed"));
+    expect(screen.getByRole("combobox").textContent).toContain("More detail");
+    expect(change).not.toHaveBeenCalled();
+  });
   it("handles malformed and older backend responses without crashing", async () => {
     fetchStatus.mockResolvedValue({ ok: true, json: async () => ({}) });
     render(<RecordingModeCard settings={recordingPreset("auto")} onChange={() => {}} onCustomize={() => {}} pending={false} />);

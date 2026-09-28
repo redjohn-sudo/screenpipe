@@ -21,8 +21,7 @@ use screenpipe_a11y::tree::TreeWalkerConfig;
 use screenpipe_a11y::ActivityFeed;
 use screenpipe_capture::ocr_gate::OcrGate;
 use screenpipe_capture::paired_capture::{
-    detach_tree_from_pixels, paired_capture, paired_capture_deferred, CaptureContext,
-    PairedCaptureResult,
+    detach_tree_from_pixels, paired_capture_queued, CaptureContext, PairedCaptureResult,
 };
 use screenpipe_capture::{TreeWalkerWorker, TreeWalkerWorkerOutcome};
 use screenpipe_core::window_pattern::{self, WindowPattern};
@@ -1210,6 +1209,11 @@ pub(crate) async fn event_driven_capture_loop(
         // Startup capture is a real attempt too. Count capture work from the
         // first frame instead of waiting for the next idle fallback.
         record_capture_attempt(&vision_metrics, &monitor_liveness);
+        let startup_started = Instant::now();
+        let tracks_startup = focus_controller.hosts_focus_for_monitor(&monitor);
+        if tracks_startup {
+            recording_detail.capture_started();
+        }
         match capture_with_timeout(
             CAPTURE_OPERATION_TIMEOUT,
             do_capture(
@@ -1229,11 +1233,17 @@ pub(crate) async fn event_driven_capture_loop(
         .await
         {
             Ok(Ok(output)) => {
+                if tracks_startup {
+                    recording_detail.capture_skipped();
+                }
                 state.mark_captured();
                 if let Some(ref mut comparer) = frame_comparer {
                     let _ = comparer.compare(&output.image);
                 }
                 if let Some(ref result) = output.result {
+                    if tracks_startup {
+                        recording_detail.observe_capture(startup_started.elapsed());
+                    }
                     last_content_hash = result.content_hash;
                     last_frame_id = Some(result.frame_id);
                     last_db_write = Instant::now();
@@ -1272,9 +1282,15 @@ pub(crate) async fn event_driven_capture_loop(
                 }
             }
             Ok(Err(e)) => {
+                if tracks_startup {
+                    recording_detail.observe_failure();
+                }
                 warn!("startup capture failed for monitor {}: {}", monitor_id, e);
             }
             Err(_timeout) => {
+                if tracks_startup {
+                    recording_detail.observe_failure();
+                }
                 warn!(
                     "startup capture timed out after {:?} for monitor {}; continuing with live capture loop",
                     CAPTURE_OPERATION_TIMEOUT, monitor_id
@@ -2104,6 +2120,10 @@ pub(crate) async fn event_driven_capture_loop(
                     screenpipe_screen::CaptureLoopStage::Capture,
                 );
                 let capture_started = Instant::now();
+                let tracks_detail = focus_controller.hosts_focus_for_monitor(&monitor);
+                if tracks_detail {
+                    recording_detail.capture_started();
+                }
                 let capture_result = capture_with_timeout(
                     CAPTURE_OPERATION_TIMEOUT,
                     do_capture(
@@ -2125,6 +2145,12 @@ pub(crate) async fn event_driven_capture_loop(
                 )
                 .await;
 
+                if tracks_detail {
+                    match &capture_result {
+                        Ok(Ok(_)) => recording_detail.capture_skipped(),
+                        _ => recording_detail.observe_failure(),
+                    }
+                }
                 match capture_result {
                     Ok(Ok(output)) => {
                         state.mark_captured();
@@ -2166,7 +2192,7 @@ pub(crate) async fn event_driven_capture_loop(
                         }
 
                         if let Some(ref result) = output.result {
-                            if focus_controller.hosts_focus_for_monitor(&monitor) {
+                            if tracks_detail {
                                 recording_detail.observe_capture(capture_started.elapsed());
                             }
                             // Full capture — update hash, metrics, cache
@@ -3070,7 +3096,7 @@ async fn do_capture(
     last_db_write: Instant,
     elements_ref_frame_id: Option<i64>,
     walk_budget: &mut screenpipe_a11y::budget::AppWalkBudget,
-    ocr_gate: &mut OcrGate,
+    _ocr_gate: &mut OcrGate,
     screenshot_disabled: bool,
     hd_active: bool,
     in_meeting: bool,
@@ -3766,9 +3792,9 @@ async fn do_capture(
     };
 
     let result = if defer_text_extraction {
-        paired_capture_deferred(&ctx).await?
+        paired_capture_queued(&ctx, None).await?
     } else {
-        paired_capture(&ctx, tree_snapshot.as_ref(), Some(ocr_gate)).await?
+        paired_capture_queued(&ctx, tree_snapshot.as_ref()).await?
     };
     if let Some(sender) = params.semantic_tx {
         match tree_snapshot {
