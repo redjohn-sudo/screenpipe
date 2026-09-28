@@ -39,13 +39,13 @@ def poll_policy(folder):
         except Exception:pass
 def run_cases(mode, folder):
     cases=[]
-    for repetition in range(3):
+    for repetition in range(2):
         for name in ['idle','continuous','short','reverse','focus']:
             cmd(reset=True); time.sleep(3)
             start=time.time()
             events=[]
-            if name=='idle':time.sleep(30)
-            elif name=='continuous':events.append(cmd(60, -12 if repetition%2==0 else 12))
+            if name=='idle':time.sleep(15)
+            elif name=='continuous':events.append(cmd(30, -12 if repetition%2==0 else 12))
             elif name=='short':events.append(cmd(2))
             elif name=='reverse':events.extend([cmd(3),cmd(3,12)])
             elif name=='focus':events.extend([cmd(3),cmd(0,window=1),cmd(3,window=1)])
@@ -67,7 +67,7 @@ try:
     assert any(x['kind']=='received' for x in rows),'No native scroll events received'
     write(ROOT/'native-preflight.json',{'ready':ready,'nativeEventsReceived':sum(x['kind']=='received' for x in rows)})
     if os.environ.get('PREFLIGHT_ONLY')=='1':sys.exit(0)
-    write(ROOT/'binary.json',{'sha256':hashlib.sha256(BIN.read_bytes()).hexdigest(),'path':str(BIN),'sourceSha':os.environ['SUBJECT_SHA'],'profile':'debug-dev','audio':False,'videoQuality':'high','powerMode':'auto','apiAuth':'disabled only on disposable localhost-bound fixture'})
+    write(ROOT/'binary.json',{'sha256':hashlib.sha256(BIN.read_bytes()).hexdigest(),'path':str(BIN),'sourceSha':os.environ['SUBJECT_SHA'],'profile':'release','audio':False,'videoQuality':'high','powerMode':'auto','apiAuth':'disabled only on disposable localhost-bound fixture'})
     # Alternate mode order across architectures to expose order/warm-up effects.
     modes=['control','auto','low_impact','more_detail'] if os.uname().machine=='arm64' else ['control','more_detail','low_impact','auto']
     for mode in modes:
@@ -90,8 +90,20 @@ try:
             request=urllib.request.Request('http://127.0.0.1:3030/power',data=json.dumps({'mode':'auto'}).encode(),headers={'Content-Type':'application/json'},method='POST')
             with urllib.request.urlopen(request,timeout=5) as response:write(folder/'power-controlled.json',json.load(response))
             poll_stop.clear();poller=threading.Thread(target=poll_policy,args=(folder,),daemon=True);poller.start()
-            time.sleep(15)
-        try:run_cases(mode,folder)
+            time.sleep(60) # Exclude installation/startup work identically on both revisions.
+            write(folder/'health-after-settle.json',health())
+        try:
+            run_cases(mode,folder)
+            if recorder:
+                write(folder/'power-measurement-end.json',api('power'))
+                # Measure, do not hide, the time required for deferred text.
+                drain_started=time.monotonic()
+                while time.monotonic()-drain_started < 120:
+                    status=api('power')
+                    if status.get('recording_detail',{}).get('text_pending',0)==0:break
+                    time.sleep(1)
+                write(folder/'text-drain.json',{'elapsedSeconds':time.monotonic()-drain_started,'status':api('power')})
+                write(folder/'search-at-end.json',api('search?content_type=ocr&limit=1000'))
         finally:
             poll_stop.set()
             if poller:poller.join(4)
@@ -103,7 +115,7 @@ try:
             for db in databases:
                 connection=sqlite3.connect('file:'+str(db)+'?mode=ro',uri=True);connection.row_factory=sqlite3.Row
                 tables={r[0] for r in connection.execute("select name from sqlite_master where type='table'")}
-                for table in ['frames','ui_events','elements']:
+                for table in ['frames','ui_events','elements','frame_ocr_jobs']:
                     if table in tables:
                         values=[dict(r) for r in connection.execute('select * from '+table)]
                         write(folder/(table+'.json'),values);exports[table]=len(values)

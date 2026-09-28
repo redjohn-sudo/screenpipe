@@ -1,6 +1,6 @@
 # screenpipe — AI that knows everything you've seen, said, or heard
 # https://screenpipe.com
-name: PR 7335 cloud native benchmark
+name: PR 7335 matched release benchmark
 on:
   workflow_dispatch:
 permissions:
@@ -16,10 +16,10 @@ jobs:
       matrix:
         os: [macos-14, macos-15-intel]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 150
+    timeout-minutes: 180
     env:
       GIT_LFS_SKIP_SMUDGE: 1
-      SUBJECT_SHA: c369f333f2752bd6e0c243c2d665dafc49b9f21c
+      SUBJECT_SHA: e08fa22b93425806cc1a9dedcc8f56830cb51844
       CARGO_TERM_COLOR: always
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
           path: harness
       - uses: actions/checkout@v4
         with:
-          ref: c369f333f2752bd6e0c243c2d665dafc49b9f21c
+          ref: e08fa22b93425806cc1a9dedcc8f56830cb51844
           path: source
       - name: Machine identity and native fixture
         shell: bash
@@ -50,28 +50,37 @@ jobs:
       - uses: mozilla-actions/sccache-action@v0.0.9
       - name: Dependencies
         run: brew install ffmpeg pkg-config || brew list ffmpeg pkg-config
-      - name: Build pinned engine
+      - name: Build matched release engines
         working-directory: source
         env:
           RUSTC_WRAPPER: sccache
           SCCACHE_GHA_ENABLED: 'true'
-        run: cargo build --locked --profile debug-dev -p screenpipe-engine --bin screenpipe --no-default-features --features redact-onnx-cpu
-      - name: Retain exact test executable
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr7335-${{ matrix.os }}-test-binary
-          path: source/target/debug-dev/screenpipe
-          retention-days: 7
-      - name: Grant isolated recorder identity
         run: |
-          bash source/.github/scripts/macos/wrap-binary-as-app-bundle.sh source/target/debug-dev/screenpipe com.screenpipe.cloudbench.engine CloudRecorder "$PWD/CloudRecorder.app"
-          sudo bash source/scripts/tcc-grant/tcc-grant.sh grant --app "$PWD/CloudRecorder.app" --service accessibility,input-monitoring,screen-recording --adhoc-sign
-      - name: Native workload and capture measurements
-        timeout-minutes: 45
-        run: python3 harness/scripts/cloud-benchmark/run.py "$PWD/evidence/benchmark" "$PWD/CloudRecorder.app/Contents/MacOS/CloudRecorder" "$PWD/CloudFixture.app/Contents/MacOS/CloudFixture" "$PWD/sample"
+          set -euo pipefail
+          git fetch --depth=1 origin bd766a7597004df1c60a79b223a1cd11f957e219
+          for pair in before:bd766a7597004df1c60a79b223a1cd11f957e219 after:e08fa22b93425806cc1a9dedcc8f56830cb51844; do
+            label="${pair%%:*}"
+            sha="${pair#*:}"
+            git checkout "$sha"
+            test "$(git rev-parse HEAD)" = "$sha"
+            cargo build --locked --release -p screenpipe-engine --bin screenpipe --no-default-features --features redact-onnx-cpu
+            bash .github/scripts/macos/wrap-binary-as-app-bundle.sh target/release/screenpipe "com.screenpipe.cloudbench.engine.$label" "CloudRecorder-$label" "$GITHUB_WORKSPACE/CloudRecorder-$label.app"
+            sudo bash scripts/tcc-grant/tcc-grant.sh grant --app "$GITHUB_WORKSPACE/CloudRecorder-$label.app" --service accessibility,input-monitoring,screen-recording --adhoc-sign
+            shasum -a 256 "$GITHUB_WORKSPACE/CloudRecorder-$label.app/Contents/MacOS/CloudRecorder-$label" > "$GITHUB_WORKSPACE/evidence/binary-$label.txt"
+          done
+          git checkout e08fa22b93425806cc1a9dedcc8f56830cb51844
+      - name: Matched native workloads
+        timeout-minutes: 55
+        run: |
+          set -euo pipefail
+          if [ "$(uname -m)" = arm64 ]; then order="before after"; else order="after before"; fi
+          for label in $order; do
+            if [ "$label" = before ]; then export SUBJECT_SHA=bd766a7597004df1c60a79b223a1cd11f957e219; else export SUBJECT_SHA=e08fa22b93425806cc1a9dedcc8f56830cb51844; fi
+            python3 harness/scripts/cloud-benchmark/run.py "$PWD/evidence/$label/benchmark" "$PWD/CloudRecorder-$label.app/Contents/MacOS/CloudRecorder-$label" "$PWD/CloudFixture.app/Contents/MacOS/CloudFixture" "$PWD/sample"
+          done
       - name: Recording policy regression tests
         working-directory: source
-        timeout-minutes: 25
+        timeout-minutes: 30
         env:
           RUSTC_WRAPPER: sccache
           SCCACHE_GHA_ENABLED: 'true'
@@ -79,27 +88,22 @@ jobs:
           set -o pipefail
           cargo test --locked --profile debug-dev -p screenpipe-engine --lib --no-default-features --features redact-onnx-cpu recording_detail::tests 2>&1 | tee ../evidence/recording-detail-tests.log
           cargo test --locked --profile debug-dev -p screenpipe-engine --lib --no-default-features --features redact-onnx-cpu power:: 2>&1 | tee ../evidence/power-tests.log
+          cargo test --locked --profile debug-dev -p screenpipe-capture --lib 2>&1 | tee ../evidence/capture-tests.log
+          cargo test --locked --profile debug-dev -p screenpipe-db --lib deferred_ocr 2>&1 | tee ../evidence/queue-tests.log
+          cargo test --locked --profile debug-dev -p screenpipe-db --test ui_events_batch_test 2>&1 | tee ../evidence/frame-link-tests.log
       - name: Evidence, including failure logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pr7335-${{ matrix.os }}-native-evidence
           path: |
-            evidence/*.txt
-            evidence/*.log
-            evidence/**/machine.txt
-            evidence/**/native-preflight.json
+            evidence/**/*.txt
+            evidence/**/*.log
             evidence/**/fixture.stdout
-            evidence/**/fixture/*.json
-            evidence/**/fixture/*.jsonl
-            evidence/benchmark/*.json
-            evidence/benchmark/*/*.json
-            evidence/benchmark/*/*.jsonl
-            evidence/benchmark/*/database-snapshot.sqlite
-            evidence/benchmark/*/recorder.log
-            evidence/benchmark/*/data/db.sqlite
-            evidence/benchmark/*/data/**/*.png
-            evidence/benchmark/*/data/**/*.jpg
-            evidence/benchmark/*/data/**/*.jpeg
-            evidence/benchmark/*/data/**/*.webp
+            evidence/**/*.json
+            evidence/**/*.jsonl
+            evidence/**/database-snapshot.sqlite
+            evidence/**/*.jpg
+            evidence/**/*.jpeg
+            evidence/**/*.png
           retention-days: 14
