@@ -33,7 +33,7 @@ describe("recording mode consent and runtime state", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     expect(change).not.toHaveBeenCalled();
     select("Low impact");
-    fireEvent.click(screen.getByRole("button", { name: "Save mode" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     expect(change).toHaveBeenCalledTimes(1);
     expect(change).toHaveBeenCalledWith(recordingPreset("low_impact"));
   });
@@ -56,13 +56,45 @@ describe("recording mode consent and runtime state", () => {
     const view = render(<RecordingModeCard settings={initial} onChange={change} onCustomize={() => {}} pending={false} />);
     select("More detail");
     expect(screen.queryByText(/Image clarity:.*Balanced/)).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Save mode" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     const patch = change.mock.calls[0][0];
     expect(patch).not.toHaveProperty("videoQuality");
     const applied = { ...initial, ...patch };
     expect(applied.videoQuality).toBe("high");
     view.rerender(<RecordingModeCard settings={applied} onChange={change} onCustomize={() => {}} pending />);
     expect(screen.getByRole("combobox").textContent).toContain("More detail");
+  });
+  it.each([
+    [false, false], [false, true], [true, false], [true, true],
+  ])("applies only selected resets (battery=%s, idle=%s)", (resetPower, resetIdle) => {
+    fetchStatus.mockResolvedValue({ ok: false });
+    const change = vi.fn();
+    const initial = { powerMode: "performance" as const, idleCaptureIntervalMs: 2000, videoQuality: "high" };
+    render(<RecordingModeCard settings={initial} onChange={change} onCustomize={() => {}} pending={false} />);
+    select("More detail");
+    if (!resetPower) fireEvent.click(screen.getByRole("checkbox", { name: /Battery behavior/ }));
+    if (!resetIdle) fireEvent.click(screen.getByRole("checkbox", { name: /Idle screenshots/ }));
+    expect(screen.getByText(`Recording mode after save: ${resetPower && resetIdle ? "More detail" : "Custom"}`)).toBeTruthy();
+    expect(change).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    const patch = change.mock.calls[0][0];
+    expect(patch.recordingDetail).toBe("more_detail");
+    expect(Object.hasOwn(patch, "powerMode")).toBe(resetPower);
+    expect(Object.hasOwn(patch, "idleCaptureIntervalMs")).toBe(resetIdle);
+    expect({ ...initial, ...patch }).toMatchObject({ powerMode: resetPower ? "auto" : "performance", idleCaptureIntervalMs: resetIdle ? null : 2000, videoQuality: "high" });
+  });
+  it("discards edited resets on cancel and starts a new preview with the preset defaults", () => {
+    fetchStatus.mockResolvedValue({ ok: false });
+    const change = vi.fn();
+    render(<RecordingModeCard settings={{ powerMode: "performance", idleCaptureIntervalMs: 2000 }} onChange={change} onCustomize={() => {}} pending={false} />);
+    select("More detail");
+    fireEvent.click(screen.getByRole("checkbox", { name: /Battery behavior/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /Idle screenshots/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(change).not.toHaveBeenCalled();
+    select("Low impact");
+    expect(screen.getByRole("checkbox", { name: /Battery behavior/ }).getAttribute("aria-checked")).toBe("true");
+    expect(screen.getByRole("checkbox", { name: /Idle screenshots/ }).getAttribute("aria-checked")).toBe("true");
   });
   it("keeps saved detail selected while displaying runtime battery interruption and pending changes", async () => {
     fetchStatus.mockResolvedValue({ ok: true, json: async () => ({ active_profile: "audio_paused", user_pref: "auto", state: { on_ac: false, battery_pct: 15, thermal_state: "nominal" }, recording_detail: { preferred_mode: "more_detail", scroll_interval_ms: 5000, reason: "power" } }) });

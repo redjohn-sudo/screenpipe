@@ -5,6 +5,7 @@
 import React, { useState } from "react";
 import { useGT } from "gt-react";
 import { useRecordingPowerStatus } from "./use-recording-power-status";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -13,7 +14,7 @@ import { recordingMode, recordingPreset, recordingStatusText, type RecordingPref
 
 export function RecordingModeCard({ settings, onChange, onCustomize, pending, locked = false }: {
   settings: RecordingPreferences;
-  onChange: (patch: RecordingPresetPatch) => void;
+  onChange: (patch: Partial<RecordingPresetPatch>) => void;
   onCustomize: () => void;
   pending: boolean;
   locked?: boolean;
@@ -21,6 +22,17 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
   const ui = useGT();
   const mode = recordingMode(settings);
   const [proposed, setProposed] = useState<RecordingPreset | null>(null);
+  const [resetPower, setResetPower] = useState(true);
+  const [resetIdle, setResetIdle] = useState(true);
+  const propose = (value: RecordingPreset) => {
+    setResetPower(true);
+    setResetIdle(true);
+    setProposed(value);
+  };
+  const patch: Partial<RecordingPresetPatch> = proposed ? recordingPreset(proposed) : {};
+  if (!resetPower) delete patch.powerMode;
+  if (!resetIdle) delete patch.idleCaptureIntervalMs;
+  const resultingMode = recordingMode({ ...settings, ...patch });
   const status = useRecordingPowerStatus();
   const labels = { auto: ui("Automatic (recommended)"), low_impact: ui("Low impact"), more_detail: ui("More detail"), custom: ui("Custom") };
   const descriptions = {
@@ -40,7 +52,7 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
           </div>
           <Select value={mode} disabled={locked} onValueChange={(value) => {
             if (value === "custom") onCustomize();
-            else if (value !== mode) setProposed(value as RecordingPreset);
+            else if (value !== mode) propose(value as RecordingPreset);
           }}>
             <SelectTrigger aria-labelledby="recording-mode-label" aria-describedby="recording-mode-help" className="w-[215px] h-9 text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -49,7 +61,7 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
           </Select>
         </div>
         {locked && <p className="text-xs text-muted-foreground">{ui("Your organization manages part of this mode. Individual controls remain available where permitted.")}</p>}
-        {mode === "custom" && !locked && <Button variant="outline" size="sm" onClick={() => setProposed("auto")}>{ui("Restore Automatic")}</Button>}
+        {mode === "custom" && !locked && <Button variant="outline" size="sm" onClick={() => propose("auto")}>{ui("Restore Automatic")}</Button>}
         <div className="border-t border-border pt-3 text-xs space-y-1" role={interrupted ? "alert" : "status"}>
           <p className={interrupted ? "font-medium text-amber-600 dark:text-amber-400" : "text-muted-foreground"}>{ui(recordingStatusText(status))}</p>
           {pending && <p className="font-medium">{ui("Changes pending. Apply & restart to activate them. The status above describes the running recorder.")}</p>}
@@ -61,17 +73,37 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{ui("Switch to {mode}?", { mode: proposed ? labels[proposed] : "" })}</DialogTitle>
-          <DialogDescription>{ui("Review the recording preferences this mode will set. Existing recordings are preserved.")}</DialogDescription>
+          <DialogDescription>{ui("Review and customize the changes before saving. Existing recordings are preserved.")}</DialogDescription>
         </DialogHeader>
-        <ul className="text-sm space-y-2 list-disc pl-5">
-          <li>{proposed ? descriptions[proposed] : ""}</li>
-          {(settings.powerMode ?? "auto") !== "auto" && <li>{ui("Battery behavior: {previous} → Automatic", { previous: settings.powerMode === "performance" ? ui("Ignore battery") : settings.powerMode === "battery_saver" ? ui("Always save battery") : ui("Automatic") })}</li>}
-          {settings.idleCaptureIntervalMs != null && <li>{ui("Idle screenshots: {previous} → Follow power profile", { previous: settings.idleCaptureIntervalMs == null ? ui("Follow power profile") : ui("Every {seconds}s", { seconds: settings.idleCaptureIntervalMs / 1000 }) })}</li>}
-        </ul>
-        <p className="text-xs text-muted-foreground">{ui("Battery protection will be Automatic. Image clarity stays as set, along with capture sources, privacy and audio policy. Apply & restart activates the saved mode.")}</p>
+        <p className="text-sm">{proposed ? descriptions[proposed] : ""}</p>
+        {((settings.powerMode ?? "auto") !== "auto" || settings.idleCaptureIntervalMs != null) && (
+          <fieldset disabled={locked} className="space-y-3 text-sm">
+            <legend className="mb-3 text-xs text-muted-foreground">{ui("Choose the additional changes to include. Uncheck a change to keep your current preference.")}</legend>
+            {(settings.powerMode ?? "auto") !== "auto" && (
+              <label className="flex items-start gap-3 cursor-pointer">
+                <Checkbox checked={resetPower} onCheckedChange={value => setResetPower(value === true)} className="mt-0.5" />
+                <span>{ui("Battery behavior: {previous} → Automatic", { previous: settings.powerMode === "performance" ? ui("Ignore battery") : ui("Always save battery") })}</span>
+              </label>
+            )}
+            {settings.idleCaptureIntervalMs != null && (
+              <label className="flex items-start gap-3 cursor-pointer">
+                <Checkbox checked={resetIdle} onCheckedChange={value => setResetIdle(value === true)} className="mt-0.5" />
+                <span>{ui("Idle screenshots: {previous} → Follow power profile", { previous: ui("Every {seconds}s", { seconds: settings.idleCaptureIntervalMs / 1000 }) })}</span>
+              </label>
+            )}
+          </fieldset>
+        )}
+        <div className="border-t border-border pt-3 space-y-2" role="status">
+          <p className="text-sm font-medium">{ui("Recording mode after save: {mode}", { mode: labels[resultingMode] })}</p>
+          {resultingMode === "custom" && <p className="text-xs text-muted-foreground">{ui("Your selected detail will be combined with the preferences you keep.")}</p>}
+          <p className="text-xs text-muted-foreground">{(patch.powerMode ?? settings.powerMode ?? "auto") === "auto"
+            ? ui("Battery protection will be Automatic.")
+            : ui("Your manual battery behavior stays as set. Automatic low-battery pauses remain overridden; thermal protection still applies.")}</p>
+        </div>
+        <p className="text-xs text-muted-foreground">{ui("Image clarity stays as set, along with capture sources, privacy and audio policy. Apply & restart activates your saved changes.")}</p>
         <DialogFooter>
           <Button variant="outline" onClick={() => setProposed(null)}>{ui("Cancel")}</Button>
-          <Button disabled={locked} onClick={() => { if (proposed && !locked) { onChange(recordingPreset(proposed)); setProposed(null); } }}>{ui("Save mode")}</Button>
+          <Button disabled={locked} onClick={() => { if (proposed && !locked) { onChange(patch); setProposed(null); } }}>{ui("Save changes")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
