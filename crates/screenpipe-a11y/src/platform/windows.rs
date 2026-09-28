@@ -1381,6 +1381,7 @@ fn run_input_worker(
 ) {
     debug!("a11y input worker started");
 
+    let scroll_aggregator = ScrollBuffer::with_live_interval(config.scroll_interval_ms.clone());
     let mut worker = InputWorker {
         tx,
         start,
@@ -1390,7 +1391,7 @@ fn run_input_worker(
         click_queue,
         text_buf: String::new(),
         last_text_time: None,
-        scroll_aggregator: ScrollBuffer::new(),
+        scroll_aggregator,
         pending_clipboard: Vec::new(),
         last_drops_seen: 0,
         last_drop_log: None,

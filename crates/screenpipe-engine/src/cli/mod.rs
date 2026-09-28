@@ -703,6 +703,10 @@ pub struct RecordArgs {
     #[arg(long, default_value = "balanced")]
     pub video_quality: String,
 
+    /// Screen history detail: adaptive capture cost, or a fixed sampling preset.
+    #[arg(long, default_value = "auto", value_parser = ["auto", "low_impact", "balanced", "more_detail"])]
+    pub recording_detail: String,
+
     /// Keep the computer awake while screenpipe is running.
     #[arg(long, default_value_t = false)]
     pub keep_computer_awake: bool,
@@ -931,6 +935,7 @@ pub struct RecordArgSources {
     pub transcription_mode: bool,
     pub disable_telemetry: bool,
     pub video_quality: bool,
+    pub recording_detail: bool,
     pub keep_computer_awake: bool,
     pub pause_on_drm_content: bool,
     pub disable_clipboard_capture: bool,
@@ -1000,6 +1005,7 @@ impl RecordArgSources {
             transcription_mode: from_command_line(record, "transcription_mode"),
             disable_telemetry: from_command_line(record, "disable_telemetry"),
             video_quality: from_command_line(record, "video_quality"),
+            recording_detail: from_command_line(record, "recording_detail"),
             keep_computer_awake: from_command_line(record, "keep_computer_awake"),
             pause_on_drm_content: from_command_line(record, "pause_on_drm_content"),
             disable_clipboard_capture: from_command_line(record, "disable_clipboard_capture"),
@@ -1055,6 +1061,7 @@ impl RecordArgSources {
             || self.transcription_mode
             || self.disable_telemetry
             || self.video_quality
+            || self.recording_detail
             || self.keep_computer_awake
             || self.pause_on_drm_content
             || self.disable_clipboard_capture
@@ -1247,6 +1254,12 @@ impl RecordArgs {
                 .collect(),
             deepgram_api_key: self.deepgram_api_key.clone().unwrap_or_default(),
             video_quality: self.video_quality.clone(),
+            recording_detail: match self.recording_detail.as_str() {
+                "low_impact" => screenpipe_config::RecordingDetail::LowImpact,
+                "balanced" => screenpipe_config::RecordingDetail::Balanced,
+                "more_detail" => screenpipe_config::RecordingDetail::MoreDetail,
+                _ => screenpipe_config::RecordingDetail::Auto,
+            },
             disable_snapshot_compaction: self.disable_snapshot_compaction,
             disable_meeting_detector: self.disable_meeting_detector,
             idle_capture_interval_ms: self.idle_capture_interval_ms,
@@ -1575,6 +1588,9 @@ impl RecordArgs {
         }
         if sources.disable_telemetry {
             settings.analytics_enabled = !self.disable_telemetry;
+        }
+        if sources.recording_detail {
+            settings.recording_detail = self.to_recording_settings().recording_detail;
         }
         if sources.video_quality {
             settings.video_quality = self.video_quality.clone();
@@ -2703,6 +2719,32 @@ mod tests {
                 assert!(sources.has_recording_override());
             }
         }
+    }
+
+    #[test]
+    fn recording_detail_cli_preserves_saved_mode_unless_explicitly_overridden() {
+        let mut settings = screenpipe_config::RecordingSettings {
+            recording_detail: screenpipe_config::RecordingDetail::LowImpact,
+            ..Default::default()
+        };
+        let args = record_args(["screenpipe", "record"]);
+        args.apply_explicit_overrides(&mut settings, &record_sources(["screenpipe", "record"]));
+        assert_eq!(
+            settings.recording_detail,
+            screenpipe_config::RecordingDetail::LowImpact
+        );
+        let args = record_args(["screenpipe", "record", "--recording-detail", "more_detail"]);
+        let sources = record_sources(["screenpipe", "record", "--recording-detail", "more_detail"]);
+        args.apply_explicit_overrides(&mut settings, &sources);
+        assert!(sources.has_recording_override());
+        assert_eq!(
+            settings.recording_detail,
+            screenpipe_config::RecordingDetail::MoreDetail
+        );
+        assert!(
+            Cli::try_parse_from(["screenpipe", "record", "--recording-detail", "unbounded"])
+                .is_err()
+        );
     }
 
     #[test]

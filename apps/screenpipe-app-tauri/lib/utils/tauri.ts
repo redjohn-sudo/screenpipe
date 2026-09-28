@@ -3638,6 +3638,10 @@ availableActions?: string[]; lifecycleNote: string;
  */
 revision?: string | null; updatedAtMs: number | null }
 /**
+ * Screen history detail, independent of image quality and audio capture.
+ */
+export type RecordingDetail = "auto" | "low_impact" | "balanced" | "more_detail"
+/**
  * A skill offered by the curated registry. Installing one downloads its folder
  * (the directory containing `SKILL.md`) from a public GitHub repo into the
  * store, reusing the same store the device/folder importers write to.
@@ -4225,6 +4229,10 @@ port: number;
  * Previously stored in SettingsStore.extra["powerMode"].
  */
 powerMode?: string | null;
+/**
+ * Bounds intermediate scroll checkpoints and accessibility extraction work.
+ */
+recordingDetail?: RecordingDetail;
 /**
  * Keep the computer awake while screenpipe is running.
  * Default off so existing installs keep the OS sleep behavior they chose.

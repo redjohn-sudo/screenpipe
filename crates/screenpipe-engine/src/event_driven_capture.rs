@@ -311,6 +311,7 @@ async fn wait_for_warm_focus_or_timeout(
 /// Groups parameters that don't change between captures on the same monitor,
 /// keeping `do_capture`'s argument list manageable.
 pub(crate) struct CaptureParams<'a> {
+    pub recording_detail: &'a crate::recording_detail::RecordingDetailController,
     pub db: &'a DatabaseManager,
     pub monitor: &'a SafeMonitor,
     pub monitor_id: u32,
@@ -1036,6 +1037,7 @@ pub(crate) async fn event_driven_capture_loop(
     // the override is fully disabled (no auto, no manual, no detector).
     high_fps_controller: Option<Arc<crate::high_fps_controller::HighFpsController>>,
     semantic_tx: Option<SemanticProjectionSender>,
+    recording_detail: Arc<crate::recording_detail::RecordingDetailController>,
 ) -> Result<()> {
     info!(
         "event-driven capture started for monitor {} (device: {})",
@@ -1057,6 +1059,9 @@ pub(crate) async fn event_driven_capture_loop(
 
     let mut state = EventDrivenCapture::new(config);
     let mut power_profile_rx = power_profile_rx;
+    if let Some(ref rx) = power_profile_rx {
+        recording_detail.set_power_profile(rx.borrow().name);
+    }
     // High-FPS override: takes ownership of `min_capture_interval_ms` while
     // active (manual toggle or auto-detected meeting). The reducer forwards
     // power-profile baseline updates so the post-override restore writes the
@@ -1159,6 +1164,7 @@ pub(crate) async fn event_driven_capture_loop(
         TreeWalkerWorker::spawn(format!("monitor-{monitor_id}"), tree_walker_config.clone())?;
 
     let capture_params = CaptureParams {
+        recording_detail: &recording_detail,
         db: &db,
         monitor: &monitor,
         monitor_id,
@@ -1601,6 +1607,7 @@ pub(crate) async fn event_driven_capture_loop(
         if let Some(ref mut rx) = power_profile_rx {
             if rx.has_changed().unwrap_or(false) {
                 let profile = rx.borrow_and_update().clone();
+                recording_detail.set_power_profile(profile.name);
                 debug!(
                     "applying power profile {:?} to monitor {}",
                     profile.name, monitor_id
@@ -2092,6 +2099,7 @@ pub(crate) async fn event_driven_capture_loop(
                     &monitor_liveness,
                     screenpipe_screen::CaptureLoopStage::Capture,
                 );
+                let capture_started = Instant::now();
                 let capture_result = capture_with_timeout(
                     CAPTURE_OPERATION_TIMEOUT,
                     do_capture(
@@ -2154,6 +2162,9 @@ pub(crate) async fn event_driven_capture_loop(
                         }
 
                         if let Some(ref result) = output.result {
+                            if focus_controller.hosts_focus_for_monitor(&monitor) {
+                                recording_detail.observe_capture(capture_started.elapsed());
+                            }
                             // Full capture — update hash, metrics, cache
                             last_content_hash = result.content_hash;
                             last_frame_id = Some(result.frame_id);
@@ -3267,6 +3278,10 @@ async fn do_capture(
         config.max_nodes_override = Some(decision.max_nodes);
         config.walk_timeout_override = Some(decision.timeout);
     }
+
+    let (max_nodes, walk_timeout) = params.recording_detail.tree_budget();
+    config.max_nodes_override = Some(config.effective_max_nodes().min(max_nodes));
+    config.walk_timeout_override = Some(config.effective_walk_timeout().min(walk_timeout));
 
     // The AX walker returns the one globally focused window. Walking it for a
     // different monitor would both waste work and pair unrelated pixels with
