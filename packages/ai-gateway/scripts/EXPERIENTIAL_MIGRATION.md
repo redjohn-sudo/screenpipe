@@ -8,7 +8,8 @@ Cloudflare routing, secrets, webhooks, deployment configuration or traffic.
 Before: customer -> existing gateway/auth/limits -> existing providers
 After:  customer -> existing gateway/auth/limits -> existing providers
         operator -> read-only preflight -> Experiential account
-        operator -> explicitly approved synthetic probe -> Experiential
+        operator -> approved synthetic probe + provider.zdr=true -> Experiential
+                 <- require x-gateway-zdr:true before reading JSON/SSE
 ```
 
 ## Offline inventory
@@ -35,15 +36,19 @@ bun scripts/experiential-preflight.ts > experiential-preflight.json
 ```
 
 Only GETs the documented API host. Compares exact authenticated model IDs and
-reads prompt capture and upstream policy. Refuses redirects, redacts upstream
+reads prompt capture, ZDR entitlement, continuation storage and upstream policy.
+Reports exact boolean model ZDR capability separately from catalog membership.
+Refuses redirects, redacts upstream
 errors, and never tries another key or host. Exit 1 means inspection failed;
 exit 2 means a report was produced with migration gates still unresolved. Catalog
 access cannot mark the account production ready.
 
 ## Optional synthetic probes
 
-Require spending approval, a test-only credential, billing activation, disabled
-prompt capture and no-training routing. Preflight runs again each time. Each
+Require spending approval, a test-only credential, billing activation, ZDR
+entitlement (or an existing grandfathered org ZDR policy), no-training routing,
+disabled ZDR continuation storage and a model with an authenticated catalog ZDR
+route. Missing or malformed privacy facts block dispatch. Preflight runs again each time. Each
 invocation sends exactly one synthetic POST, at most 64 output tokens, with no
 retries or fallback. Review the model price before approving: token bounds are
 not a dollar guarantee. Reconcile uncertain requests before retrying.
@@ -62,12 +67,49 @@ model fails without substitution. Responses keeps Astra stateless with low
 reasoning and standard tier. Confidential/custom, classifier, Auto and background
 rescue IDs are excluded. Streaming requires content, successful finish, usage and
 DONE. Tool/schema checks inspect actual arguments or JSON, not just HTTP status.
-The output omits prompts, completion content, headers and secrets. Inline cost is
+The output omits prompts, completion content, raw headers and secrets. It records
+only the boolean ZDR request/response confirmations and existing usage fields. Inline cost is
 optional and never proves settlement or customer allowance accounting.
 
 These probes test the vendor wire contract, not the deployed Screenpipe Worker
 or a completed routing adapter. Images, cache accounting, provider-native stream
 translation and multi-customer enforcement still need end-to-end proof.
+
+## Per-request privacy and consent boundary
+
+Every probe sends a top-level `"provider": {"zdr": true}` in the JSON body on
+Chat Completions, Responses and Messages. This is a request field, not a request
+header. With the Anthropic SDK it belongs in `extra_body`. The documented
+`x-gateway-zdr: true` response header is required before reading either JSON or
+SSE; missing, false or ambiguous values cancel the body and fail without retry.
+A response confirmation reports the vendor's verdict, not an independent audit
+of its storage. Check live enforcement before sending customer content.
+
+According to the vendor's data-controls contract, per-request ZDR suppresses
+prompt/response capture even when `capture_prompt_content` is on, excludes
+noncompliant upstream routes including fallbacks, and never loosens org policy.
+That is why account capture being on alone no longer blocks a ZDR probe. Pro
+entitlement still applies. `403 needs_subscription`, `403 model_not_granted`, and
+an older engine's `400` for unsupported `provider` all terminate the probe. Never
+remove the field or retry on a retaining route to make it succeed. No-training is
+a separate requirement and cannot substitute for ZDR.
+
+These probes have no consent-based exception: all requests use ZDR. Responses
+uses `store:false` and no `previous_response_id`; ZDR continuation storage must be
+explicitly off. No batch upload or `Idempotency-Key` replay storage is used.
+Content-free billing metadata is still retained by the vendor.
+
+The production consent integration is **not implemented here**. Screenpipe's
+existing Workflows opt-in covers redacted contributions and training Screenpipe's
+own models (`lib/trajectories/collector.ts` and
+`components/workflows/workflow-sharing-controls.tsx` in the desktop app). It does
+not authorize Experiential to retain raw inference requests. Keep inference ZDR
+for both opted-in and opted-out users; consented sharing remains a separate flow.
+Before any future retention exception, verify the specific consent purpose and
+version against the authenticated account server-side. Missing, stale, revoked,
+cross-account or client-supplied consent cannot relax privacy. Exercise these
+cases, account switching, all protocol paths and fallbacks in the future runtime
+adapter; neither this report nor these synthetic tests prove those customer flows.
 
 ## Gates before implementing production selection
 
@@ -92,7 +134,7 @@ Do not use an unrestricted org key as a temporary customer route. These scripts
 never mint keys, assign plans, upload BYOK, change settings, purchase, deploy,
 connect subscription webhooks or revoke existing gateway credentials.
 
-Official contracts checked September 27, 2026:
+Official contracts checked September 28, 2026:
 
 - [Account and identities](https://platform.experientiallabs.ai/docs/account-api)
 - [Usage and allowances](https://platform.experientiallabs.ai/docs/cost-api)

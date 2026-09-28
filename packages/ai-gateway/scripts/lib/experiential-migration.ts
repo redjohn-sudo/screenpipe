@@ -60,21 +60,27 @@ export async function inspectExperientialAccount(key: string, sourceModels: stri
   if (!Array.isArray(catalog.data) || catalog.data.some((m: any) => typeof m?.id !== 'string')) {
     throw new MigrationCheckError('invalid_catalog_response');
   }
-  const models = new Set<string>(catalog.data.map((m: any) => m.id));
+  const models = new Map<string, Json>(catalog.data.map((m: Json) => [m.id, m]));
   return {
     org_id: who.org_id as string,
     checks: {
       prompt_capture_disabled: telemetry.capture_prompt_content === false,
       upstream_no_training: providers.policy?.require_no_training === true,
       upstream_zero_retention: providers.policy?.require_zdr === true,
+      // Existing require_zdr is grandfathered even without a current Pro entitlement.
+      zdr_request_entitled: providers.zdr_entitled === true || providers.policy?.require_zdr === true,
+      zdr_continuation_storage_disabled: providers.policy?.zdr_continuation_storage === false,
     },
-    models: [...new Set(sourceModels)].map((id) => ({ id, exact_catalog_match: models.has(id) })),
+    models: [...new Set(sourceModels)].map((id) => ({ id, exact_catalog_match: models.has(id),
+      zdr_route_available: models.get(id)?.data_policy?.zdr === true || models.get(id)?.data_policy?.zdr_on_request === true,
+    })),
     // These need live operator/provider evidence; a catalog read cannot pass them.
     unverified: [
       'native_customer_plan_enforcement', 'per_customer_identity_and_key_isolation',
       'shared_total_and_frontier_caps', 'reset_window_and_usage_carry_in',
       'settled_and_pending_usage_reconciliation', 'protocol_and_price_parity',
       'billing_activation', 'live_cloudflare_rules_and_deployed_baseline',
+      'live_per_request_zdr_enforcement', 'server_owned_customer_consent_and_revocation',
     ],
     production_ready: false as const,
     cutover_authorized: false as const,
@@ -86,19 +92,22 @@ const tool = { type: 'function', function: { name: 'confirm', description: 'Retu
   parameters: { type: 'object', properties: { ok: { type: 'boolean' } }, required: ['ok'], additionalProperties: false } } };
 
 export function syntheticRequest(model: string, protocol: ProbeProtocol): { path: string; body: Json } {
+  // Every probe requires ZDR. Screenpipe sharing consent does not authorize
+  // vendor retention, and this tool deliberately has no privacy opt-out.
+  const provider = { zdr: true };
   // Excludes aliases, auto, confidential/custom, audio and background rescue routes.
   if (!/^(gpt-[a-z0-9.-]+|claude-[a-z0-9.-]+)$/.test(model)) throw new MigrationCheckError('unsupported_probe_model');
   if (protocol === 'messages') {
     if (!model.startsWith('claude-')) throw new MigrationCheckError('messages_requires_claude');
-    return { path: '/v1/messages', body: { model, max_tokens: 64, messages: [{ role: 'user', content: PROMPT }] } };
+    return { path: '/v1/messages', body: { model, provider, max_tokens: 64, messages: [{ role: 'user', content: PROMPT }] } };
   }
   if (protocol === 'responses') {
     if (model !== 'gpt-6-astra') throw new MigrationCheckError('responses_probe_requires_astra');
-    return { path: '/v1/responses', body: { model, input: [{ role: 'user', content: PROMPT }],
+    return { path: '/v1/responses', body: { model, provider, input: [{ role: 'user', content: PROMPT }],
       max_output_tokens: 64, reasoning: { effort: 'low' }, service_tier: 'standard', store: false } };
   }
   if (!['chat', 'stream', 'tools', 'json-schema'].includes(protocol)) throw new MigrationCheckError('unsupported_protocol');
-  const body: Json = { model, messages: [{ role: 'user', content: PROMPT }], max_completion_tokens: 64 };
+  const body: Json = { model, provider, messages: [{ role: 'user', content: PROMPT }], max_completion_tokens: 64 };
   if (protocol === 'stream') Object.assign(body, { stream: true, stream_options: { include_usage: true } });
   if (protocol === 'tools') Object.assign(body, { tools: [tool], tool_choice: { type: 'function', function: { name: 'confirm' } } });
   if (protocol === 'json-schema') body.response_format = { type: 'json_schema', json_schema: {
@@ -176,11 +185,21 @@ export async function runSyntheticProbe(options: {
   if (options.allowSpend !== true) throw new MigrationCheckError('explicit_spend_authorization_required');
   const spec = syntheticRequest(options.model, options.protocol);
   const before = await inspectExperientialAccount(options.key, [options.model], fetcher);
-  if (!before.checks.prompt_capture_disabled || !before.checks.upstream_no_training) throw new MigrationCheckError('privacy_preflight_failed');
+  // Documented per-request ZDR suppresses capture even when the org switch is
+  // on. No-training remains separate; continuation storage must stay disabled.
+  if (!before.checks.upstream_no_training || !before.checks.zdr_request_entitled ||
+      !before.checks.zdr_continuation_storage_disabled) throw new MigrationCheckError('privacy_preflight_failed');
   if (!before.models[0]?.exact_catalog_match) throw new MigrationCheckError('model_not_in_authenticated_catalog');
+  if (!before.models[0].zdr_route_available) throw new MigrationCheckError('model_has_no_verified_zdr_route');
   // Exactly one synthetic POST. No retries, provider fallback, customer data,
   // previous_response_id, BYOK upload or production configuration changes.
   const response = await request(options.key, spec.path, fetcher, spec.body);
+  // Confirm before consuming JSON or SSE. A missing/false/ambiguous verdict
+  // cannot prove compliance, and must never trigger a retry without provider.zdr.
+  if (response.headers.get('x-gateway-zdr') !== 'true') {
+    await response.body?.cancel().catch(() => {});
+    throw new MigrationCheckError('zdr_response_not_confirmed_no_retry');
+  }
   let data: Json;
   try { data = options.protocol === 'stream' ? await readStream(response) : await response.json() as Json; }
   catch (error) { if (error instanceof MigrationCheckError) throw error; throw new MigrationCheckError('invalid_probe_response_no_retry'); }
@@ -192,6 +211,7 @@ export async function runSyntheticProbe(options: {
   if (!Number.isInteger(input) || input < 0 || !Number.isInteger(output) || output < 0) throw new MigrationCheckError('usage_invalid');
   const requestId = response.headers.get('x-request-id');
   return { protocol: options.protocol, model: options.model, request_id: requestId,
+    zdr_requested: true, zdr_response_confirmed: true,
     input_tokens: input, output_tokens: output,
     // Optional inline cost is not authoritative settlement or allowance proof.
     inline_cost_usd: typeof usage.cost === 'number' && Number.isFinite(usage.cost) && usage.cost >= 0 ? usage.cost : null,
