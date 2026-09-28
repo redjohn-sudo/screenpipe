@@ -95,6 +95,7 @@ jobs:
             evidence/benchmark/*.json
             evidence/benchmark/*/*.json
             evidence/benchmark/*/*.jsonl
+            evidence/benchmark/*/database-snapshot.sqlite
             evidence/benchmark/*/recorder.log
             evidence/benchmark/*/data/db.sqlite
             evidence/benchmark/*/data/**/*.png

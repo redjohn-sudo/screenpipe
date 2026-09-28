@@ -107,6 +107,12 @@ try:
                     if table in tables:
                         values=[dict(r) for r in connection.execute('select * from '+table)]
                         write(folder/(table+'.json'),values);exports[table]=len(values)
+                # A stopped process can leave committed rows in its WAL. Retain
+                # a consistent standalone backup rather than an incomplete copy
+                # of db.sqlite without its journal.
+                backup=sqlite3.connect(folder/'database-snapshot.sqlite')
+                try:connection.backup(backup)
+                finally:backup.close()
                 connection.close()
             write(folder/'storage.json',{'fileBytes':sum(p.stat().st_size for p in (folder/'data').rglob('*') if p.is_file()),'rows':exports})
             assert exports.get('frames',0)>0,'No durable screenshot frames'

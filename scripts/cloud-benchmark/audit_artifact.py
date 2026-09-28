@@ -30,7 +30,10 @@ for mode in ("auto", "low_impact", "more_detail"):
         if path.is_file() and path.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp"):
             images[path.name].append(path)
     counts = {}
-    for db in (folder / "data").rglob("*.sqlite"):
+    databases = list((folder / "data").rglob("*.sqlite"))
+    if (folder / "database-snapshot.sqlite").exists():
+        databases.append(folder / "database-snapshot.sqlite")
+    for db in databases:
         try:
             con = sqlite3.connect(f"file:{db}?mode=ro&immutable=1", uri=True)
             counts[str(db.relative_to(root))] = {
