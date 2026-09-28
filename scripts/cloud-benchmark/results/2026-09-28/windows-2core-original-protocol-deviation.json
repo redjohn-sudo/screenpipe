@@ -1,0 +1,5873 @@
+{
+  "taskId": "scroll7335-bench2-20260928",
+  "status": "completed_with_protocol_deviation_not_pass",
+  "sourceSha": "c369f333f2752bd6e0c243c2d665dafc49b9f21c",
+  "profile": "debug-dev",
+  "binarySha256": "9e872d6d0b7d86d4e3d34a0f5401ddc2aba76974c28aafebf60b6b8ab32c1db1",
+  "hardware": {
+    "capturedUtc": "2026-09-28T17:41:06.2254016Z",
+    "azure": {
+      "vmSize": "Standard_D2as_v5",
+      "location": "northcentralus"
+    },
+    "os": {
+      "build": "26100",
+      "caption": "Microsoft Windows 11 Pro",
+      "version": "10.0.26100"
+    },
+    "cpu": {
+      "cores": 1,
+      "logicalProcessors": 2,
+      "model": "AMD EPYC 7763 64-Core Processor                "
+    },
+    "ramBytes": 8531955712,
+    "gpu": [
+      {
+        "vertical": 768,
+        "driver": "10.0.26100.1150",
+        "name": "Microsoft Hyper-V Video",
+        "horizontal": 1024
+      }
+    ],
+    "activeMonitorCount": 1,
+    "edgeVersion": "154.0.4258.37"
+  },
+  "methodology": {
+    "nativeWheelEventsPerLongCase": 1200,
+    "requestedCadenceMs": 50,
+    "delta": -20,
+    "recorderFamilyCpuIncluded": true,
+    "logicalProcessors": 2,
+    "cpuDefinitions": {
+      "oneCore": "delta engine-family CPU seconds / wall seconds * 100",
+      "wholeMachine": "oneCore percent / 2"
+    },
+    "sqliteQuietPollNominalMs": 100,
+    "limitations": [
+      "Get-Counter itself blocked about one second, so nominal one-second CPU sampling was actually approximately two-second sampling.",
+      "The same blocking doubled idle windows to approximately 62 seconds and quiet tails to approximately 24 seconds; this violates the exact 30s/12s timing protocol, so the run is not marked pass. Long wheel injection remained 1200 native events at 50ms cadence.",
+      "Responsiveness was not independently measured; CPU is not evidence of no UI lag.",
+      "AX marker regex sees the full accessibility tree (80 fixture rows), not just viewport-visible text; screenshot inspection is the viewport-completeness evidence.",
+      "Debug-dev Azure VM diagnostic only; synthetic AC/thermal state, not battery or device-age evidence.",
+      "Final frames reached rows 78-79; intermediate inspected frame showed rows 47-48 and per-trial unique image hashes demonstrate movement, but scrolling eventually reached the fixture bottom before the final event."
+    ]
+  },
+  "modes": {
+    "automatic": {
+      "activeTrials": [
+        {
+          "mode": "automatic",
+          "case": "continuous60-1",
+          "actualInputSpanSeconds": 59.965878,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 51.0,
+          "injectionMaxIntervalMs": 108.0,
+          "sampledActiveSeconds": 57.43915,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 30.113389560952765,
+          "cpuFamilyMachineAveragePercent": 15.056694780476382,
+          "rssFamilyMedianMiB": 103.03125,
+          "rssFamilyActiveSampleMaxMiB": 110.125,
+          "rssFamilyLifetimePeakMiB": 129.15234375,
+          "activeFrames": 31,
+          "activeScrollCheckpoints": 29,
+          "activeFrameGapMedianSeconds": 2.0124044999999997,
+          "activeFrameGapMaxSeconds": 2.273382,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        },
+        {
+          "mode": "automatic",
+          "case": "continuous60-2",
+          "actualInputSpanSeconds": 59.967446,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 50.0,
+          "injectionMaxIntervalMs": 77.0,
+          "sampledActiveSeconds": 57.315163,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 32.19588680224115,
+          "cpuFamilyMachineAveragePercent": 16.097943401120574,
+          "rssFamilyMedianMiB": 61.5,
+          "rssFamilyActiveSampleMaxMiB": 63.921875,
+          "rssFamilyLifetimePeakMiB": 129.15234375,
+          "activeFrames": 30,
+          "activeScrollCheckpoints": 29,
+          "activeFrameGapMedianSeconds": 2.046405,
+          "activeFrameGapMaxSeconds": 2.209173,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        },
+        {
+          "mode": "automatic",
+          "case": "continuous60-3",
+          "actualInputSpanSeconds": 59.954794,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 50.0,
+          "injectionMaxIntervalMs": 78.0,
+          "sampledActiveSeconds": 57.413149,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 32.57637897548521,
+          "cpuFamilyMachineAveragePercent": 16.288189487742606,
+          "rssFamilyMedianMiB": 55.1015625,
+          "rssFamilyActiveSampleMaxMiB": 57.94140625,
+          "rssFamilyLifetimePeakMiB": 129.15234375,
+          "activeFrames": 30,
+          "activeScrollCheckpoints": 29,
+          "activeFrameGapMedianSeconds": 2.022195,
+          "activeFrameGapMaxSeconds": 2.839489,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        }
+      ],
+      "cpuFamilyMachinePercentMedianOfTrialAverages": 16.097943401120574,
+      "dbFrames": 138,
+      "movement": [
+        {
+          "mode": "automatic",
+          "case": "continuous60-1",
+          "durationSeconds": 59.965878,
+          "storedActiveFrames": 31,
+          "firstObservedBottomSeconds": 55.264501,
+          "observedBoundaryTailSeconds": 4.701376999999994,
+          "positions": [
+            {
+              "id": 14,
+              "seconds": 1.520459,
+              "minRow": 2,
+              "maxRow": 3,
+              "recall": 1.0
+            },
+            {
+              "id": 15,
+              "seconds": 2.350897,
+              "minRow": 4,
+              "maxRow": 5,
+              "recall": 0.0
+            },
+            {
+              "id": 16,
+              "seconds": 4.453364,
+              "minRow": 7,
+              "maxRow": 8,
+              "recall": 1.0
+            },
+            {
+              "id": 17,
+              "seconds": 6.380123,
+              "minRow": 9,
+              "maxRow": 10,
+              "recall": 1.0
+            },
+            {
+              "id": 18,
+              "seconds": 8.456756,
+              "minRow": 12,
+              "maxRow": 13,
+              "recall": 1.0
+            },
+            {
+              "id": 19,
+              "seconds": 10.527678,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 20,
+              "seconds": 12.504797,
+              "minRow": 18,
+              "maxRow": 19,
+              "recall": 1.0
+            },
+            {
+              "id": 21,
+              "seconds": 14.591672,
+              "minRow": 21,
+              "maxRow": 22,
+              "recall": 1.0
+            },
+            {
+              "id": 22,
+              "seconds": 16.510501,
+              "minRow": 24,
+              "maxRow": 25,
+              "recall": 1.0
+            },
+            {
+              "id": 23,
+              "seconds": 18.58607,
+              "minRow": 27,
+              "maxRow": 28,
+              "recall": 1.0
+            },
+            {
+              "id": 24,
+              "seconds": 20.610656,
+              "minRow": 30,
+              "maxRow": 31,
+              "recall": 1.0
+            },
+            {
+              "id": 25,
+              "seconds": 22.743548,
+              "minRow": 33,
+              "maxRow": 34,
+              "recall": 1.0
+            },
+            {
+              "id": 26,
+              "seconds": 24.728974,
+              "minRow": 36,
+              "maxRow": 37,
+              "recall": 1.0
+            },
+            {
+              "id": 27,
+              "seconds": 26.701905,
+              "minRow": 38,
+              "maxRow": 39,
+              "recall": 1.0
+            },
+            {
+              "id": 28,
+              "seconds": 28.869473,
+              "minRow": 42,
+              "maxRow": 43,
+              "recall": 1.0
+            },
+            {
+              "id": 29,
+              "seconds": 30.879653,
+              "minRow": 45,
+              "maxRow": 46,
+              "recall": 1.0
+            },
+            {
+              "id": 30,
+              "seconds": 32.878921,
+              "minRow": 47,
+              "maxRow": 48,
+              "recall": 1.0
+            },
+            {
+              "id": 31,
+              "seconds": 34.780121,
+              "minRow": 50,
+              "maxRow": 51,
+              "recall": 1.0
+            },
+            {
+              "id": 32,
+              "seconds": 36.789425,
+              "minRow": 53,
+              "maxRow": 54,
+              "recall": 0.5
+            },
+            {
+              "id": 33,
+              "seconds": 38.8166,
+              "minRow": 56,
+              "maxRow": 57,
+              "recall": 0.0
+            },
+            {
+              "id": 34,
+              "seconds": 40.969349,
+              "minRow": 59,
+              "maxRow": 60,
+              "recall": 0.0
+            },
+            {
+              "id": 35,
+              "seconds": 42.975859,
+              "minRow": 62,
+              "maxRow": 63,
+              "recall": 0.0
+            },
+            {
+              "id": 36,
+              "seconds": 44.852001,
+              "minRow": 65,
+              "maxRow": 66,
+              "recall": 0.0
+            },
+            {
+              "id": 37,
+              "seconds": 47.125383,
+              "minRow": 68,
+              "maxRow": 69,
+              "recall": 0.0
+            },
+            {
+              "id": 38,
+              "seconds": 49.090566,
+              "minRow": 71,
+              "maxRow": 72,
+              "recall": 0.0
+            },
+            {
+              "id": 39,
+              "seconds": 51.229949,
+              "minRow": 74,
+              "maxRow": 75,
+              "recall": 0.0
+            },
+            {
+              "id": 40,
+              "seconds": 53.249872,
+              "minRow": 77,
+              "maxRow": 78,
+              "recall": 0.0
+            },
+            {
+              "id": 41,
+              "seconds": 55.264501,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 0.0
+            },
+            {
+              "id": 42,
+              "seconds": 56.373911,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 43,
+              "seconds": 57.154593,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 44,
+              "seconds": 59.170257,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 28
+        },
+        {
+          "mode": "automatic",
+          "case": "continuous60-2",
+          "durationSeconds": 59.967446,
+          "storedActiveFrames": 30,
+          "firstObservedBottomSeconds": 55.155737,
+          "observedBoundaryTailSeconds": 4.8117090000000005,
+          "positions": [
+            {
+              "id": 51,
+              "seconds": 2.484479,
+              "minRow": 4,
+              "maxRow": 5,
+              "recall": 1.0
+            },
+            {
+              "id": 52,
+              "seconds": 4.278214,
+              "minRow": 6,
+              "maxRow": 7,
+              "recall": 1.0
+            },
+            {
+              "id": 53,
+              "seconds": 6.421971,
+              "minRow": 9,
+              "maxRow": 10,
+              "recall": 1.0
+            },
+            {
+              "id": 54,
+              "seconds": 8.332518,
+              "minRow": 12,
+              "maxRow": 13,
+              "recall": 1.0
+            },
+            {
+              "id": 55,
+              "seconds": 10.432397,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 56,
+              "seconds": 12.425072,
+              "minRow": 18,
+              "maxRow": 19,
+              "recall": 1.0
+            },
+            {
+              "id": 57,
+              "seconds": 14.522727,
+              "minRow": 21,
+              "maxRow": 22,
+              "recall": 1.0
+            },
+            {
+              "id": 58,
+              "seconds": 16.525253,
+              "minRow": 24,
+              "maxRow": 25,
+              "recall": 1.0
+            },
+            {
+              "id": 59,
+              "seconds": 18.469214,
+              "minRow": 27,
+              "maxRow": 28,
+              "recall": 1.0
+            },
+            {
+              "id": 60,
+              "seconds": 20.547215,
+              "minRow": 30,
+              "maxRow": 31,
+              "recall": 1.0
+            },
+            {
+              "id": 61,
+              "seconds": 22.485877,
+              "minRow": 32,
+              "maxRow": 33,
+              "recall": 1.0
+            },
+            {
+              "id": 62,
+              "seconds": 24.558769,
+              "minRow": 35,
+              "maxRow": 36,
+              "recall": 1.0
+            },
+            {
+              "id": 63,
+              "seconds": 26.629775,
+              "minRow": 38,
+              "maxRow": 39,
+              "recall": 1.0
+            },
+            {
+              "id": 64,
+              "seconds": 28.799592,
+              "minRow": 42,
+              "maxRow": 43,
+              "recall": 1.0
+            },
+            {
+              "id": 65,
+              "seconds": 30.875772,
+              "minRow": 44,
+              "maxRow": 46,
+              "recall": 1.0
+            },
+            {
+              "id": 66,
+              "seconds": 32.659301,
+              "minRow": 47,
+              "maxRow": 48,
+              "recall": 1.0
+            },
+            {
+              "id": 67,
+              "seconds": 34.835538,
+              "minRow": 50,
+              "maxRow": 51,
+              "recall": 1.0
+            },
+            {
+              "id": 68,
+              "seconds": 36.878245,
+              "minRow": 53,
+              "maxRow": 54,
+              "recall": 1.0
+            },
+            {
+              "id": 69,
+              "seconds": 38.817635,
+              "minRow": 56,
+              "maxRow": 57,
+              "recall": 1.0
+            },
+            {
+              "id": 70,
+              "seconds": 40.86404,
+              "minRow": 59,
+              "maxRow": 60,
+              "recall": 1.0
+            },
+            {
+              "id": 71,
+              "seconds": 42.925475,
+              "minRow": 62,
+              "maxRow": 63,
+              "recall": 1.0
+            },
+            {
+              "id": 72,
+              "seconds": 44.827591,
+              "minRow": 65,
+              "maxRow": 66,
+              "recall": 1.0
+            },
+            {
+              "id": 73,
+              "seconds": 46.879781,
+              "minRow": 67,
+              "maxRow": 68,
+              "recall": 1.0
+            },
+            {
+              "id": 74,
+              "seconds": 48.959463,
+              "minRow": 70,
+              "maxRow": 71,
+              "recall": 1.0
+            },
+            {
+              "id": 75,
+              "seconds": 50.866002,
+              "minRow": 73,
+              "maxRow": 74,
+              "recall": 1.0
+            },
+            {
+              "id": 76,
+              "seconds": 52.946564,
+              "minRow": 76,
+              "maxRow": 77,
+              "recall": 1.0
+            },
+            {
+              "id": 77,
+              "seconds": 55.155737,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 78,
+              "seconds": 56.68659,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 79,
+              "seconds": 57.694924,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 0.0
+            },
+            {
+              "id": 80,
+              "seconds": 59.077592,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 27
+        },
+        {
+          "mode": "automatic",
+          "case": "continuous60-3",
+          "durationSeconds": 59.954794,
+          "storedActiveFrames": 30,
+          "firstObservedBottomSeconds": 55.02064,
+          "observedBoundaryTailSeconds": 4.9341539999999995,
+          "positions": [
+            {
+              "id": 88,
+              "seconds": 2.359017,
+              "minRow": 4,
+              "maxRow": 5,
+              "recall": 1.0
+            },
+            {
+              "id": 89,
+              "seconds": 4.277222,
+              "minRow": 6,
+              "maxRow": 7,
+              "recall": 1.0
+            },
+            {
+              "id": 90,
+              "seconds": 6.369864,
+              "minRow": 9,
+              "maxRow": 10,
+              "recall": 1.0
+            },
+            {
+              "id": 91,
+              "seconds": 8.427679,
+              "minRow": 12,
+              "maxRow": 13,
+              "recall": 1.0
+            },
+            {
+              "id": 92,
+              "seconds": 10.424153,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 93,
+              "seconds": 12.494989,
+              "minRow": 18,
+              "maxRow": 19,
+              "recall": 1.0
+            },
+            {
+              "id": 94,
+              "seconds": 14.583222,
+              "minRow": 21,
+              "maxRow": 22,
+              "recall": 1.0
+            },
+            {
+              "id": 95,
+              "seconds": 16.531524,
+              "minRow": 24,
+              "maxRow": 25,
+              "recall": 1.0
+            },
+            {
+              "id": 96,
+              "seconds": 18.582531,
+              "minRow": 27,
+              "maxRow": 28,
+              "recall": 1.0
+            },
+            {
+              "id": 97,
+              "seconds": 21.42202,
+              "minRow": 31,
+              "maxRow": 32,
+              "recall": 1.0
+            },
+            {
+              "id": 98,
+              "seconds": 22.562389,
+              "minRow": 33,
+              "maxRow": 34,
+              "recall": 1.0
+            },
+            {
+              "id": 99,
+              "seconds": 24.600971,
+              "minRow": 35,
+              "maxRow": 37,
+              "recall": 1.0
+            },
+            {
+              "id": 100,
+              "seconds": 26.753471,
+              "minRow": 39,
+              "maxRow": 40,
+              "recall": 1.0
+            },
+            {
+              "id": 101,
+              "seconds": 28.79961,
+              "minRow": 41,
+              "maxRow": 42,
+              "recall": 1.0
+            },
+            {
+              "id": 102,
+              "seconds": 30.814494,
+              "minRow": 44,
+              "maxRow": 45,
+              "recall": 1.0
+            },
+            {
+              "id": 103,
+              "seconds": 32.747094,
+              "minRow": 47,
+              "maxRow": 48,
+              "recall": 1.0
+            },
+            {
+              "id": 104,
+              "seconds": 34.785649,
+              "minRow": 50,
+              "maxRow": 51,
+              "recall": 1.0
+            },
+            {
+              "id": 105,
+              "seconds": 36.781268,
+              "minRow": 53,
+              "maxRow": 54,
+              "recall": 1.0
+            },
+            {
+              "id": 106,
+              "seconds": 38.976072,
+              "minRow": 56,
+              "maxRow": 57,
+              "recall": 1.0
+            },
+            {
+              "id": 107,
+              "seconds": 40.976007,
+              "minRow": 59,
+              "maxRow": 60,
+              "recall": 1.0
+            },
+            {
+              "id": 108,
+              "seconds": 42.867527,
+              "minRow": 62,
+              "maxRow": 63,
+              "recall": 1.0
+            },
+            {
+              "id": 109,
+              "seconds": 44.886726,
+              "minRow": 65,
+              "maxRow": 66,
+              "recall": 1.0
+            },
+            {
+              "id": 110,
+              "seconds": 47.023115,
+              "minRow": 68,
+              "maxRow": 69,
+              "recall": 1.0
+            },
+            {
+              "id": 111,
+              "seconds": 49.149571,
+              "minRow": 71,
+              "maxRow": 72,
+              "recall": 1.0
+            },
+            {
+              "id": 112,
+              "seconds": 51.171766,
+              "minRow": 74,
+              "maxRow": 75,
+              "recall": 1.0
+            },
+            {
+              "id": 113,
+              "seconds": 52.998012,
+              "minRow": 76,
+              "maxRow": 77,
+              "recall": 1.0
+            },
+            {
+              "id": 114,
+              "seconds": 55.02064,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 115,
+              "seconds": 56.153407,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 116,
+              "seconds": 57.375497,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 117,
+              "seconds": 59.231921,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 27
+        }
+      ]
+    },
+    "low-impact": {
+      "activeTrials": [
+        {
+          "mode": "low-impact",
+          "case": "continuous60-1",
+          "actualInputSpanSeconds": 59.964159,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 50.0,
+          "injectionMaxIntervalMs": 89.0,
+          "sampledActiveSeconds": 57.338202,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 24.525533604977706,
+          "cpuFamilyMachineAveragePercent": 12.262766802488853,
+          "rssFamilyMedianMiB": 105.2421875,
+          "rssFamilyActiveSampleMaxMiB": 120.484375,
+          "rssFamilyLifetimePeakMiB": 127.421875,
+          "activeFrames": 12,
+          "activeScrollCheckpoints": 11,
+          "activeFrameGapMedianSeconds": 4.972932,
+          "activeFrameGapMaxSeconds": 5.200162,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        },
+        {
+          "mode": "low-impact",
+          "case": "continuous60-2",
+          "actualInputSpanSeconds": 59.963611,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 50.0,
+          "injectionMaxIntervalMs": 101.0,
+          "sampledActiveSeconds": 57.224973,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 24.05527565736029,
+          "cpuFamilyMachineAveragePercent": 12.027637828680145,
+          "rssFamilyMedianMiB": 62.033203125,
+          "rssFamilyActiveSampleMaxMiB": 65.08203125,
+          "rssFamilyLifetimePeakMiB": 127.421875,
+          "activeFrames": 11,
+          "activeScrollCheckpoints": 11,
+          "activeFrameGapMedianSeconds": 5.0464675,
+          "activeFrameGapMaxSeconds": 5.130628,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        },
+        {
+          "mode": "low-impact",
+          "case": "continuous60-3",
+          "actualInputSpanSeconds": 59.96387,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 50.0,
+          "injectionMaxIntervalMs": 87.0,
+          "sampledActiveSeconds": 57.16507,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 26.075801184184677,
+          "cpuFamilyMachineAveragePercent": 13.037900592092338,
+          "rssFamilyMedianMiB": 52.287109375,
+          "rssFamilyActiveSampleMaxMiB": 60.88671875,
+          "rssFamilyLifetimePeakMiB": 127.421875,
+          "activeFrames": 13,
+          "activeScrollCheckpoints": 11,
+          "activeFrameGapMedianSeconds": 5.020214,
+          "activeFrameGapMaxSeconds": 5.163371,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        }
+      ],
+      "cpuFamilyMachinePercentMedianOfTrialAverages": 12.262766802488853,
+      "dbFrames": 76,
+      "movement": [
+        {
+          "mode": "low-impact",
+          "case": "continuous60-1",
+          "durationSeconds": 59.964159,
+          "storedActiveFrames": 12,
+          "firstObservedBottomSeconds": 55.605673,
+          "observedBoundaryTailSeconds": 4.358485999999999,
+          "positions": [
+            {
+              "id": 11,
+              "seconds": 5.413424,
+              "minRow": 8,
+              "maxRow": 9,
+              "recall": 1.0
+            },
+            {
+              "id": 12,
+              "seconds": 10.454464,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 13,
+              "seconds": 15.412772,
+              "minRow": 22,
+              "maxRow": 23,
+              "recall": 1.0
+            },
+            {
+              "id": 14,
+              "seconds": 20.310247,
+              "minRow": 29,
+              "maxRow": 30,
+              "recall": 1.0
+            },
+            {
+              "id": 15,
+              "seconds": 25.450765,
+              "minRow": 37,
+              "maxRow": 38,
+              "recall": 1.0
+            },
+            {
+              "id": 16,
+              "seconds": 30.312678,
+              "minRow": 44,
+              "maxRow": 45,
+              "recall": 1.0
+            },
+            {
+              "id": 17,
+              "seconds": 35.488158,
+              "minRow": 51,
+              "maxRow": 52,
+              "recall": 1.0
+            },
+            {
+              "id": 18,
+              "seconds": 40.532225,
+              "minRow": 58,
+              "maxRow": 59,
+              "recall": 1.0
+            },
+            {
+              "id": 19,
+              "seconds": 45.505157,
+              "minRow": 65,
+              "maxRow": 67,
+              "recall": 1.0
+            },
+            {
+              "id": 20,
+              "seconds": 50.705319,
+              "minRow": 73,
+              "maxRow": 74,
+              "recall": 1.0
+            },
+            {
+              "id": 21,
+              "seconds": 55.605673,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 22,
+              "seconds": 58.809469,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 11
+        },
+        {
+          "mode": "low-impact",
+          "case": "continuous60-2",
+          "durationSeconds": 59.963611,
+          "storedActiveFrames": 11,
+          "firstObservedBottomSeconds": 55.542833,
+          "observedBoundaryTailSeconds": 4.4207779999999985,
+          "positions": [
+            {
+              "id": 29,
+              "seconds": 5.432648,
+              "minRow": 8,
+              "maxRow": 9,
+              "recall": 1.0
+            },
+            {
+              "id": 30,
+              "seconds": 10.508502,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 31,
+              "seconds": 15.461931,
+              "minRow": 22,
+              "maxRow": 23,
+              "recall": 1.0
+            },
+            {
+              "id": 32,
+              "seconds": 20.309987,
+              "minRow": 29,
+              "maxRow": 30,
+              "recall": 1.0
+            },
+            {
+              "id": 33,
+              "seconds": 25.358518,
+              "minRow": 37,
+              "maxRow": 38,
+              "recall": 1.0
+            },
+            {
+              "id": 34,
+              "seconds": 30.368288,
+              "minRow": 44,
+              "maxRow": 45,
+              "recall": 1.0
+            },
+            {
+              "id": 35,
+              "seconds": 35.412692,
+              "minRow": 51,
+              "maxRow": 52,
+              "recall": 1.0
+            },
+            {
+              "id": 36,
+              "seconds": 40.520105,
+              "minRow": 58,
+              "maxRow": 59,
+              "recall": 1.0
+            },
+            {
+              "id": 37,
+              "seconds": 45.569626,
+              "minRow": 66,
+              "maxRow": 67,
+              "recall": 1.0
+            },
+            {
+              "id": 38,
+              "seconds": 50.700254,
+              "minRow": 73,
+              "maxRow": 74,
+              "recall": 1.0
+            },
+            {
+              "id": 39,
+              "seconds": 55.542833,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 11
+        },
+        {
+          "mode": "low-impact",
+          "case": "continuous60-3",
+          "durationSeconds": 59.96387,
+          "storedActiveFrames": 13,
+          "firstObservedBottomSeconds": 55.449138,
+          "observedBoundaryTailSeconds": 4.514732000000002,
+          "positions": [
+            {
+              "id": 45,
+              "seconds": 5.312226,
+              "minRow": 8,
+              "maxRow": 9,
+              "recall": 1.0
+            },
+            {
+              "id": 46,
+              "seconds": 10.305201,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 47,
+              "seconds": 15.354374,
+              "minRow": 22,
+              "maxRow": 23,
+              "recall": 1.0
+            },
+            {
+              "id": 48,
+              "seconds": 20.335758,
+              "minRow": 29,
+              "maxRow": 30,
+              "recall": 1.0
+            },
+            {
+              "id": 49,
+              "seconds": 25.403194,
+              "minRow": 37,
+              "maxRow": 38,
+              "recall": 1.0
+            },
+            {
+              "id": 50,
+              "seconds": 30.343834,
+              "minRow": 44,
+              "maxRow": 45,
+              "recall": 1.0
+            },
+            {
+              "id": 51,
+              "seconds": 35.434815,
+              "minRow": 51,
+              "maxRow": 52,
+              "recall": 1.0
+            },
+            {
+              "id": 52,
+              "seconds": 40.482268,
+              "minRow": 58,
+              "maxRow": 59,
+              "recall": 1.0
+            },
+            {
+              "id": 53,
+              "seconds": 45.645639,
+              "minRow": 66,
+              "maxRow": 67,
+              "recall": 1.0
+            },
+            {
+              "id": 54,
+              "seconds": 50.733934,
+              "minRow": 73,
+              "maxRow": 74,
+              "recall": 1.0
+            },
+            {
+              "id": 55,
+              "seconds": 55.449138,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 56,
+              "seconds": 56.406602,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 0.0
+            },
+            {
+              "id": 57,
+              "seconds": 58.716211,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 11
+        }
+      ]
+    },
+    "more-detail": {
+      "activeTrials": [
+        {
+          "mode": "more-detail",
+          "case": "continuous60-1",
+          "actualInputSpanSeconds": 59.950608,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 51.0,
+          "injectionMaxIntervalMs": 83.0,
+          "sampledActiveSeconds": 57.514695,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 43.16831550615021,
+          "cpuFamilyMachineAveragePercent": 21.584157753075104,
+          "rssFamilyMedianMiB": 108.30078125,
+          "rssFamilyActiveSampleMaxMiB": 113.09765625,
+          "rssFamilyLifetimePeakMiB": 131.19921875,
+          "activeFrames": 57,
+          "activeScrollCheckpoints": 57,
+          "activeFrameGapMedianSeconds": 1.0336015,
+          "activeFrameGapMaxSeconds": 1.253663,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        },
+        {
+          "mode": "more-detail",
+          "case": "continuous60-2",
+          "actualInputSpanSeconds": 59.966351,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 51.0,
+          "injectionMaxIntervalMs": 102.0,
+          "sampledActiveSeconds": 57.238387,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 43.97726127397685,
+          "cpuFamilyMachineAveragePercent": 21.988630636988425,
+          "rssFamilyMedianMiB": 57.322265625,
+          "rssFamilyActiveSampleMaxMiB": 61.703125,
+          "rssFamilyLifetimePeakMiB": 131.19921875,
+          "activeFrames": 58,
+          "activeScrollCheckpoints": 58,
+          "activeFrameGapMedianSeconds": 1.023681,
+          "activeFrameGapMaxSeconds": 1.332996,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        },
+        {
+          "mode": "more-detail",
+          "case": "continuous60-3",
+          "actualInputSpanSeconds": 59.965352,
+          "injectedEvents": 1200,
+          "injectionMedianIntervalMs": 51.0,
+          "injectionMaxIntervalMs": 82.0,
+          "sampledActiveSeconds": 57.337228,
+          "sampleCount": 28,
+          "stableProcessFamilyPidSet": true,
+          "cpuFamilyOneCoreAveragePercent": 43.90145090376535,
+          "cpuFamilyMachineAveragePercent": 21.950725451882676,
+          "rssFamilyMedianMiB": 54.9375,
+          "rssFamilyActiveSampleMaxMiB": 62.40625,
+          "rssFamilyLifetimePeakMiB": 131.19921875,
+          "activeFrames": 58,
+          "activeScrollCheckpoints": 58,
+          "activeFrameGapMedianSeconds": 1.01323,
+          "activeFrameGapMaxSeconds": 1.339559,
+          "recorderOnlySeparationPossible": false,
+          "note": "Counter is process-family aggregate; per-PID CPU/RSS not archived. Get-Counter blocks~1s and sampler timestamps are after this call; observer overhead not calibrated. Activewheelthread maintains nominal60s; idle/quiet durations doubled."
+        }
+      ],
+      "cpuFamilyMachinePercentMedianOfTrialAverages": 21.950725451882676,
+      "dbFrames": 225,
+      "movement": [
+        {
+          "mode": "more-detail",
+          "case": "continuous60-1",
+          "durationSeconds": 59.950608,
+          "storedActiveFrames": 57,
+          "firstObservedBottomSeconds": 54.905588,
+          "observedBoundaryTailSeconds": 5.045020000000001,
+          "positions": [
+            {
+              "id": 13,
+              "seconds": 1.471299,
+              "minRow": 2,
+              "maxRow": 3,
+              "recall": 1.0
+            },
+            {
+              "id": 14,
+              "seconds": 2.268841,
+              "minRow": 3,
+              "maxRow": 4,
+              "recall": 1.0
+            },
+            {
+              "id": 15,
+              "seconds": 3.387538,
+              "minRow": 5,
+              "maxRow": 6,
+              "recall": 1.0
+            },
+            {
+              "id": 16,
+              "seconds": 4.50306,
+              "minRow": 7,
+              "maxRow": 8,
+              "recall": 1.0
+            },
+            {
+              "id": 17,
+              "seconds": 5.365735,
+              "minRow": 8,
+              "maxRow": 9,
+              "recall": 1.0
+            },
+            {
+              "id": 18,
+              "seconds": 6.472996,
+              "minRow": 9,
+              "maxRow": 10,
+              "recall": 1.0
+            },
+            {
+              "id": 19,
+              "seconds": 7.567917,
+              "minRow": 11,
+              "maxRow": 12,
+              "recall": 1.0
+            },
+            {
+              "id": 20,
+              "seconds": 8.588663,
+              "minRow": 12,
+              "maxRow": 13,
+              "recall": 1.0
+            },
+            {
+              "id": 21,
+              "seconds": 9.414172,
+              "minRow": 14,
+              "maxRow": 15,
+              "recall": 1.0
+            },
+            {
+              "id": 22,
+              "seconds": 10.566672,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 23,
+              "seconds": 11.616644,
+              "minRow": 17,
+              "maxRow": 18,
+              "recall": 1.0
+            },
+            {
+              "id": 24,
+              "seconds": 12.741844,
+              "minRow": 18,
+              "maxRow": 19,
+              "recall": 1.0
+            },
+            {
+              "id": 25,
+              "seconds": 13.638402,
+              "minRow": 20,
+              "maxRow": 21,
+              "recall": 1.0
+            },
+            {
+              "id": 26,
+              "seconds": 14.650633,
+              "minRow": 21,
+              "maxRow": 22,
+              "recall": 1.0
+            },
+            {
+              "id": 27,
+              "seconds": 15.591604,
+              "minRow": 23,
+              "maxRow": 24,
+              "recall": 1.0
+            },
+            {
+              "id": 28,
+              "seconds": 16.759178,
+              "minRow": 24,
+              "maxRow": 25,
+              "recall": 1.0
+            },
+            {
+              "id": 29,
+              "seconds": 17.828764,
+              "minRow": 26,
+              "maxRow": 27,
+              "recall": 1.0
+            },
+            {
+              "id": 30,
+              "seconds": 18.693575,
+              "minRow": 27,
+              "maxRow": 28,
+              "recall": 1.0
+            },
+            {
+              "id": 31,
+              "seconds": 19.826894,
+              "minRow": 29,
+              "maxRow": 30,
+              "recall": 1.0
+            },
+            {
+              "id": 32,
+              "seconds": 20.830904,
+              "minRow": 30,
+              "maxRow": 31,
+              "recall": 1.0
+            },
+            {
+              "id": 33,
+              "seconds": 21.974411,
+              "minRow": 32,
+              "maxRow": 33,
+              "recall": 1.0
+            },
+            {
+              "id": 34,
+              "seconds": 22.831467,
+              "minRow": 33,
+              "maxRow": 34,
+              "recall": 1.0
+            },
+            {
+              "id": 35,
+              "seconds": 24.08513,
+              "minRow": 35,
+              "maxRow": 36,
+              "recall": 1.0
+            },
+            {
+              "id": 36,
+              "seconds": 24.983723,
+              "minRow": 36,
+              "maxRow": 37,
+              "recall": 1.0
+            },
+            {
+              "id": 37,
+              "seconds": 26.102753,
+              "minRow": 38,
+              "maxRow": 39,
+              "recall": 1.0
+            },
+            {
+              "id": 38,
+              "seconds": 27.07926,
+              "minRow": 39,
+              "maxRow": 40,
+              "recall": 1.0
+            },
+            {
+              "id": 39,
+              "seconds": 27.942725,
+              "minRow": 40,
+              "maxRow": 41,
+              "recall": 1.0
+            },
+            {
+              "id": 40,
+              "seconds": 29.143549,
+              "minRow": 42,
+              "maxRow": 43,
+              "recall": 1.0
+            },
+            {
+              "id": 41,
+              "seconds": 30.087284,
+              "minRow": 43,
+              "maxRow": 44,
+              "recall": 1.0
+            },
+            {
+              "id": 42,
+              "seconds": 31.097048,
+              "minRow": 45,
+              "maxRow": 46,
+              "recall": 1.0
+            },
+            {
+              "id": 43,
+              "seconds": 32.252535,
+              "minRow": 46,
+              "maxRow": 47,
+              "recall": 1.0
+            },
+            {
+              "id": 44,
+              "seconds": 33.112162,
+              "minRow": 48,
+              "maxRow": 49,
+              "recall": 1.0
+            },
+            {
+              "id": 45,
+              "seconds": 34.186766,
+              "minRow": 49,
+              "maxRow": 50,
+              "recall": 1.0
+            },
+            {
+              "id": 46,
+              "seconds": 35.314751,
+              "minRow": 51,
+              "maxRow": 52,
+              "recall": 1.0
+            },
+            {
+              "id": 47,
+              "seconds": 36.196811,
+              "minRow": 52,
+              "maxRow": 53,
+              "recall": 1.0
+            },
+            {
+              "id": 48,
+              "seconds": 37.266633,
+              "minRow": 54,
+              "maxRow": 55,
+              "recall": 1.0
+            },
+            {
+              "id": 49,
+              "seconds": 38.400944,
+              "minRow": 55,
+              "maxRow": 56,
+              "recall": 1.0
+            },
+            {
+              "id": 50,
+              "seconds": 39.289044,
+              "minRow": 57,
+              "maxRow": 58,
+              "recall": 1.0
+            },
+            {
+              "id": 51,
+              "seconds": 40.281805,
+              "minRow": 58,
+              "maxRow": 59,
+              "recall": 1.0
+            },
+            {
+              "id": 52,
+              "seconds": 41.461932,
+              "minRow": 60,
+              "maxRow": 61,
+              "recall": 1.0
+            },
+            {
+              "id": 53,
+              "seconds": 42.356205,
+              "minRow": 61,
+              "maxRow": 62,
+              "recall": 1.0
+            },
+            {
+              "id": 54,
+              "seconds": 43.425926,
+              "minRow": 63,
+              "maxRow": 64,
+              "recall": 1.0
+            },
+            {
+              "id": 55,
+              "seconds": 44.567342,
+              "minRow": 64,
+              "maxRow": 65,
+              "recall": 1.0
+            },
+            {
+              "id": 56,
+              "seconds": 45.508035,
+              "minRow": 66,
+              "maxRow": 67,
+              "recall": 1.0
+            },
+            {
+              "id": 57,
+              "seconds": 46.520962,
+              "minRow": 67,
+              "maxRow": 68,
+              "recall": 1.0
+            },
+            {
+              "id": 58,
+              "seconds": 47.489427,
+              "minRow": 68,
+              "maxRow": 69,
+              "recall": 1.0
+            },
+            {
+              "id": 59,
+              "seconds": 48.674645,
+              "minRow": 70,
+              "maxRow": 71,
+              "recall": 1.0
+            },
+            {
+              "id": 60,
+              "seconds": 49.568029,
+              "minRow": 71,
+              "maxRow": 72,
+              "recall": 1.0
+            },
+            {
+              "id": 61,
+              "seconds": 50.558526,
+              "minRow": 73,
+              "maxRow": 74,
+              "recall": 1.0
+            },
+            {
+              "id": 62,
+              "seconds": 51.696286,
+              "minRow": 74,
+              "maxRow": 75,
+              "recall": 1.0
+            },
+            {
+              "id": 63,
+              "seconds": 52.784486,
+              "minRow": 76,
+              "maxRow": 77,
+              "recall": 1.0
+            },
+            {
+              "id": 64,
+              "seconds": 53.770054,
+              "minRow": 77,
+              "maxRow": 78,
+              "recall": 1.0
+            },
+            {
+              "id": 65,
+              "seconds": 54.905588,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 66,
+              "seconds": 55.840826,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 67,
+              "seconds": 57.076171,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 68,
+              "seconds": 57.920505,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 69,
+              "seconds": 58.966962,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 53
+        },
+        {
+          "mode": "more-detail",
+          "case": "continuous60-2",
+          "durationSeconds": 59.966351,
+          "storedActiveFrames": 58,
+          "firstObservedBottomSeconds": 53.868016,
+          "observedBoundaryTailSeconds": 6.098335000000006,
+          "positions": [
+            {
+              "id": 77,
+              "seconds": 1.472265,
+              "minRow": 2,
+              "maxRow": 3,
+              "recall": 1.0
+            },
+            {
+              "id": 78,
+              "seconds": 2.279427,
+              "minRow": 3,
+              "maxRow": 4,
+              "recall": 1.0
+            },
+            {
+              "id": 79,
+              "seconds": 3.410738,
+              "minRow": 5,
+              "maxRow": 6,
+              "recall": 1.0
+            },
+            {
+              "id": 80,
+              "seconds": 4.545202,
+              "minRow": 7,
+              "maxRow": 8,
+              "recall": 1.0
+            },
+            {
+              "id": 81,
+              "seconds": 5.56717,
+              "minRow": 8,
+              "maxRow": 9,
+              "recall": 1.0
+            },
+            {
+              "id": 82,
+              "seconds": 6.439561,
+              "minRow": 9,
+              "maxRow": 10,
+              "recall": 1.0
+            },
+            {
+              "id": 83,
+              "seconds": 7.58771,
+              "minRow": 11,
+              "maxRow": 12,
+              "recall": 1.0
+            },
+            {
+              "id": 84,
+              "seconds": 8.595686,
+              "minRow": 13,
+              "maxRow": 14,
+              "recall": 1.0
+            },
+            {
+              "id": 85,
+              "seconds": 9.713594,
+              "minRow": 14,
+              "maxRow": 15,
+              "recall": 1.0
+            },
+            {
+              "id": 86,
+              "seconds": 10.558479,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 87,
+              "seconds": 11.62526,
+              "minRow": 17,
+              "maxRow": 18,
+              "recall": 1.0
+            },
+            {
+              "id": 88,
+              "seconds": 12.733524,
+              "minRow": 18,
+              "maxRow": 19,
+              "recall": 1.0
+            },
+            {
+              "id": 89,
+              "seconds": 13.660249,
+              "minRow": 20,
+              "maxRow": 21,
+              "recall": 1.0
+            },
+            {
+              "id": 90,
+              "seconds": 14.922174,
+              "minRow": 22,
+              "maxRow": 23,
+              "recall": 1.0
+            },
+            {
+              "id": 91,
+              "seconds": 15.828932,
+              "minRow": 23,
+              "maxRow": 24,
+              "recall": 1.0
+            },
+            {
+              "id": 92,
+              "seconds": 17.0031,
+              "minRow": 25,
+              "maxRow": 26,
+              "recall": 1.0
+            },
+            {
+              "id": 93,
+              "seconds": 17.794359,
+              "minRow": 26,
+              "maxRow": 27,
+              "recall": 1.0
+            },
+            {
+              "id": 94,
+              "seconds": 18.791009,
+              "minRow": 27,
+              "maxRow": 28,
+              "recall": 1.0
+            },
+            {
+              "id": 95,
+              "seconds": 20.008429,
+              "minRow": 29,
+              "maxRow": 30,
+              "recall": 1.0
+            },
+            {
+              "id": 96,
+              "seconds": 20.899501,
+              "minRow": 30,
+              "maxRow": 31,
+              "recall": 1.0
+            },
+            {
+              "id": 97,
+              "seconds": 21.901588,
+              "minRow": 32,
+              "maxRow": 33,
+              "recall": 1.0
+            },
+            {
+              "id": 98,
+              "seconds": 23.02511,
+              "minRow": 33,
+              "maxRow": 34,
+              "recall": 1.0
+            },
+            {
+              "id": 99,
+              "seconds": 23.917974,
+              "minRow": 34,
+              "maxRow": 35,
+              "recall": 1.0
+            },
+            {
+              "id": 100,
+              "seconds": 24.908539,
+              "minRow": 36,
+              "maxRow": 37,
+              "recall": 1.0
+            },
+            {
+              "id": 101,
+              "seconds": 26.011743,
+              "minRow": 38,
+              "maxRow": 39,
+              "recall": 1.0
+            },
+            {
+              "id": 102,
+              "seconds": 27.159985,
+              "minRow": 39,
+              "maxRow": 40,
+              "recall": 1.0
+            },
+            {
+              "id": 103,
+              "seconds": 28.003452,
+              "minRow": 40,
+              "maxRow": 41,
+              "recall": 1.0
+            },
+            {
+              "id": 104,
+              "seconds": 29.027133,
+              "minRow": 42,
+              "maxRow": 43,
+              "recall": 1.0
+            },
+            {
+              "id": 105,
+              "seconds": 30.180577,
+              "minRow": 43,
+              "maxRow": 44,
+              "recall": 1.0
+            },
+            {
+              "id": 106,
+              "seconds": 31.058573,
+              "minRow": 45,
+              "maxRow": 46,
+              "recall": 1.0
+            },
+            {
+              "id": 107,
+              "seconds": 32.111259,
+              "minRow": 46,
+              "maxRow": 47,
+              "recall": 1.0
+            },
+            {
+              "id": 108,
+              "seconds": 33.244968,
+              "minRow": 48,
+              "maxRow": 49,
+              "recall": 1.0
+            },
+            {
+              "id": 109,
+              "seconds": 34.093055,
+              "minRow": 49,
+              "maxRow": 50,
+              "recall": 1.0
+            },
+            {
+              "id": 110,
+              "seconds": 35.112423,
+              "minRow": 51,
+              "maxRow": 52,
+              "recall": 1.0
+            },
+            {
+              "id": 111,
+              "seconds": 36.212838,
+              "minRow": 52,
+              "maxRow": 53,
+              "recall": 1.0
+            },
+            {
+              "id": 112,
+              "seconds": 37.351016,
+              "minRow": 54,
+              "maxRow": 55,
+              "recall": 1.0
+            },
+            {
+              "id": 113,
+              "seconds": 38.319107,
+              "minRow": 55,
+              "maxRow": 56,
+              "recall": 1.0
+            },
+            {
+              "id": 114,
+              "seconds": 39.457546,
+              "minRow": 57,
+              "maxRow": 58,
+              "recall": 1.0
+            },
+            {
+              "id": 115,
+              "seconds": 40.342474,
+              "minRow": 58,
+              "maxRow": 59,
+              "recall": 1.0
+            },
+            {
+              "id": 116,
+              "seconds": 41.336932,
+              "minRow": 59,
+              "maxRow": 60,
+              "recall": 1.0
+            },
+            {
+              "id": 117,
+              "seconds": 42.468653,
+              "minRow": 61,
+              "maxRow": 62,
+              "recall": 1.0
+            },
+            {
+              "id": 118,
+              "seconds": 43.606331,
+              "minRow": 63,
+              "maxRow": 64,
+              "recall": 1.0
+            },
+            {
+              "id": 119,
+              "seconds": 44.634097,
+              "minRow": 64,
+              "maxRow": 65,
+              "recall": 1.0
+            },
+            {
+              "id": 120,
+              "seconds": 45.497304,
+              "minRow": 66,
+              "maxRow": 67,
+              "recall": 1.0
+            },
+            {
+              "id": 121,
+              "seconds": 46.642865,
+              "minRow": 67,
+              "maxRow": 68,
+              "recall": 1.0
+            },
+            {
+              "id": 122,
+              "seconds": 47.706289,
+              "minRow": 69,
+              "maxRow": 70,
+              "recall": 1.0
+            },
+            {
+              "id": 123,
+              "seconds": 48.598361,
+              "minRow": 70,
+              "maxRow": 71,
+              "recall": 1.0
+            },
+            {
+              "id": 124,
+              "seconds": 49.774663,
+              "minRow": 72,
+              "maxRow": 73,
+              "recall": 1.0
+            },
+            {
+              "id": 125,
+              "seconds": 50.770575,
+              "minRow": 73,
+              "maxRow": 74,
+              "recall": 1.0
+            },
+            {
+              "id": 126,
+              "seconds": 51.710325,
+              "minRow": 74,
+              "maxRow": 75,
+              "recall": 1.0
+            },
+            {
+              "id": 127,
+              "seconds": 52.813366,
+              "minRow": 76,
+              "maxRow": 77,
+              "recall": 1.0
+            },
+            {
+              "id": 128,
+              "seconds": 53.868016,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 129,
+              "seconds": 54.76594,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 130,
+              "seconds": 55.98297,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 131,
+              "seconds": 56.882957,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 0.0
+            },
+            {
+              "id": 132,
+              "seconds": 58.215953,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 0.0
+            },
+            {
+              "id": 133,
+              "seconds": 59.06086,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 134,
+              "seconds": 59.872984,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 52
+        },
+        {
+          "mode": "more-detail",
+          "case": "continuous60-3",
+          "durationSeconds": 59.965352,
+          "storedActiveFrames": 58,
+          "firstObservedBottomSeconds": 54.7761,
+          "observedBoundaryTailSeconds": 5.189252000000003,
+          "positions": [
+            {
+              "id": 141,
+              "seconds": 1.303928,
+              "minRow": 2,
+              "maxRow": 3,
+              "recall": 1.0
+            },
+            {
+              "id": 142,
+              "seconds": 2.449898,
+              "minRow": 4,
+              "maxRow": 5,
+              "recall": 1.0
+            },
+            {
+              "id": 143,
+              "seconds": 3.33448,
+              "minRow": 5,
+              "maxRow": 6,
+              "recall": 1.0
+            },
+            {
+              "id": 144,
+              "seconds": 4.313919,
+              "minRow": 6,
+              "maxRow": 7,
+              "recall": 1.0
+            },
+            {
+              "id": 145,
+              "seconds": 5.448097,
+              "minRow": 8,
+              "maxRow": 9,
+              "recall": 1.0
+            },
+            {
+              "id": 146,
+              "seconds": 6.565581,
+              "minRow": 10,
+              "maxRow": 11,
+              "recall": 1.0
+            },
+            {
+              "id": 147,
+              "seconds": 7.524907,
+              "minRow": 11,
+              "maxRow": 12,
+              "recall": 1.0
+            },
+            {
+              "id": 148,
+              "seconds": 8.615701,
+              "minRow": 12,
+              "maxRow": 13,
+              "recall": 1.0
+            },
+            {
+              "id": 149,
+              "seconds": 9.487721,
+              "minRow": 14,
+              "maxRow": 15,
+              "recall": 1.0
+            },
+            {
+              "id": 150,
+              "seconds": 10.493862,
+              "minRow": 15,
+              "maxRow": 16,
+              "recall": 1.0
+            },
+            {
+              "id": 151,
+              "seconds": 11.705938,
+              "minRow": 17,
+              "maxRow": 18,
+              "recall": 1.0
+            },
+            {
+              "id": 152,
+              "seconds": 12.586655,
+              "minRow": 18,
+              "maxRow": 19,
+              "recall": 1.0
+            },
+            {
+              "id": 153,
+              "seconds": 13.519702,
+              "minRow": 19,
+              "maxRow": 21,
+              "recall": 1.0
+            },
+            {
+              "id": 154,
+              "seconds": 14.511421,
+              "minRow": 21,
+              "maxRow": 22,
+              "recall": 1.0
+            },
+            {
+              "id": 155,
+              "seconds": 15.752856,
+              "minRow": 23,
+              "maxRow": 24,
+              "recall": 1.0
+            },
+            {
+              "id": 156,
+              "seconds": 16.585982,
+              "minRow": 24,
+              "maxRow": 25,
+              "recall": 1.0
+            },
+            {
+              "id": 157,
+              "seconds": 17.822299,
+              "minRow": 26,
+              "maxRow": 27,
+              "recall": 1.0
+            },
+            {
+              "id": 158,
+              "seconds": 18.696956,
+              "minRow": 27,
+              "maxRow": 28,
+              "recall": 1.0
+            },
+            {
+              "id": 159,
+              "seconds": 19.796347,
+              "minRow": 29,
+              "maxRow": 30,
+              "recall": 1.0
+            },
+            {
+              "id": 160,
+              "seconds": 20.768136,
+              "minRow": 30,
+              "maxRow": 31,
+              "recall": 1.0
+            },
+            {
+              "id": 161,
+              "seconds": 21.656927,
+              "minRow": 31,
+              "maxRow": 32,
+              "recall": 1.0
+            },
+            {
+              "id": 162,
+              "seconds": 22.821054,
+              "minRow": 33,
+              "maxRow": 34,
+              "recall": 1.0
+            },
+            {
+              "id": 163,
+              "seconds": 23.883132,
+              "minRow": 34,
+              "maxRow": 35,
+              "recall": 1.0
+            },
+            {
+              "id": 164,
+              "seconds": 24.776492,
+              "minRow": 36,
+              "maxRow": 37,
+              "recall": 1.0
+            },
+            {
+              "id": 165,
+              "seconds": 25.942829,
+              "minRow": 37,
+              "maxRow": 38,
+              "recall": 1.0
+            },
+            {
+              "id": 166,
+              "seconds": 26.942638,
+              "minRow": 39,
+              "maxRow": 40,
+              "recall": 1.0
+            },
+            {
+              "id": 167,
+              "seconds": 27.826652,
+              "minRow": 40,
+              "maxRow": 41,
+              "recall": 1.0
+            },
+            {
+              "id": 168,
+              "seconds": 28.950288,
+              "minRow": 42,
+              "maxRow": 43,
+              "recall": 1.0
+            },
+            {
+              "id": 169,
+              "seconds": 29.965392,
+              "minRow": 43,
+              "maxRow": 44,
+              "recall": 1.0
+            },
+            {
+              "id": 170,
+              "seconds": 30.848665,
+              "minRow": 44,
+              "maxRow": 45,
+              "recall": 1.0
+            },
+            {
+              "id": 171,
+              "seconds": 31.968727,
+              "minRow": 46,
+              "maxRow": 47,
+              "recall": 1.0
+            },
+            {
+              "id": 172,
+              "seconds": 33.00566,
+              "minRow": 48,
+              "maxRow": 49,
+              "recall": 1.0
+            },
+            {
+              "id": 173,
+              "seconds": 34.187858,
+              "minRow": 49,
+              "maxRow": 50,
+              "recall": 1.0
+            },
+            {
+              "id": 174,
+              "seconds": 35.044818,
+              "minRow": 50,
+              "maxRow": 51,
+              "recall": 1.0
+            },
+            {
+              "id": 175,
+              "seconds": 36.041681,
+              "minRow": 52,
+              "maxRow": 53,
+              "recall": 1.0
+            },
+            {
+              "id": 176,
+              "seconds": 37.225927,
+              "minRow": 54,
+              "maxRow": 55,
+              "recall": 1.0
+            },
+            {
+              "id": 177,
+              "seconds": 38.098437,
+              "minRow": 55,
+              "maxRow": 56,
+              "recall": 1.0
+            },
+            {
+              "id": 178,
+              "seconds": 39.192931,
+              "minRow": 56,
+              "maxRow": 57,
+              "recall": 1.0
+            },
+            {
+              "id": 179,
+              "seconds": 40.335015,
+              "minRow": 58,
+              "maxRow": 59,
+              "recall": 1.0
+            },
+            {
+              "id": 180,
+              "seconds": 41.229024,
+              "minRow": 59,
+              "maxRow": 60,
+              "recall": 1.0
+            },
+            {
+              "id": 181,
+              "seconds": 42.26565,
+              "minRow": 61,
+              "maxRow": 62,
+              "recall": 1.0
+            },
+            {
+              "id": 182,
+              "seconds": 43.203476,
+              "minRow": 62,
+              "maxRow": 63,
+              "recall": 1.0
+            },
+            {
+              "id": 183,
+              "seconds": 44.368831,
+              "minRow": 64,
+              "maxRow": 65,
+              "recall": 1.0
+            },
+            {
+              "id": 184,
+              "seconds": 45.43047,
+              "minRow": 65,
+              "maxRow": 66,
+              "recall": 1.0
+            },
+            {
+              "id": 185,
+              "seconds": 46.524584,
+              "minRow": 67,
+              "maxRow": 68,
+              "recall": 1.0
+            },
+            {
+              "id": 186,
+              "seconds": 47.445284,
+              "minRow": 68,
+              "maxRow": 69,
+              "recall": 1.0
+            },
+            {
+              "id": 187,
+              "seconds": 48.458514,
+              "minRow": 70,
+              "maxRow": 71,
+              "recall": 1.0
+            },
+            {
+              "id": 188,
+              "seconds": 49.585699,
+              "minRow": 71,
+              "maxRow": 72,
+              "recall": 1.0
+            },
+            {
+              "id": 189,
+              "seconds": 50.451696,
+              "minRow": 73,
+              "maxRow": 74,
+              "recall": 1.0
+            },
+            {
+              "id": 190,
+              "seconds": 51.478517,
+              "minRow": 74,
+              "maxRow": 75,
+              "recall": 1.0
+            },
+            {
+              "id": 191,
+              "seconds": 52.612842,
+              "minRow": 76,
+              "maxRow": 77,
+              "recall": 1.0
+            },
+            {
+              "id": 192,
+              "seconds": 53.451389,
+              "minRow": 77,
+              "maxRow": 78,
+              "recall": 1.0
+            },
+            {
+              "id": 193,
+              "seconds": 54.7761,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 194,
+              "seconds": 55.700333,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 195,
+              "seconds": 56.60664,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 0.0
+            },
+            {
+              "id": 196,
+              "seconds": 57.946199,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 0.0
+            },
+            {
+              "id": 197,
+              "seconds": 58.825465,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            },
+            {
+              "id": 198,
+              "seconds": 59.638707,
+              "minRow": 78,
+              "maxRow": 79,
+              "recall": 1.0
+            }
+          ],
+          "distinctVisibleRowSets": 53
+        }
+      ]
+    }
+  },
+  "visibleContentAudit": {
+    "totalDbFrames": 439,
+    "totalOcrImages": 439,
+    "missingSnapshots": 0,
+    "ocrErrors": 0,
+    "framesWithVisibleRowMarkers": 437,
+    "fullTextZeroVisibleMarkerCoverage": 20,
+    "fullTextCompleteVisibleMarkerCoverage": 391,
+    "note": "Vision OCR provides independently observed visible row IDs; row OCR errors possible. Boundary timing is first stored image showing only final rows, so actual arrival lies between it and preceding capture.",
+    "normalizedO0CoverageClasses": {
+      "complete_after_O0_normalization": 25,
+      "strict_complete": 391,
+      "still_partial_after_O0_normalization": 21
+    },
+    "remainingPartialExamples": [
+      {
+        "mode": "automatic",
+        "id": 15,
+        "visibleRows": [
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ]
+        ],
+        "storedFullTextRows": [],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 32,
+        "visibleRows": [
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.5
+      },
+      {
+        "mode": "automatic",
+        "id": 33,
+        "visibleRows": [
+          [
+            "A",
+            56
+          ],
+          [
+            "A",
+            57
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 34,
+        "visibleRows": [
+          [
+            "A",
+            59
+          ],
+          [
+            "A",
+            60
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 35,
+        "visibleRows": [
+          [
+            "A",
+            62
+          ],
+          [
+            "A",
+            63
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 36,
+        "visibleRows": [
+          [
+            "A",
+            65
+          ],
+          [
+            "A",
+            66
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 37,
+        "visibleRows": [
+          [
+            "A",
+            68
+          ],
+          [
+            "A",
+            69
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 38,
+        "visibleRows": [
+          [
+            "A",
+            71
+          ],
+          [
+            "A",
+            72
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 39,
+        "visibleRows": [
+          [
+            "A",
+            74
+          ],
+          [
+            "A",
+            75
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 40,
+        "visibleRows": [
+          [
+            "A",
+            77
+          ],
+          [
+            "A",
+            78
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 41,
+        "visibleRows": [
+          [
+            "A",
+            78
+          ],
+          [
+            "A",
+            79
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ],
+          [
+            "A",
+            55
+          ],
+          [
+            "A",
+            56
+          ],
+          [
+            "A",
+            57
+          ],
+          [
+            "A",
+            58
+          ],
+          [
+            "A",
+            59
+          ],
+          [
+            "A",
+            60
+          ],
+          [
+            "A",
+            61
+          ],
+          [
+            "A",
+            62
+          ],
+          [
+            "A",
+            63
+          ],
+          [
+            "A",
+            64
+          ],
+          [
+            "A",
+            65
+          ],
+          [
+            "A",
+            66
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 79,
+        "visibleRows": [
+          [
+            "A",
+            78
+          ],
+          [
+            "A",
+            79
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "low-impact",
+        "id": 2,
+        "visibleRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ]
+        ],
+        "storedFullTextRows": [],
+        "textSource": null,
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "low-impact",
+        "id": 56,
+        "visibleRows": [
+          [
+            "A",
+            78
+          ],
+          [
+            "A",
+            79
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "low-impact",
+        "id": 61,
+        "visibleRows": [
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "more-detail",
+        "id": 131,
+        "visibleRows": [
+          [
+            "A",
+            78
+          ],
+          [
+            "A",
+            79
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "more-detail",
+        "id": 132,
+        "visibleRows": [
+          [
+            "A",
+            78
+          ],
+          [
+            "A",
+            79
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ],
+          [
+            "A",
+            55
+          ],
+          [
+            "A",
+            56
+          ],
+          [
+            "A",
+            57
+          ],
+          [
+            "A",
+            58
+          ],
+          [
+            "A",
+            59
+          ],
+          [
+            "A",
+            60
+          ],
+          [
+            "A",
+            61
+          ],
+          [
+            "A",
+            62
+          ],
+          [
+            "A",
+            63
+          ],
+          [
+            "A",
+            64
+          ],
+          [
+            "A",
+            65
+          ],
+          [
+            "A",
+            66
+          ],
+          [
+            "A",
+            67
+          ],
+          [
+            "A",
+            68
+          ],
+          [
+            "A",
+            69
+          ],
+          [
+            "A",
+            70
+          ],
+          [
+            "A",
+            71
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "more-detail",
+        "id": 195,
+        "visibleRows": [
+          [
+            "A",
+            78
+          ],
+          [
+            "A",
+            79
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "more-detail",
+        "id": 196,
+        "visibleRows": [
+          [
+            "A",
+            78
+          ],
+          [
+            "A",
+            79
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ],
+          [
+            "A",
+            55
+          ],
+          [
+            "A",
+            56
+          ],
+          [
+            "A",
+            57
+          ],
+          [
+            "A",
+            58
+          ],
+          [
+            "A",
+            59
+          ],
+          [
+            "A",
+            60
+          ],
+          [
+            "A",
+            61
+          ],
+          [
+            "A",
+            62
+          ],
+          [
+            "A",
+            63
+          ],
+          [
+            "A",
+            64
+          ],
+          [
+            "A",
+            65
+          ],
+          [
+            "A",
+            66
+          ],
+          [
+            "A",
+            67
+          ],
+          [
+            "A",
+            68
+          ],
+          [
+            "A",
+            69
+          ],
+          [
+            "A",
+            70
+          ],
+          [
+            "A",
+            71
+          ],
+          [
+            "A",
+            72
+          ],
+          [
+            "A",
+            73
+          ],
+          [
+            "A",
+            74
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "more-detail",
+        "id": 206,
+        "visibleRows": [
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ]
+        ],
+        "storedFullTextRows": [],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "more-detail",
+        "id": 211,
+        "visibleRows": [
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ]
+        ],
+        "storedFullTextRows": [],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      }
+    ]
+  },
+  "tests": {
+    "recordHelp": 0,
+    "producerBuild": 0,
+    "focusedNativeTests": "skipped on consumer per binary-role instruction; producer package manifest contains build exit only, not test exits",
+    "sameExecutableFunctionalBenchmark": "completed on 2 logical processors with timing protocol deviation",
+    "binaryVersion": 0
+  },
+  "limitations": [
+    "Get-Counter itself blocked about one second, so nominal one-second CPU sampling was actually approximately two-second sampling.",
+    "The same blocking doubled idle windows to approximately 62 seconds and quiet tails to approximately 24 seconds; this violates the exact 30s/12s timing protocol, so the run is not marked pass. Long wheel injection remained 1200 native events at 50ms cadence.",
+    "Responsiveness was not independently measured; CPU is not evidence of no UI lag.",
+    "AX marker regex sees the full accessibility tree (80 fixture rows), not just viewport-visible text; screenshot inspection is the viewport-completeness evidence.",
+    "Debug-dev Azure VM diagnostic only; synthetic AC/thermal state, not battery or device-age evidence.",
+    "Final frames reached rows 78-79; intermediate inspected frame showed rows 47-48 and per-trial unique image hashes demonstrate movement, but scrolling eventually reached the fixture bottom before the final event.",
+    "Original 2-core protocol deviation: process-family CPU is not recorder-only and cannot rank against canonical4-core values.",
+    "Only initial /power snapshot retained; observed frame cadence does not prove final adaptive state.",
+    "Physical disk write I/O and independent foreground responsiveness were not measured.",
+    "All nine actual continuous input spans were59.951\u201359.967s with1200inputs. Sampling coverage differs and is explicit per trial.",
+    "Native screenshot markers expose20frames with zero visible marker overlap in storedfull_text; this is marker recall, not general text accuracy or proof of regression.",
+    "All439DBframes matched savedimages; full SQLite integrity check unavailable withoutvec_length extension."
+  ],
+  "cleanup": {
+    "verifiedAbsent": true,
+    "verifiedAtUtc": "2026-09-28T19:24:28.355433+00:00",
+    "evidenceDownloadedAndHashRecorded": true,
+    "sharedImmutableImageAndManagedIdentityPreserved": true
+  },
+  "pageCoherenceAudit": {
+    "frames": 439,
+    "framesWithVisiblePageMarkers": 437,
+    "framesWithoutVisiblePageMarkers": 2,
+    "definitions": "Visible pages come from independent screenshot OCR PAGE A/B row markers. Stored text identity uses corresponding row markers (navigation-link text excluded). Window identity uses ScrollBench Page A/B title. A match is page identity only, not row completeness, temporal alignment or successful navigation.",
+    "windowTitleComparisonCounts": {
+      "unverified_no_visible_marker": 2,
+      "match": 437
+    },
+    "fullTextComparisonCounts": {
+      "unverified_no_visible_marker": 2,
+      "match": 433,
+      "unverified_no_stored_page": 4
+    },
+    "accessibilityTextComparisonCounts": {
+      "unverified_no_visible_marker": 2,
+      "match": 432,
+      "unverified_no_stored_page": 5
+    },
+    "visiblePageCountsByMode": {
+      "automatic": {
+        "no_marker": 1,
+        "A": 137
+      },
+      "low-impact": {
+        "A": 76
+      },
+      "more-detail": {
+        "no_marker": 1,
+        "A": 224
+      }
+    }
+  },
+  "eventFrameLinkAudit": {
+    "eventCount": 428,
+    "definitions": "Compare UI event ScrollBench Page A/B title with linked frame title and independently OCR-visible PAGE A/B row markers. Unknown, unlinked and dangling rows are separate. Match checks page identity only, not temporal freshness, row accuracy or navigation success.",
+    "allEvents": {
+      "count": 428,
+      "titleCounts": {
+        "unknown_event_page": 57,
+        "match": 371
+      },
+      "pixelCounts": {
+        "unknown_event_page": 57,
+        "match": 371
+      }
+    },
+    "scrollEvents": {
+      "count": 329,
+      "titleCounts": {
+        "match": 329
+      },
+      "pixelCounts": {
+        "match": 329
+      }
+    }
+  }
+}

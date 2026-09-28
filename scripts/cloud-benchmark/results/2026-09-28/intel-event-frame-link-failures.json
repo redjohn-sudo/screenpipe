@@ -1,0 +1,357 @@
+{
+  "sourceSha": "c369f333f2752bd6e0c243c2d665dafc49b9f21c",
+  "finding": "Two A-window scroll events link to B-window screenshots after focus switching. Frame page identity itself agrees with saved pixels; event-to-frame association fails.",
+  "cases": [
+    {
+      "mode": "low_impact",
+      "case": "focus",
+      "repetition": 0,
+      "uiEvent": {
+        "id": 19,
+        "timestamp": "2026-09-28T19:07:26.037660+00:00",
+        "window_title": "Screenpipe Cloud Benchmark A",
+        "app_name": "CloudFixture",
+        "frame_id": 17,
+        "event_type": "scroll"
+      },
+      "frame": {
+        "id": 17,
+        "timestamp": "2026-09-28T19:07:29.909838+00:00",
+        "window_name": "Screenpipe Cloud Benchmark B",
+        "app_name": "CloudFixture",
+        "capture_trigger": "window_focus",
+        "text_source": "hybrid"
+      },
+      "independentPixelAudit": {
+        "frameId": 17,
+        "image": "benchmark/low_impact/data/data/data/2026-09-28/1790622449909_m25165824.jpg",
+        "captureTrigger": "window_focus",
+        "textSource": "hybrid",
+        "expectedPage": "B",
+        "visiblePages": [
+          "B"
+        ],
+        "pageMismatch": false,
+        "ocrError": null,
+        "ocrPresent": true,
+        "visibleRows": [
+          [
+            "B",
+            0
+          ],
+          [
+            "B",
+            1
+          ],
+          [
+            "B",
+            2
+          ],
+          [
+            "B",
+            3
+          ],
+          [
+            "B",
+            4
+          ],
+          [
+            "B",
+            5
+          ],
+          [
+            "B",
+            6
+          ],
+          [
+            "B",
+            7
+          ],
+          [
+            "B",
+            8
+          ],
+          [
+            "B",
+            9
+          ],
+          [
+            "B",
+            10
+          ],
+          [
+            "B",
+            11
+          ],
+          [
+            "B",
+            12
+          ],
+          [
+            "B",
+            13
+          ],
+          [
+            "B",
+            14
+          ],
+          [
+            "B",
+            15
+          ],
+          [
+            "B",
+            16
+          ],
+          [
+            "B",
+            17
+          ],
+          [
+            "B",
+            18
+          ]
+        ],
+        "indexedRows": [
+          [
+            "B",
+            0
+          ],
+          [
+            "B",
+            1
+          ],
+          [
+            "B",
+            2
+          ],
+          [
+            "B",
+            3
+          ],
+          [
+            "B",
+            4
+          ],
+          [
+            "B",
+            5
+          ],
+          [
+            "B",
+            6
+          ],
+          [
+            "B",
+            7
+          ],
+          [
+            "B",
+            8
+          ],
+          [
+            "B",
+            9
+          ],
+          [
+            "B",
+            10
+          ],
+          [
+            "B",
+            11
+          ],
+          [
+            "B",
+            12
+          ],
+          [
+            "B",
+            13
+          ],
+          [
+            "B",
+            14
+          ],
+          [
+            "B",
+            15
+          ],
+          [
+            "B",
+            16
+          ],
+          [
+            "B",
+            17
+          ],
+          [
+            "B",
+            18
+          ]
+        ],
+        "visibleRowCoverage": 1.0,
+        "treeNodeCount": 1,
+        "onScreenTreeNodes": 1
+      }
+    },
+    {
+      "mode": "more_detail",
+      "case": "focus",
+      "repetition": 2,
+      "uiEvent": {
+        "id": 220,
+        "timestamp": "2026-09-28T19:04:35.451539+00:00",
+        "window_title": "Screenpipe Cloud Benchmark A",
+        "app_name": "CloudFixture",
+        "frame_id": 189,
+        "event_type": "scroll"
+      },
+      "frame": {
+        "id": 189,
+        "timestamp": "2026-09-28T19:04:36.899500+00:00",
+        "window_name": "Screenpipe Cloud Benchmark B",
+        "app_name": "CloudFixture",
+        "capture_trigger": "window_focus",
+        "text_source": "accessibility"
+      },
+      "independentPixelAudit": {
+        "frameId": 189,
+        "image": "benchmark/more_detail/data/data/data/2026-09-28/1790622276899_m25165824.jpg",
+        "captureTrigger": "window_focus",
+        "textSource": "accessibility",
+        "expectedPage": "B",
+        "visiblePages": [
+          "B"
+        ],
+        "pageMismatch": false,
+        "ocrError": null,
+        "ocrPresent": true,
+        "visibleRows": [
+          [
+            "B",
+            0
+          ],
+          [
+            "B",
+            1
+          ],
+          [
+            "B",
+            2
+          ],
+          [
+            "B",
+            3
+          ],
+          [
+            "B",
+            4
+          ],
+          [
+            "B",
+            5
+          ],
+          [
+            "B",
+            6
+          ],
+          [
+            "B",
+            7
+          ],
+          [
+            "B",
+            8
+          ],
+          [
+            "B",
+            9
+          ],
+          [
+            "B",
+            10
+          ],
+          [
+            "B",
+            11
+          ],
+          [
+            "B",
+            12
+          ],
+          [
+            "B",
+            13
+          ],
+          [
+            "B",
+            14
+          ],
+          [
+            "B",
+            15
+          ],
+          [
+            "B",
+            16
+          ],
+          [
+            "B",
+            17
+          ],
+          [
+            "B",
+            18
+          ]
+        ],
+        "indexedRows": [
+          [
+            "B",
+            0
+          ],
+          [
+            "B",
+            1
+          ],
+          [
+            "B",
+            2
+          ],
+          [
+            "B",
+            3
+          ],
+          [
+            "B",
+            4
+          ],
+          [
+            "B",
+            5
+          ],
+          [
+            "B",
+            6
+          ],
+          [
+            "B",
+            7
+          ],
+          [
+            "B",
+            8
+          ],
+          [
+            "B",
+            9
+          ]
+        ],
+        "visibleRowCoverage": 0.5263157894736842,
+        "treeNodeCount": 30,
+        "onScreenTreeNodes": 30
+      }
+    }
+  ],
+  "attribution": "No matched base revision; not attributed as a PR-introduced regression."
+}

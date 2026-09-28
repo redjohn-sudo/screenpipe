@@ -669,10 +669,16 @@
     "Low-impact and More-detail final power bounds remained5s and1s. Auto was2s before and5s after; exact intermediate switch time unmeasured.",
     "DB tail first-observation values are upper bounds: all nine continuous tail frames were already present at the first delayed poll. Frame-link update delay unmeasured.",
     "Idle windows contain reset/focus-related key_press/manual frames; they are quiet-input samples, not a perfectly quiescent background baseline.",
-    "Different quality, display resolution, fixture and native features from macOS prohibit direct cross-OS rankings."
+    "Different quality, display resolution, fixture and native features from macOS prohibit direct cross-OS rankings.",
+    "Final run-mode.ps1 updated after Auto and before Low. Original Auto executed script is not retained byte-for-byte; active protocol can be checked from raw traces, but navigation-only diff is not independently proven.",
+    "Final retained run-mode.ps1 was updated after Automatic and before Low impact. The earlier executed Automatic script bytes are not retained, so an exact navigation-only diff is not proven. Native input and sampler records are available; corrected two-core run pins the final retained file."
   ],
-  "cleanup": "exact disposable resource group deletion requested; verification pending",
-  "evidenceAvailability": "Raw native guest archive, images, stopped-database copies, logs, counter samples and independent OCR are retained in the originating task workspace. This file contains compact per-case results.",
+  "cleanup": {
+    "verifiedAbsent": true,
+    "verifiedAtUtc": "2026-09-28T19:16:45.354580+00:00",
+    "evidenceDownloadedAndHashRecorded": true,
+    "sharedImmutableImageAndManagedIdentityPreserved": true
+  },
   "nativeTestCounts": {
     "engine-recording-detail": 6,
     "engine-power": 39,
@@ -687,5 +693,67 @@
     "bytes": 355858,
     "purpose": "15-second illustrative VM desktop clip, recorder process off. Native wheel inputs200 over10seconds; separate from benchmark. Not full-trial capture or Screenpipe saved-frame replay.",
     "guestDecodeValidation": "worker ffmpeg -v error -xerror -i windows-desktop.mp4 -f null - succeeded before success manifest"
+  },
+  "evidenceAvailability": "Raw native guest archive, images, stopped-database copies, logs, counter samples and independent OCR are retained in the originating task workspace. This file contains compact per-case results.",
+  "pageCoherenceAudit": {
+    "frames": 406,
+    "framesWithVisiblePageMarkers": 400,
+    "framesWithoutVisiblePageMarkers": 6,
+    "definitions": "Visible pages come from independent screenshot OCR PAGE A/B row markers. Stored text identity uses corresponding row markers (navigation-link text excluded). Window identity uses ScrollBench Page A/B title. A match is page identity only, not row completeness, temporal alignment or successful navigation.",
+    "windowTitleComparisonCounts": {
+      "unverified_no_stored_page": 3,
+      "match": 397,
+      "unverified_no_visible_marker": 6
+    },
+    "fullTextComparisonCounts": {
+      "match": 400,
+      "unverified_no_visible_marker": 6
+    },
+    "accessibilityTextComparisonCounts": {
+      "match": 399,
+      "unverified_no_visible_marker": 6,
+      "unverified_no_stored_page": 1
+    },
+    "visiblePageCountsByMode": {
+      "automatic": {
+        "A": 87
+      },
+      "low-impact": {
+        "no_marker": 3,
+        "A": 81,
+        "B": 4
+      },
+      "more-detail": {
+        "no_marker": 3,
+        "A": 225,
+        "B": 3
+      }
+    }
+  },
+  "eventFrameLinkAudit": {
+    "eventCount": 309,
+    "definitions": "Compare UI event ScrollBench Page A/B title with linked frame title and independently OCR-visible PAGE A/B row markers. Unknown, unlinked and dangling rows are separate. Match checks page identity only, not temporal freshness, row accuracy or navigation success.",
+    "allEvents": {
+      "count": 309,
+      "titleCounts": {
+        "unlinked": 2,
+        "unknown_event_page": 22,
+        "match": 285
+      },
+      "pixelCounts": {
+        "unlinked": 2,
+        "unknown_event_page": 22,
+        "match": 285
+      }
+    },
+    "scrollEvents": {
+      "count": 276,
+      "titleCounts": {
+        "match": 276
+      },
+      "pixelCounts": {
+        "match": 276
+      }
+    }
   }
 }
