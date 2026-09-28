@@ -25,7 +25,8 @@ describe("recording mode consent and runtime state", () => {
     await waitFor(() => expect(screen.getByText(/status unavailable/)).toBeTruthy());
     select("Low impact");
     expect(screen.getByRole("dialog")).toBeTruthy();
-    expect(screen.getByText("Image clarity: high → Balanced")).toBeTruthy();
+    expect(screen.queryByText("Image clarity: high → Balanced")).toBeNull();
+    expect(screen.getByText(/Image clarity stays as set/)).toBeTruthy();
     expect(screen.getByText("Battery behavior: Ignore battery → Automatic")).toBeTruthy();
     expect(screen.getByText("Idle screenshots: Every 2s → Follow power profile")).toBeTruthy();
     expect(change).not.toHaveBeenCalled();
@@ -43,10 +44,25 @@ describe("recording mode consent and runtime state", () => {
     select("Custom");
     expect(customize).toHaveBeenCalledTimes(1);
     expect(change).not.toHaveBeenCalled();
-    view.rerender(<RecordingModeCard settings={{ videoQuality: "high" }} onChange={change} onCustomize={customize} pending={false} />);
+    view.rerender(<RecordingModeCard settings={{ videoQuality: "high", idleCaptureIntervalMs: 2000 }} onChange={change} onCustomize={customize} pending={false} />);
     fireEvent.click(screen.getByRole("button", { name: "Restore Automatic" }));
     expect(screen.getByRole("dialog")).toBeTruthy();
     expect(change).not.toHaveBeenCalled();
+  });
+  it("More detail preserves High clarity and stays selected after applying the patch", () => {
+    fetchStatus.mockResolvedValue({ ok: false });
+    const initial = { recordingDetail: "auto" as const, videoQuality: "high" };
+    const change = vi.fn();
+    const view = render(<RecordingModeCard settings={initial} onChange={change} onCustomize={() => {}} pending={false} />);
+    select("More detail");
+    expect(screen.queryByText(/Image clarity:.*Balanced/)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Save mode" }));
+    const patch = change.mock.calls[0][0];
+    expect(patch).not.toHaveProperty("videoQuality");
+    const applied = { ...initial, ...patch };
+    expect(applied.videoQuality).toBe("high");
+    view.rerender(<RecordingModeCard settings={applied} onChange={change} onCustomize={() => {}} pending />);
+    expect(screen.getByRole("combobox").textContent).toContain("More detail");
   });
   it("keeps saved detail selected while displaying runtime battery interruption and pending changes", async () => {
     fetchStatus.mockResolvedValue({ ok: true, json: async () => ({ active_profile: "audio_paused", user_pref: "auto", state: { on_ac: false, battery_pct: 15, thermal_state: "nominal" }, recording_detail: { preferred_mode: "more_detail", scroll_interval_ms: 5000, reason: "power" } }) });

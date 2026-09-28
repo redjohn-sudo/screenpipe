@@ -13,7 +13,7 @@ describe("recording preference hierarchy", () => {
   it("derives presets and Custom from actual legacy preferences without rewriting them", () => {
     expect(recordingMode({})).toBe("auto");
     for (const mode of ["auto", "low_impact", "more_detail"] as const) expect(recordingMode(recordingPreset(mode))).toBe(mode);
-    for (const override of [{ powerMode: "performance" as const }, { powerMode: "battery_saver" as const }, { videoQuality: "high" }, { idleCaptureIntervalMs: 2000 }, { recordingDetail: "balanced" as const }]) {
+    for (const override of [{ powerMode: "performance" as const }, { powerMode: "battery_saver" as const }, { idleCaptureIntervalMs: 2000 }, { recordingDetail: "balanced" as const }]) {
       const settings = { ...recordingPreset("auto"), ...override };
       const original = { ...settings };
       expect(recordingMode(settings)).toBe("custom");
@@ -23,7 +23,18 @@ describe("recording preference hierarchy", () => {
   it("preset patches change only declared recording preferences, preserving privacy and audio", () => {
     const settings = { ignoredWindows: ["Private"], disableAudio: true, pauseAudioOnLowBattery: false, keepComputerAwake: true, highFpsEnabled: true };
     expect({ ...settings, ...recordingPreset("more_detail") }).toMatchObject(settings);
-    expect(Object.keys(recordingPreset("auto")).sort()).toEqual(["idleCaptureIntervalMs", "powerMode", "recordingDetail", "videoQuality"]);
+    expect(Object.keys(recordingPreset("auto")).sort()).toEqual(["idleCaptureIntervalMs", "powerMode", "recordingDetail"]);
+  });
+  it("preserves every image clarity choice across every preset without marking it Custom", () => {
+    for (const videoQuality of ["low", "balanced", "high", "max"]) {
+      for (const mode of ["auto", "low_impact", "more_detail"] as const) {
+        const patch = recordingPreset(mode);
+        expect(patch).not.toHaveProperty("videoQuality");
+        const settings = { videoQuality, ...patch };
+        expect(settings.videoQuality).toBe(videoQuality);
+        expect(recordingMode(settings)).toBe(mode);
+      }
+    }
   });
   it("reports actual interruptions, temporary limits, recovery and unavailable status", () => {
     expect(recordingStatusText(null)).toContain("unavailable");

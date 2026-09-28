@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { recordingMode, recordingPreset, recordingStatusText, type RecordingPreferences, type RecordingPreset } from "./recording-policy";
+import { recordingMode, recordingPreset, recordingStatusText, type RecordingPreferences, type RecordingPreset, type RecordingPresetPatch } from "./recording-policy";
 
 export function RecordingModeCard({ settings, onChange, onCustomize, pending, locked = false }: {
   settings: RecordingPreferences;
-  onChange: (patch: Required<RecordingPreferences>) => void;
+  onChange: (patch: RecordingPresetPatch) => void;
   onCustomize: () => void;
   pending: boolean;
   locked?: boolean;
@@ -54,7 +54,7 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
           <p className={interrupted ? "font-medium text-amber-600 dark:text-amber-400" : "text-muted-foreground"}>{ui(recordingStatusText(status))}</p>
           {pending && <p className="font-medium">{ui("Changes pending. Apply & restart to activate them. The status above describes the running recorder.")}</p>}
         </div>
-        <p className="text-xs text-muted-foreground">{ui("Modes keep the final capture after scrolling stops, subject to privacy and pause settings. Audio has its own battery policy.")}</p>
+        <p className="text-xs text-muted-foreground">{ui("Modes keep the final capture after scrolling stops, subject to privacy and pause settings. Image clarity is set separately. Audio has its own battery policy.")}</p>
       </CardContent>
     </Card>
     <Dialog open={proposed !== null} onOpenChange={open => { if (!open) setProposed(null); }}>
@@ -67,9 +67,8 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
           <li>{proposed ? descriptions[proposed] : ""}</li>
           {(settings.powerMode ?? "auto") !== "auto" && <li>{ui("Battery behavior: {previous} → Automatic", { previous: settings.powerMode === "performance" ? ui("Ignore battery") : settings.powerMode === "battery_saver" ? ui("Always save battery") : ui("Automatic") })}</li>}
           {settings.idleCaptureIntervalMs != null && <li>{ui("Idle screenshots: {previous} → Follow power profile", { previous: settings.idleCaptureIntervalMs == null ? ui("Follow power profile") : ui("Every {seconds}s", { seconds: settings.idleCaptureIntervalMs / 1000 }) })}</li>}
-          {(settings.videoQuality ?? "balanced") !== "balanced" && <li>{ui("Image clarity: {previous} → Balanced", { previous: settings.videoQuality ?? "balanced" })}</li>}
         </ul>
-        <p className="text-xs text-muted-foreground">{ui("Battery protection will be Automatic. Your capture sources, privacy and audio policy stay as set. Apply & restart activates the saved mode.")}</p>
+        <p className="text-xs text-muted-foreground">{ui("Battery protection will be Automatic. Image clarity stays as set, along with capture sources, privacy and audio policy. Apply & restart activates the saved mode.")}</p>
         <DialogFooter>
           <Button variant="outline" onClick={() => setProposed(null)}>{ui("Cancel")}</Button>
           <Button disabled={locked} onClick={() => { if (proposed && !locked) { onChange(recordingPreset(proposed)); setProposed(null); } }}>{ui("Save mode")}</Button>
