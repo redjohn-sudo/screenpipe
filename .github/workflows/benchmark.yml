@@ -56,6 +56,12 @@ jobs:
           RUSTC_WRAPPER: sccache
           SCCACHE_GHA_ENABLED: 'true'
         run: cargo build --locked --profile debug-dev -p screenpipe-engine --bin screenpipe --no-default-features --features redact-onnx-cpu
+      - name: Retain exact test executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr7335-${{ matrix.os }}-test-binary
+          path: source/target/debug-dev/screenpipe
+          retention-days: 7
       - name: Grant isolated recorder identity
         run: |
           bash source/.github/scripts/macos/wrap-binary-as-app-bundle.sh source/target/debug-dev/screenpipe com.screenpipe.cloudbench.engine CloudRecorder "$PWD/CloudRecorder.app"
@@ -63,6 +69,16 @@ jobs:
       - name: Native workload and capture measurements
         timeout-minutes: 45
         run: python3 harness/scripts/cloud-benchmark/run.py "$PWD/evidence/benchmark" "$PWD/CloudRecorder.app/Contents/MacOS/CloudRecorder" "$PWD/CloudFixture.app/Contents/MacOS/CloudFixture" "$PWD/sample"
+      - name: Recording policy regression tests
+        working-directory: source
+        timeout-minutes: 25
+        env:
+          RUSTC_WRAPPER: sccache
+          SCCACHE_GHA_ENABLED: 'true'
+        run: |
+          set -o pipefail
+          cargo test --locked --profile debug-dev -p screenpipe-engine --lib --no-default-features --features redact-onnx-cpu recording_detail::tests 2>&1 | tee ../evidence/recording-detail-tests.log
+          cargo test --locked --profile debug-dev -p screenpipe-engine --lib --no-default-features --features redact-onnx-cpu power:: 2>&1 | tee ../evidence/power-tests.log
       - name: Evidence, including failure logs
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,7 +1,7 @@
 # screenpipe — AI that knows everything you've seen, said, or heard
 # https://screenpipe.com
 """Isolated native recording benchmark. Run only inside disposable macOS CI."""
-import datetime, hashlib, json, os, pathlib, signal, sqlite3, subprocess, sys, time, urllib.request
+import datetime, hashlib, json, os, pathlib, signal, sqlite3, subprocess, sys, threading, time, urllib.request
 ROOT = pathlib.Path(sys.argv[1]).resolve()
 BIN = pathlib.Path(sys.argv[2]).resolve()
 FIX = pathlib.Path(sys.argv[3]).resolve()
@@ -9,6 +9,7 @@ SAMPLE = pathlib.Path(sys.argv[4]).resolve()
 ROOT.mkdir(parents=True, exist_ok=True)
 fixture_dir = ROOT / 'fixture'; fixture_dir.mkdir(exist_ok=True)
 processes=[]
+poll_stop=threading.Event()
 def write(path, data):
     path.write_text(json.dumps(data, indent=2)+'\n')
 def cmd(seconds=0, direction=-12, window=0, reset=False):
@@ -28,8 +29,14 @@ def stop(proc):
         proc.send_signal(signal.SIGINT)
         try:proc.wait(30)
         except subprocess.TimeoutExpired:proc.kill();proc.wait()
-def health():
-    with urllib.request.urlopen('http://127.0.0.1:3030/health', timeout=3) as r:return json.load(r)
+def api(route):
+    with urllib.request.urlopen('http://127.0.0.1:3030/'+route, timeout=3) as r:return json.load(r)
+def health():return api('health')
+def poll_policy(folder):
+    while not poll_stop.wait(1):
+        try:
+            with (folder/'policy.jsonl').open('a') as stream:stream.write(json.dumps({'unix':time.time(),'status':api('power')})+'\n')
+        except Exception:pass
 def run_cases(mode, folder):
     cases=[]
     for repetition in range(3):
@@ -46,7 +53,9 @@ def run_cases(mode, folder):
             cases.append({'name':name,'repetition':repetition,'start':start,'inputEnd':input_end,'end':time.time(),'commands':events})
             write(folder/'cases.json',cases)
             if mode!='control':
-                try:write(folder/'health-latest.json',health())
+                try:
+                    write(folder/'health-latest.json',health())
+                    with (folder/'policy.jsonl').open('a') as stream:stream.write(json.dumps({'unix':time.time(),'status':api('power')})+'\n')
                 except Exception as error:raise RuntimeError('Recorder stopped during benchmark') from error
     return cases
 try:
@@ -63,7 +72,7 @@ try:
     modes=['control','auto','low_impact','more_detail'] if os.uname().machine=='arm64' else ['control','more_detail','low_impact','auto']
     for mode in modes:
         folder=ROOT/mode; folder.mkdir(exist_ok=True)
-        recorder=None; sampler=None
+        recorder=None; sampler=None; poller=None
         if mode!='control':
             data=folder/'data';data.mkdir(exist_ok=True)
             args=[str(BIN),'record','--data-dir',str(data),'--disable-audio','--disable-telemetry','--disable-meeting-detector','--disable-snapshot-compaction','--capture-scroll','true','--video-quality','high','--recording-detail',mode]
@@ -77,9 +86,12 @@ try:
                     status=health();write(folder/'health-start.json',status);break
                 except Exception:time.sleep(2)
             else:raise RuntimeError('Recorder API failed to start')
+            poll_stop.clear();poller=threading.Thread(target=poll_policy,args=(folder,),daemon=True);poller.start()
             time.sleep(15)
         try:run_cases(mode,folder)
         finally:
+            poll_stop.set()
+            if poller:poller.join(4)
             if recorder:stop(recorder)
             if sampler:stop(sampler)
         if mode!='control':
