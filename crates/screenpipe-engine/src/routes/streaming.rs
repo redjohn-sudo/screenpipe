@@ -1015,26 +1015,31 @@ mod tests {
         tx.commit().await.unwrap();
         if malformed_audio {
             let at = Utc::now();
-            let chunk = db
-                .insert_audio_chunk("synthetic-audio.mp4", Some(at))
+            for (name, start, end) in [
+                ("malformed timing regression", 90.0, 1.0),
+                ("negative offset regression", -1.0e30, -1.0e30),
+            ] {
+                let chunk = db
+                    .insert_audio_chunk("synthetic-audio.mp4", Some(at))
+                    .await
+                    .unwrap();
+                db.insert_audio_transcription(
+                    chunk,
+                    name,
+                    0,
+                    "test",
+                    &screenpipe_db::AudioDevice {
+                        name: "test output".into(),
+                        device_type: screenpipe_db::DeviceType::Output,
+                    },
+                    None,
+                    Some(start),
+                    Some(end),
+                    Some(at),
+                )
                 .await
                 .unwrap();
-            db.insert_audio_transcription(
-                chunk,
-                "malformed timing regression",
-                0,
-                "test",
-                &screenpipe_db::AudioDevice {
-                    name: "test output".into(),
-                    device_type: screenpipe_db::DeviceType::Output,
-                },
-                None,
-                Some(90.0),
-                Some(1.0),
-                Some(at),
-            )
-            .await
-            .unwrap();
+            }
         }
         db.seal_frame_payloads().await.unwrap();
         let cache = Arc::new(crate::hot_frame_cache::HotFrameCache::new());
@@ -1093,6 +1098,7 @@ mod tests {
             socket.send(tokio_tungstenite::tungstenite::Message::Text(serde_json::json!({"start_time":day,"end_time":end,"order":"descending","limit":2500}).to_string().into())).await.unwrap();
             let mut received = 0;
             let mut retained_transcript = false;
+            let mut retained_negative_transcript = false;
             tokio::time::timeout(Duration::from_secs(2), async {
                 loop {
                     let message = socket.next().await.unwrap().unwrap();
@@ -1105,6 +1111,8 @@ mod tests {
                         received += batch.len();
                         retained_transcript |=
                             value.to_string().contains("malformed timing regression");
+                        retained_negative_transcript |=
+                            value.to_string().contains("negative offset regression");
                     }
                     if value["type"] == "stream_complete" {
                         assert!(value.get("error").is_none(), "{value}");
@@ -1118,8 +1126,8 @@ mod tests {
             assert_eq!(received, expected);
             if malformed_audio && day == today {
                 assert!(
-                    retained_transcript,
-                    "the original transcript must survive warm-up and websocket delivery"
+                    retained_transcript && retained_negative_transcript,
+                    "both malformed transcripts must survive warm-up and websocket delivery"
                 );
             }
         }

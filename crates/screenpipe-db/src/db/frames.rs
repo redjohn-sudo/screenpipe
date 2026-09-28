@@ -18,7 +18,8 @@ fn timeline_audio_range(
         if !seconds.is_finite() || !(seconds * 1000.0).is_finite() {
             return None;
         }
-        timestamp.checked_add_signed(chrono::Duration::milliseconds((seconds * 1000.0) as i64))
+        let delta = chrono::Duration::try_milliseconds((seconds * 1000.0) as i64)?;
+        timestamp.checked_add_signed(delta)
     };
     let valid_offsets = start.is_none_or(f64::is_finite)
         && end.is_none_or(f64::is_finite)
