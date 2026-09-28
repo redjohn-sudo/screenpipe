@@ -10,20 +10,22 @@ export type RecordingPreferences = {
   videoQuality?: string;
   idleCaptureIntervalMs?: number | null;
 };
-export const presetKeys = ["recordingDetail", "powerMode", "videoQuality", "idleCaptureIntervalMs"] as const;
+export const presetKeys = ["recordingDetail", "powerMode", "idleCaptureIntervalMs"] as const;
 
 /** Derive the label from real preferences, including legacy installs. No second
  * saved mode can drift out of sync with the settings it claims to control. */
 export function recordingMode(settings: RecordingPreferences): RecordingPreset | "custom" {
   const detail = settings.recordingDetail ?? "auto";
   if ((settings.powerMode ?? "auto") !== "auto" ||
-      (settings.videoQuality ?? "balanced") !== "balanced" ||
       settings.idleCaptureIntervalMs != null || detail === "balanced") return "custom";
   return detail;
 }
 
-export function recordingPreset(mode: RecordingPreset): Required<RecordingPreferences> {
-  return { recordingDetail: mode, powerMode: "auto", videoQuality: "balanced", idleCaptureIntervalMs: null };
+export type RecordingPresetPatch = Required<Pick<RecordingPreferences, typeof presetKeys[number]>>;
+
+// Image clarity is independent of sampling detail. Never overwrite its saved value.
+export function recordingPreset(mode: RecordingPreset): RecordingPresetPatch {
+  return { recordingDetail: mode, powerMode: "auto", idleCaptureIntervalMs: null };
 }
 
 export interface RecordingPowerStatus {
