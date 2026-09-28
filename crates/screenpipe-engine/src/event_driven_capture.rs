@@ -1705,6 +1705,7 @@ pub(crate) async fn event_driven_capture_loop(
         // valid Click correlation ids and the click rows would lose
         // their frame_id link.
         let mut correlation_ids: Vec<crate::frame_linker::CorrelationId> = Vec::new();
+        #[cfg(target_os = "windows")]
         let mut context_transition_observed = false;
         let mut trigger: Option<CaptureTrigger>;
         if let Some(warm) = warm_trigger_override.take() {
@@ -1821,16 +1822,18 @@ pub(crate) async fn event_driven_capture_loop(
 
             // A later key/click/scroll message may win reduction, but it must
             // not erase the fact that this batch crossed a focus boundary.
-            context_transition_observed = drained.iter().any(|msg| {
-                matches!(
-                    msg.trigger,
-                    CaptureTrigger::AppSwitch { .. } | CaptureTrigger::WindowFocus { .. }
-                )
-            });
             #[cfg(target_os = "windows")]
-            if context_transition_observed {
-                windows_context_settle_until =
-                    Some(Instant::now() + WINDOWS_CONTEXT_CAPTURE_SETTLE);
+            {
+                context_transition_observed = drained.iter().any(|msg| {
+                    matches!(
+                        msg.trigger,
+                        CaptureTrigger::AppSwitch { .. } | CaptureTrigger::WindowFocus { .. }
+                    )
+                });
+                if context_transition_observed {
+                    windows_context_settle_until =
+                        Some(Instant::now() + WINDOWS_CONTEXT_CAPTURE_SETTLE);
+                }
             }
 
             let (reduced_trigger, reduced_corr_ids) = reduce_drained_triggers(
@@ -2543,6 +2546,7 @@ fn capture_needs_fresh_pixels(trigger: &CaptureTrigger) -> bool {
     )
 }
 
+#[cfg(any(target_os = "windows", test))]
 fn windows_capture_needs_context_settle(
     trigger: &CaptureTrigger,
     context_transition_observed: bool,
