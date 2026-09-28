@@ -15,6 +15,7 @@ import {
   hasFreePlanPolicy,
   hasPersistedEntitlementEvidence,
   hasVerifiedPaidPlan,
+  canUseDataSync,
   isAuthenticatedFreeUser,
   isFreeOrUnattributedUser,
   isDevLoginSkipEnabled,
@@ -47,6 +48,17 @@ describe("app entitlement", () => {
     vi.stubEnv("TAURI_ENV_DEBUG", "false");
     vi.stubEnv("NEXT_PUBLIC_SCREENPIPE_DEV_BILLING_BYPASS", "false");
     vi.stubEnv("NEXT_PUBLIC_SCREENPIPE_DEV_LOGIN_SKIP", "false");
+  });
+
+  it("allows Business team sync only with fresh paid evidence", () => {
+    const paid = user({ subscription_plan: "team", app_entitled: true,
+      entitlement: { active: true, plan: "team", source: "subscription", checked_at: NOW.toISOString(), features: { app: true } } });
+    expect(canUseDataSync(paid)).toBe(true);
+    expect(canUseDataSync({ ...paid, entitlement: { ...paid.entitlement, active: false } })).toBe(false);
+    expect(canUseDataSync({ ...paid, entitlement: { ...paid.entitlement, checked_at: "2020-01-01" } })).toBe(false);
+    expect(canUseDataSync(user({ subscription_plan: "team" }))).toBe(false);
+    expect(canUseDataSync({ ...paid, entitlement_source: "enterprise" })).toBe(false);
+    expect(canUseDataSync({ ...paid, enterprise_account: { org_name: "Customer", team_id: "customer" } })).toBe(false);
   });
 
   it("shows the login skip only when its dedicated build flag is enabled", () => {

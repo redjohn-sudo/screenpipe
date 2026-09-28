@@ -146,6 +146,17 @@ mod imp {
         !account_id.is_empty() && account_id == consent_account_id
     }
 
+    fn eligible_sync_account(
+        plan: &str,
+        screenpipe_account: bool,
+        enterprise_account: bool,
+        enterprise_entitlement: bool,
+    ) -> bool {
+        !matches!(plan, "" | "none" | "free" | "standard" | "basic")
+            && (screenpipe_account
+                || (plan != "enterprise" && !enterprise_account && !enterprise_entitlement))
+    }
+
     fn current_config(app: &tauri::AppHandle) -> Option<SyncConfig> {
         let settings = crate::store::SettingsStore::get(app).ok().flatten()?;
         if settings
@@ -176,12 +187,12 @@ mod imp {
             .and_then(|value| value.get("source"))
             .and_then(serde_json::Value::as_str)
             .is_some_and(|source| source.eq_ignore_ascii_case("enterprise"));
-        if matches!(plan.as_str(), "" | "none" | "free" | "standard" | "basic")
-            || (!screenpipe_account
-                && (matches!(plan.as_str(), "team" | "enterprise")
-                    || settings.user.enterprise_account.is_some()
-                    || enterprise_entitlement))
-        {
+        if !eligible_sync_account(
+            &plan,
+            screenpipe_account,
+            settings.user.enterprise_account.is_some(),
+            enterprise_entitlement,
+        ) {
             return None;
         }
 
@@ -825,6 +836,18 @@ mod imp {
     #[cfg(test)]
     mod tests {
         use super::*;
+
+        #[test]
+        fn business_sync_keeps_free_and_enterprise_accounts_excluded() {
+            assert!(eligible_sync_account("team", false, false, false));
+            assert!(eligible_sync_account("pro", false, false, false));
+            for plan in ["", "none", "free", "standard", "basic", "enterprise"] {
+                assert!(!eligible_sync_account(plan, false, false, false));
+            }
+            assert!(!eligible_sync_account("team", false, true, false));
+            assert!(!eligible_sync_account("team", false, false, true));
+            assert!(eligible_sync_account("enterprise", true, true, true));
+        }
 
         #[test]
         fn disabled_server_status_has_no_upload_boundary() {

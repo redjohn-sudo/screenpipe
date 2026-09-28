@@ -346,7 +346,7 @@ export function hasVerifiedPaidPlan(user: AppUser | null | undefined): boolean {
   return hasVerifiedPaidPlanAt(user, Date.now());
 }
 
-/** Data sync is available only to eligible individual paid accounts. */
+/** Data sync is available to eligible individual and Business team accounts. */
 export function canUseDataSync(user: AppUser | null | undefined): boolean {
   if (!hasVerifiedPaidPlan(user)) return false;
 
@@ -367,7 +367,7 @@ export function canUseDataSync(user: AppUser | null | undefined): boolean {
     plan !== "none" &&
     plan !== "standard" &&
     plan !== "basic" &&
-    (isScreenpipeAccount || (plan !== "team" && plan !== "enterprise"))
+    (isScreenpipeAccount || plan !== "enterprise")
   );
 }
 
