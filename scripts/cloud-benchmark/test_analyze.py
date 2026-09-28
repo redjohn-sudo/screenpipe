@@ -33,5 +33,24 @@ class AnalysisGoldenTest(unittest.TestCase):
             self.assertEqual(result['completeness']['caseCount'],1)
             self.assertEqual(result['completeness']['expectedCases'],15)
             self.assertIsNone(report['completed'])
+            # A release comparison stores shared machine metadata above each
+            # revision. Include OCR work after input ends in total CPU cost.
+            save(bench/'binary.json',{'sourceSha':'release-after','profile':'release'})
+            trace(mode/'samples.jsonl',[{'unix':t,'cpuSeconds':cpu,'rssBytes':2**20,'footprintBytes':2**20,'writeBytes':0} for t,cpu in [(1,10),(3,14),(5,18)]])
+            trace(mode/'policy.jsonl',[{'unix':2,'status':{'recording_detail':{'text_pending':3,'text_oldest_age_seconds':7,'capture_delayed':True}}}])
+            save(mode/'frame_ocr_jobs.json',[{'frame_id':3}])
+            revision=root/'after';revision.mkdir();bench.rename(revision/'benchmark')
+            subprocess.run([sys.executable,str(pathlib.Path(__file__).with_name('analyze.py')),str(revision)],check=True,stdout=subprocess.DEVNULL)
+            release_report=json.loads((revision/'analysis.json').read_text())
+            result=release_report['modes']['auto']
+            self.assertEqual(release_report['sourceSha'],'release-after')
+            self.assertEqual(result['completeness']['expectedCases'],10)
+            self.assertEqual(result['cases'][0]['cpuPercentOneCore'],200)
+            self.assertEqual(result['workloadIncludingDrain']['cpuSeconds'],8)
+            self.assertEqual(result['workloadIncludingDrain']['sampleSeconds'],4)
+            self.assertEqual(result['textQueue']['peakPending'],3)
+            self.assertEqual(result['textQueue']['oldestAgeSeconds'],7)
+            self.assertEqual(result['textQueue']['captureDelayedSamples'],1)
+            self.assertEqual(result['textQueue']['jobsRemaining'],1)
 
 if __name__=='__main__':unittest.main()

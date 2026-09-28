@@ -15,7 +15,10 @@ def stats(values):
     values=[v for v in values if v is not None]
     return {'n':len(values),'median':statistics.median(values),'min':min(values),'max':max(values),'p95':percentile(values,.95)} if values else None
 fixture=lines(bench/'fixture'/'fixture.jsonl')
-report={'sourceSha':(root/'source-sha.txt').read_text().strip(),'harnessSha':(root/'harness-sha.txt').read_text().strip(),'machine':(root/'machine.txt').read_text(),'binary':read(bench/'binary.json'),'completed':read(bench/'completed.json'),'limits':['debug-dev first-party code is unoptimized; results do not certify release builds','process CPU excludes fixture, WindowServer and host hypervisor','input delivery is synthetic OS scroll latency, not physical trackpad-to-photon latency','timer delay is a 50ms main-run-loop heartbeat, not frame presentation','audio/transcription, packaged app timeline, physical battery and thermal throttling were not benchmarked','three repetitions per case on one VM per configuration; no statistical hardware population inference','capture latency uses frame timestamps, not durable commit or rendered timeline availability'],'modes':{}}
+metadata_root=root if (root/'machine.txt').exists() else root.parent
+binary=read(bench/'binary.json',{})
+release=binary.get('profile')=='release'
+report={'sourceSha':binary.get('sourceSha') or (metadata_root/'source-sha.txt').read_text().strip(),'harnessSha':(metadata_root/'harness-sha.txt').read_text().strip(),'machine':(metadata_root/'machine.txt').read_text(),'binary':binary,'completed':read(bench/'completed.json'),'limits':['release engine measurements on virtual hardware; not battery certification' if release else 'debug-dev first-party code is unoptimized; results do not certify release builds','process CPU excludes fixture, WindowServer and host hypervisor','input delivery is synthetic OS scroll latency, not physical trackpad-to-photon latency','timer delay is a 50ms main-run-loop heartbeat, not frame presentation','audio/transcription, packaged app timeline, physical battery and thermal throttling were not benchmarked',('two' if release else 'three')+' repetitions per case on one VM per configuration; no statistical hardware population inference','capture latency uses frame timestamps, not durable commit or rendered timeline availability'],'modes':{}}
 cpu_match=re.search(r'hw.ncpu:\s*(\d+)',report['machine']); cpu_count=int(cpu_match.group(1)) if cpu_match else None
 report['logicalCpuCount']=cpu_count
 for mode in ['control','auto','low_impact','more_detail']:
@@ -55,7 +58,16 @@ for mode in ['control','auto','low_impact','more_detail']:
         summary[case]['inputP95Ms']=stats([r['inputDispatchMs']['p95'] for r in subset if r['inputDispatchMs']])
         summary[case]['heartbeatP95Ms']=stats([r['heartbeatDelayMs']['p95'] for r in subset if r['heartbeatDelayMs']])
     policy_counts=collections.Counter((p['status'].get('recording_detail',{}).get('scroll_interval_ms'),p['status'].get('recording_detail',{}).get('reason'),p['status'].get('active_profile')) for p in policy)
-    report['modes'][mode]={'cases':rows,'summary':summary,'cpuCalibration':calibration,'policySamples':[{'intervalMs':k[0],'reason':k[1],'powerProfile':k[2],'count':v} for k,v in policy_counts.items()],'firstInstallPower':read(folder/'power-first-install.json'),'controlledPower':read(folder/'power-controlled.json'),'storage':read(folder/'storage.json'),'frameCount':len(frames),'nonFixtureFrameCount':sum('Cloud Benchmark' not in (f.get('window_name') or '') for f in frames),'uniqueSnapshotPaths':len({f.get('snapshot_path') for f in frames if f.get('snapshot_path')}),'completeness':{'caseCount':len(cases),'expectedCases':15,'hasCpu':bool(samples),'hasAx':any(f.get('accessibility_text') for f in frames),'hasPolicy':bool(policy)}}
+    # Include quiet periods, reset work and final text processing so moving OCR
+    # out of an input window cannot masquerade as a reduction in total work.
+    total_samples=[s for s in samples if cases and s['unix']>=cases[0]['start']]
+    total=None
+    if len(total_samples)>1:
+        a,b=total_samples[0],total_samples[-1]
+        total={'sampleSeconds':b['unix']-a['unix'],'cpuSeconds':b['cpuSeconds']-a['cpuSeconds'],'cpuPercentOneCore':100*(b['cpuSeconds']-a['cpuSeconds'])/(b['unix']-a['unix']),'rssPeakMiB':max(s['rssBytes'] for s in total_samples)/2**20}
+    detail=[p['status'].get('recording_detail',{}) for p in policy]
+    text_queue={'peakPending':max((p.get('text_pending',0) for p in detail),default=0),'oldestAgeSeconds':max((p.get('text_oldest_age_seconds',0) for p in detail),default=0),'captureDelayedSamples':sum(p.get('capture_delayed',False) for p in detail),'drain':read(folder/'text-drain.json'),'jobsRemaining':len(read(folder/'frame_ocr_jobs.json',[]))}
+    report['modes'][mode]={'cases':rows,'summary':summary,'workloadIncludingDrain':total,'textQueue':text_queue,'cpuCalibration':calibration,'policySamples':[{'intervalMs':k[0],'reason':k[1],'powerProfile':k[2],'count':v} for k,v in policy_counts.items()],'firstInstallPower':read(folder/'power-first-install.json'),'controlledPower':read(folder/'power-controlled.json'),'storage':read(folder/'storage.json'),'frameCount':len(frames),'nonFixtureFrameCount':sum('Cloud Benchmark' not in (f.get('window_name') or '') for f in frames),'uniqueSnapshotPaths':len({f.get('snapshot_path') for f in frames if f.get('snapshot_path')}),'completeness':{'caseCount':len(cases),'expectedCases':10 if release else 15,'hasCpu':bool(samples),'hasAx':any(f.get('accessibility_text') for f in frames),'hasPolicy':bool(policy)}}
 (root/'analysis.json').write_text(json.dumps(report,indent=2)+'\n')
 for mode,data in report['modes'].items():
     print(mode,'cases',len(data['cases']),'frames',data['frameCount'],'policy',data['policySamples'])
