@@ -8,7 +8,10 @@ import { recordingPreset } from "./recording-policy";
 
 const { fetchStatus } = vi.hoisted(() => ({ fetchStatus: vi.fn() }));
 vi.mock("@/lib/api", () => ({ localFetch: fetchStatus }));
-vi.mock("gt-react", () => ({ useGT: () => (text: string, vars?: Record<string, string | number>) => text.replace(/\{(\w+)\}/g, (_, key) => String(vars?.[key] ?? key)) }));
+vi.mock("gt-react", async (importOriginal) => ({
+  ...await importOriginal<typeof import("gt-react")>(),
+  useGT: () => (text: string, vars?: Record<string, string | number>) => text.replace(/\{(\w+)\}/g, (_, key) => String(vars?.[key] ?? key)),
+}));
 vi.mock("@/lib/hooks/use-interval", () => ({ useInterval: () => {} }));
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 

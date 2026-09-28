@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useGT } from "gt-react";
+import { derive, useGT } from "gt-react";
 import { useRecordingPowerStatus } from "./use-recording-power-status";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,7 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
         {locked && <p className="text-xs text-muted-foreground">{ui("Your organization manages part of this mode. Individual controls remain available where permitted.")}</p>}
         {mode === "custom" && !locked && <Button variant="outline" size="sm" onClick={() => propose("auto")}>{ui("Restore Automatic")}</Button>}
         <div className="border-t border-border pt-3 text-xs space-y-1" role={interrupted ? "alert" : "status"}>
-          <p className={interrupted ? "font-medium text-amber-600 dark:text-amber-400" : "text-muted-foreground"}>{ui(recordingStatusText(status))}</p>
+          <p className={interrupted ? "font-medium text-amber-600 dark:text-amber-400" : "text-muted-foreground"}>{ui(derive(recordingStatusText(status)))}</p>
           {pending && <p className="font-medium">{ui("Changes pending. Apply & restart to activate them. The status above describes the running recorder.")}</p>}
         </div>
         <p className="text-xs text-muted-foreground">{ui("Modes keep the final capture after scrolling stops, subject to privacy and pause settings. Image clarity is set separately. Audio has its own battery policy.")}</p>
