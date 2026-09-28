@@ -299,6 +299,13 @@ export function scrollToSettingsField(label: string, root: ParentNode = document
       return;
     }
 
+    // Search must reveal controls moved into progressive disclosure.
+    let parent = target.parentElement;
+    while (parent) {
+      if (parent instanceof HTMLDetailsElement) parent.open = true;
+      parent = parent.parentElement;
+    }
+
     // Scroll the nearest card/row wrapper into view, centered, so the field
     // isn't jammed against the top edge. Screenpipe Cards render with a `border`
     // + `bg-card` (sharp corners, no rounded class), so we climb to the nearest

@@ -43,6 +43,11 @@ the settings store, the local engine HTTP API, and the health/meeting WebSockets
 are replaced by in-memory browser mocks. Rust and the sidecar are not built or
 started, so this is the shortest loop for layout and ordinary React work.
 
+Recording settings can preview synthetic power states with
+`/settings?recordingPower=battery`, `low`, `critical`, `hot`, or `unavailable`.
+The default is AC. These fixtures describe an Automatic running recorder;
+changing browser-mock preferences does not run a native recorder or measure battery use.
+
 Useful mock states:
 
 ```bash

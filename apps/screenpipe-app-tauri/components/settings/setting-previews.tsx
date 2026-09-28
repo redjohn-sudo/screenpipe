@@ -21,8 +21,7 @@ export function CaptureFrequencyPreview({ seconds }: { seconds: number }) {
 
   const ui = useGT();
   const auto = seconds === 0;
-  // More frames in a fixed window = denser strip. Honest *floor*: this is the
-  // guaranteed minimum cadence on a still screen, not total capture volume.
+  // Illustrate the preferred idle cadence; power and meetings can override it.
   const marks = auto ? 3 : Math.min(24, Math.max(2, Math.round(24 / seconds)));
   const perHour = auto ? null : Math.round(3600 / seconds);
   return (
@@ -40,15 +39,15 @@ export function CaptureFrequencyPreview({ seconds }: { seconds: number }) {
       </div>
       <p className="mt-1.5 text-[11px] text-muted-foreground">
         {auto ? (
-          ui("Follows your power profile — roughly one frame every 30s when the screen is idle")
+          ui("Follows power and meeting state. On AC, the normal idle target is every 30s.")
         ) : (
           <>
-            At least one frame every{" "}
+            Preferred: one frame every{" "}
             <span className="font-mono text-foreground">{seconds}s</span> — about{" "}
             <span className="font-mono text-foreground">
               {perHour?.toLocaleString()}
             </span>{" "}
-            an hour on a still screen
+            an hour on a still screen before battery or meeting adjustments
           </>
         )}
       </p>

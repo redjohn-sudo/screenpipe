@@ -5651,6 +5651,7 @@ mod tests {
         let mut store = SettingsStore::default();
         store.recording.disable_audio = true;
         store.recording.ignored_windows = vec!["Private".into()];
+        store.recording.pause_audio_on_low_battery = false;
         for (mode, cadence) in [
             (RecordingDetail::LowImpact, 5_000),
             (RecordingDetail::MoreDetail, 1_000),
@@ -5675,11 +5676,14 @@ mod tests {
                 cadence
             );
             assert!(config.disable_audio);
+            assert!(!config.pause_audio_on_low_battery);
             assert_eq!(config.ignored_windows, vec!["Private"]);
         }
         let mut legacy = serde_json::to_value(store).unwrap();
         legacy.as_object_mut().unwrap().remove("recordingDetail");
+        legacy.as_object_mut().unwrap().remove("pauseAudioOnLowBattery");
         let reloaded: SettingsStore = serde_json::from_value(legacy).unwrap();
+        assert!(reloaded.to_recording_settings().pause_audio_on_low_battery);
         assert_eq!(
             reloaded.to_recording_settings().recording_detail,
             RecordingDetail::Auto

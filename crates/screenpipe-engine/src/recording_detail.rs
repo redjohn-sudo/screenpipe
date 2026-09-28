@@ -38,7 +38,7 @@ impl RecordingDetailController {
             mode,
             interval: Arc::new(AtomicU64::new(interval)),
             adaptive: Mutex::new(Adaptive {
-                cost_interval: 2_000,
+                cost_interval: interval,
                 power_floor: 1_000,
                 slow: 0,
                 fast: 0,
@@ -61,9 +61,6 @@ impl RecordingDetailController {
     }
 
     pub fn set_power_profile(&self, profile: ProfileName) {
-        if self.mode != RecordingDetail::Auto {
-            return;
-        }
         let mut state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
         let floor = match profile {
             ProfileName::Performance => 1_000,
@@ -79,6 +76,23 @@ impl RecordingDetailController {
         }
         self.interval
             .store(state.cost_interval.max(floor), Ordering::Relaxed);
+    }
+
+    /// Read on the status endpoint, never in a native input callback.
+    pub fn status(&self) -> RecordingDetailStatus {
+        let state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
+        let interval = state.cost_interval.max(state.power_floor);
+        RecordingDetailStatus {
+            preferred_mode: self.mode,
+            scroll_interval_ms: interval,
+            reason: if state.power_floor > state.cost_interval {
+                "power".to_string()
+            } else if self.mode == RecordingDetail::Auto && state.cost_interval > 2_000 {
+                "capture_cost".to_string()
+            } else {
+                "preference".to_string()
+            },
+        }
     }
 
     /// Duration is a recording-cost proxy, not a whole-machine CPU measurement.
@@ -123,6 +137,13 @@ impl RecordingDetailController {
     }
 }
 
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct RecordingDetailStatus {
+    pub preferred_mode: RecordingDetail,
+    pub scroll_interval_ms: u64,
+    pub reason: String,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -136,7 +157,7 @@ mod tests {
     }
 
     #[test]
-    fn fixed_presets_ignore_cost_and_power_without_changing_their_budget() {
+    fn fixed_preferences_survive_power_limits_and_restore_without_cost_adaptation() {
         for (mode, ms, nodes) in [
             (RecordingDetail::LowImpact, 5_000, 1_000),
             (RecordingDetail::Balanced, 2_000, 2_000),
@@ -146,6 +167,10 @@ mod tests {
             samples(&c, 30, 5_000);
             c.set_power_profile(ProfileName::Saver);
             samples(&c, 30, 10);
+            assert_eq!(interval(&c), 5_000);
+            assert_eq!(c.tree_budget().0, 1_000);
+            assert_eq!(c.status().preferred_mode, mode);
+            c.set_power_profile(ProfileName::Performance);
             assert_eq!(interval(&c), ms);
             assert_eq!(c.tree_budget().0, nodes);
         }

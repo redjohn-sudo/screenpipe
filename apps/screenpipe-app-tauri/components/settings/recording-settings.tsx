@@ -28,6 +28,7 @@ import {
 /** Search fields for the Audio & meetings destination. */
 export const audioSearchIndex: SettingsField[] = [
   { label: msg("Audio Recording", {}), keywords: ["mic", "microphone", "audio", "meetings", "recording"] },
+  { label: msg("Audio on low battery", {}), keywords: ["power", "battery", "pause"], conditional: true },
   { label: msg("Capture audio", {}), keywords: ["continuous", "meetings only"] },
   { label: msg("Transcription engine", {}), keywords: ["whisper", "cloud", "stt"] },
   { label: msg("Max batch duration (seconds)", {}), keywords: ["batch", "timeout", "openai", "retranscription"], conditional: true },
@@ -48,10 +49,12 @@ export const screenSearchIndex: SettingsField[] = [
   { label: msg("Use all monitors", {}), keywords: ["monitor", "display"], conditional: true },
   // conditional: monitor picker only renders when "Use all monitors" is off — paired right under that toggle.
   { label: msg("Monitors", {}), conditional: true },
-  { label: msg("Recording detail", {}), keywords: ["performance", "low impact", "scroll", "accessibility", "auto", "slow", "cpu"], conditional: true },
-  { label: msg("Recording quality", {}), keywords: ["fps", "quality"], conditional: true },
+  { label: msg("Recording mode", {}), keywords: ["performance", "low impact", "scroll", "accessibility", "auto", "slow", "cpu"], conditional: true },
+  { label: msg("Image clarity", {}), keywords: ["fps", "quality", "recording quality"], conditional: true },
+  { label: msg("Recording detail", {}), keywords: ["scroll", "text extraction", "advanced"], conditional: true },
+  { label: msg("Advanced recording options", {}), keywords: ["custom", "power", "battery"], conditional: true },
   // conditional: hidden when screen recording is off (same gate as Recording quality).
-  { label: msg("Capture frequency", {}), keywords: ["screenshot", "interval", "idle", "cadence", "every", "minimum"], conditional: true },
+  { label: msg("Idle screenshots", {}), keywords: ["capture frequency", "screenshot", "interval", "idle", "cadence", "every", "minimum"], conditional: true },
   { label: msg("HD recording for meetings", {}), keywords: ["hd", "meeting"] },
   { label: msg("Chinese mirror", {}), keywords: ["china", "mirror"] },
 ];
@@ -61,6 +64,9 @@ export const searchIndex: SettingsField[] = [
   ...audioSearchIndex,
   ...screenSearchIndex,
 ];
+import { RecordingModeCard } from "./recording-mode-card";
+import { presetKeys } from "./recording-policy";
+import { useManagedPolicy } from "@/lib/hooks/use-managed-policy";
 import { RecordingDetailCard } from "./recording-detail-card";
 import { LockedSetting, ManagedSwitch } from "@/components/enterprise-locked-setting";
 import {
@@ -168,7 +174,7 @@ import { useSqlAutocomplete } from "@/lib/hooks/use-sql-autocomplete";
 import * as Sentry from "@sentry/react";
 import { defaultOptions } from "tauri-plugin-sentry-api";
 import { useLoginDialog } from "../login-dialog";
-import { BatterySaverSection } from "./battery-saver-section";
+import { BatterySaverSection, AudioBatteryPolicy } from "./battery-saver-section";
 import { ApplyRestartBar } from "./apply-restart-bar";
 // ScheduleSettings moved to privacy-section
 import { ValidatedInput } from "../ui/validated-input";
@@ -1665,9 +1671,8 @@ function HighFpsCard({
                 slides, demos, and shared docs. {statusBadge}.
               </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Start from the meeting-start notification, the tray menu, or{" "}
-                <code>POST /capture/hd/start</code>. Every session has a
-                natural end — no indefinite mode.
+                Start from the meeting notification or a tray timer. HD sessions
+                end with the meeting or timer and can use more resources than your recording mode.
               </p>
             </div>
           </div>
@@ -2028,6 +2033,15 @@ export function RecordingSettings({ section }: { section: RecordingSettingsSecti
 
   // Add new state to track if settings have changed
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const advancedRecordingRef = useRef<HTMLDetailsElement>(null);
+  const { isSettingLocked } = useManagedPolicy();
+  const recordingModeLocked = presetKeys.some(key => isSettingLocked(key));
+  const customizeRecording = () => {
+    if (advancedRecordingRef.current) {
+      advancedRecordingRef.current.open = true;
+      advancedRecordingRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
   const settingsWriteQueueRef = useRef(createSettingsWriteQueue());
 
   // Optimized debounced validation
@@ -2788,6 +2802,13 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
             <AudioCaptureModePreview mode={settings.audioCaptureMode ?? "always"} />
           </CardContent>
         </Card>
+        )}
+
+        {!settings.disableAudio && (
+          <AudioBatteryPolicy value={settings.pauseAudioOnLowBattery ?? true}
+            powerMode={settings.powerMode}
+            disabled={isSettingLocked("pauseAudioOnLowBattery")}
+            onChange={pauseAudioOnLowBattery => handleSettingsChange({ pauseAudioOnLowBattery }, true)} />
         )}
 
         {!settings.disableAudio && (
@@ -3752,7 +3773,7 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
       {/* Screen */}
       <LockedSetting settingKey="screen_recording">
       <div className="space-y-2 pt-2">
-        <h2 className="text-xs font-semibold text-muted-foreground normal-case tracking-wider px-1">Screen</h2>
+        <h2 className="text-xs font-semibold text-muted-foreground normal-case tracking-wider px-1">What to capture</h2>
 
         {/* Screen context capture toggle */}
         <Card className="border-border bg-card">
@@ -3887,6 +3908,18 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
         )}
 
         {!settings.disableVision && (
+          <RecordingModeCard settings={settings} pending={hasUnsavedChanges}
+            locked={recordingModeLocked} onCustomize={customizeRecording}
+            onChange={patch => handleSettingsChange(patch, true)} />
+        )}
+
+        <details ref={advancedRecordingRef} className="border border-border bg-card rounded-lg">
+          <summary className="cursor-pointer px-4 py-3">
+            <span className="text-sm font-medium">Advanced recording options</span>
+            <p className="text-xs text-muted-foreground mt-1">Customize detail, clarity and power. Most people can leave these automatic.</p>
+          </summary>
+          <div className="border-t border-border p-3 space-y-3">
+        {!settings.disableVision && (
           <LockedSetting settingKey="recordingDetail">
             <RecordingDetailCard
               value={settings.recordingDetail ?? "auto"}
@@ -3897,13 +3930,13 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
 
         {/* Recording quality — single knob for crispness + disk cost */}
         {screenshotImagesEnabled && (
-          <Card className="border-border bg-card">
+          <LockedSetting settingKey="videoQuality"><Card className="border-border bg-card">
             <CardContent className="px-3 py-2.5">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center space-x-2.5 min-w-0">
                   <Monitor className="h-4 w-4 text-muted-foreground shrink-0" />
                   <div className="min-w-0">
-                    <h3 className="text-sm font-medium text-foreground">Recording quality</h3>
+                    <h3 id="image-clarity-label" className="text-sm font-medium text-foreground">Image clarity</h3>
                     <p className="text-xs text-muted-foreground">
                       Pick "high" or "max" if your text looks blurry on a 4K / ultrawide. Higher = crisper + larger files.
                     </p>
@@ -3913,7 +3946,7 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
                   value={settings.videoQuality || "balanced"}
                   onValueChange={(value) => handleSettingsChange({ videoQuality: value }, true)}
                 >
-                  <SelectTrigger className="w-[180px] h-8 text-xs">
+                  <SelectTrigger aria-labelledby="image-clarity-label" className="w-[180px] h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -3925,40 +3958,35 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
                 </Select>
               </div>
             </CardContent>
-          </Card>
+          </Card></LockedSetting>
         )}
 
-        {/* Capture frequency — guaranteed screenshot cadence. Capture is
-            event-driven (clicks, typing, app/window switches, visual change),
-            so a screen that sits still can go uncaptured for the power
-            profile's idle floor (30s on AC, longer on battery). This pins a
-            hard "always capture at least every N seconds" floor for users who
-            feel capture is too sparse. Backed by `idleCaptureIntervalMs`
-            (null = follow the power profile). Needs a recording restart to
-            take effect, hence handleSettingsChange(..., true). */}
+        {/* Idle preference is preserved while power and meeting state can
+            temporarily change the runtime interval. */}
         {screenshotImagesEnabled && (() => {
           const idleMs = settings.idleCaptureIntervalMs ?? null;
           const seconds = idleMs == null ? 0 : Math.round(idleMs / 1000);
           return (
-            <Card className="border-border bg-card">
+            <LockedSetting settingKey="idleCaptureIntervalMs"><Card className="border-border bg-card">
               <CardContent className="px-3 py-2.5">
                 <div className="flex items-center space-x-2.5 mb-2">
                   <Monitor className="h-4 w-4 text-muted-foreground shrink-0" />
                   <div className="min-w-0">
-                    <h3 className="text-sm font-medium text-foreground">Capture frequency</h3>
+                    <h3 className="text-sm font-medium text-foreground">Idle screenshots</h3>
                     <p className="text-xs text-muted-foreground">
-                      Always take a screenshot at least this often, even when the screen
-                      isn&apos;t changing. Lower = fewer missed moments + more disk used.
+                      Choose how often to capture an unchanged screen. Shorter intervals use more resources.
+                      Battery protection may lengthen this interval; meetings can capture more often.
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs text-muted-foreground">Minimum interval</span>
+                  <span className="text-xs text-muted-foreground">Preferred interval</span>
                   <span className="text-xs font-mono text-foreground">
                     {seconds === 0 ? ui("Auto (power profile)") : ui("Every {value1}s", { value1: seconds })}
                   </span>
                 </div>
                 <Slider
+                  aria-label={ui("Preferred idle screenshot interval")}
                   data-testid="capture-frequency-slider"
                   value={[seconds]}
                   onValueChange={([value]) =>
@@ -3981,7 +4009,7 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
                 </div>
                 <CaptureFrequencyPreview seconds={seconds} />
               </CardContent>
-            </Card>
+            </Card></LockedSetting>
           );
         })()}
 
@@ -3996,6 +4024,10 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
             onSettingsChange={(patch) => handleSettingsChange(patch, true)}
           />
         )}
+
+          <div className="border-t border-border pt-3"><BatterySaverSection onChange={patch => handleSettingsChange(patch, true)} /></div>
+          </div>
+        </details>
 
       </div>
       </LockedSetting>
@@ -4021,21 +4053,7 @@ Your screen is a pipe. Everything you see, hear, and type flows through it. Scre
         </Card>
       </div>
 
-      {/* Power and battery are important but infrequent decisions. Keep them
-          in Recording for discoverability/search, but defer the full control
-          surface until the user explicitly opens it. */}
-      <details className="border border-border bg-card rounded">
-        <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
-          <Zap className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <div>
-            <h2 className="text-sm font-medium text-foreground">Power &amp; battery</h2>
-            <p className="text-xs text-muted-foreground">Battery-aware capture and keep-awake behavior</p>
-          </div>
-        </summary>
-        <div className="border-t border-border px-3 py-3">
-          <BatterySaverSection />
-        </div>
-      </details>
+
       </>
       )}
 
