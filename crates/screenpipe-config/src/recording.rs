@@ -169,6 +169,18 @@ impl SemanticContextMode {
     }
 }
 
+/// Screen history detail, independent of image quality and audio capture.
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(rename_all = "snake_case")]
+pub enum RecordingDetail {
+    #[default]
+    Auto,
+    LowImpact,
+    Balanced,
+    MoreDetail,
+}
+
 /// One strict hostname rule used by browser capture allowlists and blocklists.
 ///
 /// `domain` is normalized by the capture policy before matching. The rule
@@ -800,6 +812,10 @@ pub struct RecordingSettings {
     #[serde(rename = "powerMode", default)]
     pub power_mode: Option<String>,
 
+    /// Bounds intermediate scroll checkpoints and accessibility extraction work.
+    #[serde(rename = "recordingDetail", default)]
+    pub recording_detail: RecordingDetail,
+
     /// Keep the computer awake while screenpipe is running.
     /// Default off so existing installs keep the OS sleep behavior they chose.
     #[serde(rename = "keepComputerAwake", default)]
@@ -983,6 +999,7 @@ impl Default for RecordingSettings {
             openai_compatible_raw_audio: false,
             port: 3030,
             power_mode: None,
+            recording_detail: RecordingDetail::Auto,
             keep_computer_awake: false,
             use_chinese_mirror: false,
             analytics_enabled: true,
@@ -1534,5 +1551,35 @@ mod tests {
         let toml_str = toml::to_string_pretty(&settings).unwrap();
         let deserialized: RecordingSettings = toml::from_str(&toml_str).unwrap();
         assert_eq!(settings, deserialized);
+    }
+}
+
+#[cfg(test)]
+mod recording_detail_tests {
+    use super::*;
+
+    #[test]
+    fn older_settings_default_to_auto_and_all_modes_round_trip() {
+        let old: RecordingSettings = serde_json::from_str("{}").unwrap();
+        assert_eq!(old.recording_detail, RecordingDetail::Auto);
+        for (name, mode) in [
+            ("auto", RecordingDetail::Auto),
+            ("low_impact", RecordingDetail::LowImpact),
+            ("balanced", RecordingDetail::Balanced),
+            ("more_detail", RecordingDetail::MoreDetail),
+        ] {
+            let settings: RecordingSettings = serde_json::from_value(
+                serde_json::json!({"recordingDetail": name, "powerMode": "battery_saver"}),
+            )
+            .unwrap();
+            assert_eq!(settings.recording_detail, mode);
+            let value = serde_json::to_value(settings).unwrap();
+            assert_eq!(value["recordingDetail"], name);
+            assert_eq!(value["powerMode"], "battery_saver");
+        }
+        assert!(serde_json::from_value::<RecordingSettings>(
+            serde_json::json!({"recordingDetail": "unbounded"})
+        )
+        .is_err());
     }
 }
