@@ -245,6 +245,7 @@ mod timeline_frameless_audio_tests {
         assert_audio_offsets_survive(&[
             ("infinite", f64::INFINITY, 2.0, false),
             ("overflow", 1.0e30, 1.0e30, false),
+            ("negative-overflow", -1.0e30, -1.0e30, false),
             ("valid", 2.0, 4.0, true),
         ])
         .await;
