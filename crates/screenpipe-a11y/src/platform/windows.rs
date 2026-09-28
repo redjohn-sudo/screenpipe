@@ -21,7 +21,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 use tracing::{debug, error, warn};
 
-use super::windows_uia::{self, ClickElementRequest};
+use super::windows_uia::{self, ClickElementRequest, ClickTargetIdentity};
 
 use windows::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, WPARAM};
 use windows::Win32::System::DataExchange::GetClipboardSequenceNumber;
@@ -269,7 +269,6 @@ impl UiRecorder {
         let app_w = current_app.clone();
         let window_w = current_window.clone();
         let click_queue_w = click_queue.clone();
-        let focused_element_w = focused_element.clone();
         threads.push(
             thread::Builder::new()
                 .name("a11y-input-worker".into())
@@ -283,7 +282,6 @@ impl UiRecorder {
                         app_w,
                         window_w,
                         click_queue_w,
-                        focused_element_w,
                     );
                 })
                 .expect("failed to spawn a11y-input-worker thread"),
@@ -976,7 +974,6 @@ struct InputWorker {
     current_app: Arc<Mutex<Option<String>>>,
     current_window: Arc<Mutex<Option<String>>>,
     click_queue: Arc<Mutex<Vec<ClickElementRequest>>>,
-    focused_element: Arc<Mutex<Option<ElementContext>>>,
     text_buf: String,
     last_text_time: Option<Instant>,
     scroll_aggregator: ScrollBuffer,
@@ -1115,7 +1112,17 @@ impl InputWorker {
                 timestamp,
                 relative_ms,
             } => {
-                let (app_name, window_title) = self.resolve_app_window();
+                // The observer state is deliberately eventual. A click must use
+                // its own foreground sample or a rapid excluded-window switch can
+                // be recorded under the previous allowed app/window.
+                let Some(identity) = get_foreground_window_identity_fresh() else {
+                    return;
+                };
+                let Some(app_name) = app_name_for_pid(identity.pid) else {
+                    return;
+                };
+                let app_name = Some(app_name);
+                let window_title = Some(identity.title.clone());
                 if !self.config.should_capture_target(
                     app_name.as_deref().unwrap_or_default(),
                     window_title.as_deref(),
@@ -1133,24 +1140,26 @@ impl InputWorker {
                     return;
                 }
 
-                // Attach focused element context (approximate, fast).
-                let element = if self.config.capture_context {
-                    self.focused_element.lock().clone()
-                } else {
-                    None
-                };
-
                 let mut event = UiEvent::click(timestamp, relative_ms, x, y, button, 1, mods);
                 event.app_name = app_name;
                 event.window_title = window_title;
-                event.element = element;
+                // Focus context is asynchronous and has no target identity.
+                // Precise ElementFromPoint enrichment below is identity-guarded.
+                event.element = None;
                 let _ = self.tx.try_send(event);
 
                 // Queue ElementFromPoint request for precise element context
                 if self.config.capture_context {
-                    self.click_queue
-                        .lock()
-                        .push(ClickElementRequest { x, y, timestamp });
+                    self.click_queue.lock().push(ClickElementRequest {
+                        x,
+                        y,
+                        timestamp,
+                        target: ClickTargetIdentity {
+                            hwnd: identity.hwnd,
+                            pid: identity.pid,
+                            title: identity.title,
+                        },
+                    });
                 }
             }
 
@@ -1369,7 +1378,6 @@ fn run_input_worker(
     current_app: Arc<Mutex<Option<String>>>,
     current_window: Arc<Mutex<Option<String>>>,
     click_queue: Arc<Mutex<Vec<ClickElementRequest>>>,
-    focused_element: Arc<Mutex<Option<ElementContext>>>,
 ) {
     debug!("a11y input worker started");
 
@@ -1380,7 +1388,6 @@ fn run_input_worker(
         current_app,
         current_window,
         click_queue,
-        focused_element,
         text_buf: String::new(),
         last_text_time: None,
         scroll_aggregator: ScrollBuffer::new(),
@@ -2470,7 +2477,6 @@ mod tests {
             current_app: Arc::new(parking_lot::Mutex::new(Some("test".into()))),
             current_window: Arc::new(parking_lot::Mutex::new(Some("test window".into()))),
             click_queue: Arc::new(parking_lot::Mutex::new(Vec::new())),
-            focused_element: Arc::new(parking_lot::Mutex::new(None)),
             text_buf: text.to_string(),
             last_text_time: if text.is_empty() {
                 None
@@ -2650,9 +2656,14 @@ mod tests {
             }
             _ => panic!("expected Click event, got {:?}", event.data),
         }
-        assert_eq!(event.app_name.as_deref(), Some("test"));
+        assert!(event.app_name.is_some());
         // capture_context is on by default: element request queued for UIA.
-        assert_eq!(worker.click_queue.lock().len(), 1);
+        let queue = worker.click_queue.lock();
+        assert_eq!(queue.len(), 1);
+        assert_eq!(
+            event.window_title.as_deref(),
+            Some(queue[0].target.title.as_str())
+        );
     }
 
     #[test]
