@@ -67,7 +67,7 @@ try:
     assert any(x['kind']=='received' for x in rows),'No native scroll events received'
     write(ROOT/'native-preflight.json',{'ready':ready,'nativeEventsReceived':sum(x['kind']=='received' for x in rows)})
     if os.environ.get('PREFLIGHT_ONLY')=='1':sys.exit(0)
-    write(ROOT/'binary.json',{'sha256':hashlib.sha256(BIN.read_bytes()).hexdigest(),'path':str(BIN),'sourceSha':os.environ['SUBJECT_SHA'],'profile':'debug-dev','audio':False,'videoQuality':'high','powerMode':'auto'})
+    write(ROOT/'binary.json',{'sha256':hashlib.sha256(BIN.read_bytes()).hexdigest(),'path':str(BIN),'sourceSha':os.environ['SUBJECT_SHA'],'profile':'debug-dev','audio':False,'videoQuality':'high','powerMode':'auto','apiAuth':'disabled only on disposable localhost-bound fixture'})
     # Alternate mode order across architectures to expose order/warm-up effects.
     modes=['control','auto','low_impact','more_detail'] if os.uname().machine=='arm64' else ['control','more_detail','low_impact','auto']
     for mode in modes:
@@ -75,7 +75,7 @@ try:
         recorder=None; sampler=None; poller=None
         if mode!='control':
             data=folder/'data';data.mkdir(exist_ok=True)
-            args=[str(BIN),'record','--data-dir',str(data),'--disable-audio','--disable-telemetry','--disable-meeting-detector','--disable-snapshot-compaction','--capture-scroll','true','--video-quality','high','--recording-detail',mode]
+            args=[str(BIN),'record','--data-dir',str(data),'--disable-audio','--api-auth=false','--disable-telemetry','--disable-meeting-detector','--disable-snapshot-compaction','--capture-scroll','true','--video-quality','high','--recording-detail',mode]
             write(folder/'command.json',args)
             recorder=subprocess.Popen(args,stdout=(folder/'recorder.log').open('w'),stderr=subprocess.STDOUT);processes.append(recorder)
             sampler=subprocess.Popen([str(SAMPLE),str(recorder.pid),str(folder/'samples.jsonl')]);processes.append(sampler)

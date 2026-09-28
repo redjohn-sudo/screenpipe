@@ -84,5 +84,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pr7335-${{ matrix.os }}-native-evidence
-          path: evidence
+          path: |
+            evidence/*.txt
+            evidence/*.log
+            evidence/**/machine.txt
+            evidence/**/native-preflight.json
+            evidence/**/fixture.stdout
+            evidence/**/fixture/*.json
+            evidence/**/fixture/*.jsonl
+            evidence/benchmark/*.json
+            evidence/benchmark/*/*.json
+            evidence/benchmark/*/*.jsonl
+            evidence/benchmark/*/recorder.log
+            evidence/benchmark/*/data/db.sqlite
+            evidence/benchmark/*/data/**/*.png
+            evidence/benchmark/*/data/**/*.jpg
+            evidence/benchmark/*/data/**/*.jpeg
+            evidence/benchmark/*/data/**/*.webp
           retention-days: 14
