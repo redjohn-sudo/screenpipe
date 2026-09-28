@@ -1,8 +1,21 @@
 # PR 7335: cloud configuration benchmark, September 28, 2026
 
-Status: partial. Apple Silicon and 4-core Windows are audited. Intel Mac has completed workloads, tests and the image/text audit. The original 2-core Windows run deviated from the protocol; one correction run uses the pinned 4-core harness and the same binary. This is not an all-platform pass or merge approval.
+Status: completed with observed failures. All four configurations and their saved-image/data audits are complete. Native unit tests passed, but the 2-core Windows Automatic workload stalled, both Macs missed visible searchable text, and Intel produced two incorrect event/frame links. The original 2-core Windows run is retained separately as a protocol deviation. This is not an all-platform pass or merge approval.
 
 Recorder source: `c369f333f2752bd6e0c243c2d665dafc49b9f21c`. The later `e5e459a8e24186e0042f93b089755e38c3e0c4b1` changes only frontend localization and its test mock; recorder code is identical. Running Mac harness: `39683a741`. Diagnostic `debug-dev` builds, audio off, High image quality on Mac and Balanced on Windows, controlled automatic power policy. First-party Rust is unoptimized; these are not release or battery estimates.
+
+## Configuration overview
+
+Recorder CPU below is the median of three active 60-second trial averages, as a share of logical machine capacity. Compare modes within a configuration; different quality, resolution, fixtures, native features and VM placement prevent a controlled OS ranking. Intel variability and the Windows failures are detailed below.
+
+| Configuration | Low impact | Automatic | More detail |
+| --- | ---: | ---: | ---: |
+| M1 / 3 logical CPUs / 7 GiB | 2.65% | 5.47% | 12.47% |
+| Intel Mac / 4 logical CPUs / 14 GiB | 5.41% | 4.66% | 21.34% |
+| Windows / 4 logical CPUs / 16 GiB | 7.01% | 7.58% | 11.63% |
+| Windows / 2 logical CPUs / 8 GiB | 10.71% | **Stalled; invalid comparison** | 18.84% |
+
+The four completed configurations contain 1,441 saved images, all audited against stored frame data and independent image OCR. The separately retained original Windows 2-core protocol-deviation run adds 439 images. A decoded image and matching page identity are not a pass for visible text, timely capture or event linkage.
 
 ## Apple Silicon result
 
@@ -89,9 +102,31 @@ All 439 database frames have matching saved images. Independent OCR found visibl
 
 Automatic frame 33 visibly shows rows 56–57, while stored accessibility/full text stops at row 53. None of its row-marker nodes are marked on-screen. No retained per-tree timestamp or walk-duration field distinguishes a truncated traversal from stale accessibility content, so the cause remains undetermined. [Exact stored frame/text and OCR evidence](windows-original-2core-frame33.json) · [Saved image](windows-original-2core-frame33.jpg).
 
-One fresh 2-core correction run uses the same verified executable, fixtures and final retained 4-core sampler. The original 4-core script was updated after Automatic and before Low impact; original Automatic script bytes were not retained, so an exact navigation-only diff is not established. This limitation is preserved even though the recorded input and sampler protocol agrees.
+The completed 2-core correction run uses the same verified executable, fixtures and final retained 4-core sampler. The original 4-core script was updated after Automatic and before Low impact; original Automatic script bytes were not retained, so an exact navigation-only diff is not established. This limitation is preserved even though the recorded input and sampler protocol agrees.
 
 Independent page-identity checks found no confirmed cross-page mismatch in either original Windows run, with missing markers labeled unverified. However, Page B pixels appear only in 4-core Low impact (four frames) and More detail (three frames). Neither 4-core Auto nor any original 2-core mode has a saved Page B frame, so those navigation cases are not validated. Page identity does not establish row completeness or temporal alignment.
+
+## Windows 11, corrected 2 logical CPUs / 8 GiB
+
+Azure Standard_D2as_v5, 8,531,955,712 physical RAM bytes, 1024×768, Edge 154.0.4258.37. Same verified executable as 4-core Windows; all four pinned native input/sampler/fixture hashes match and were unchanged before/after. The Windows 11 image is known, but the correction guest did not record its exact OS version or CPU model. Do not infer CPU model from SKU. This compares configurations, not isolated core-count scaling. [Complete corrected measurements, hashes and exact failure log excerpts](windows-2core-corrected.json).
+
+**Automatic failed to provide comparable capture coverage.** Its three 60-second trials saved only 1, 0 and 5 active frames (1, 0 and 4 scroll checkpoints). The second trial has no saved frame for its entire 59.96-second input interval. The first/third have maximum capture silence including boundaries of 45.12/32.69 seconds. Between-frame gaps are undefined with fewer than two frames; they are not zero. Auto's median 0.98% recorder CPU is retained diagnostically but must not be ranked as efficient recording.
+
+| Mode | Recorder CPU / machine capacity, median (range) | Active scroll checkpoints, trial counts | All active frames, trial counts | Worst interval between active frames |
+| --- | ---: | ---: | ---: | ---: |
+| Low impact | 10.71% (7.59–10.86) | 9 / 11 / 11 | 10 / 12 / 12 | 13.79 s |
+| Auto | **Stalled; efficiency comparison invalid** | 1 / 0 / 4 | 1 / 0 / 5 | Missing entire second trial; 59.96 s silence |
+| More detail | 18.84% (18.20–19.31) | 52 / 56 / 57 | 52 / 56 / 57 | 2.67 s |
+
+Auto logs contain two startup 15-second timeouts, five event-capture 15-second timeouts, and a VisionManager restart at 19:34:18.178834 UTC. Recovery is logged at 19:38:18.388639 UTC. Recorder PID is stable within every CPU counter interval; the restart is internal to that process. Coarse OS-wide samples showed 100% CPU during Auto, and built-in pipe installation appears in logs. Total-system load, cold startup and sequential mode order are not controlled, so this does not prove Auto itself caused the stall or isolate DB versus accessibility/OCR cost. The capture-timeout log lists hypotheses, not a measured cause. Low impact also logged a startup and an event timeout and had a 13.79-second first-trial gap; More detail had a startup timeout but no event timeout. This is not a clean pass for the smaller VM.
+
+Low impact stayed at 5 seconds, More detail at 1 second, and Auto began at 2 seconds and ended at 5 with reason `capture_cost`. Sampling targets did not prevent stalls. First/last per-recorder CPU samples cover 57.1–59.6 seconds of input; unrelated process/OS work is excluded. Active sampled working-set maxima span 50–76 MiB Auto, 58–104 MiB Low impact and 55–107 MiB More detail. Saved JPEG bytes are not physical disk writes.
+
+All 333 database frames have matching decodable images and independently readable page/row markers. Page identity agrees in all frames, and Page B is saved in every mode. Visible row recall is strictly complete in 292 images and complete after the narrow O→0 correction in another 36. Five have zero visible marker coverage: Auto frames 4/5 and Low impact frames 3/7/8. The data does not isolate accessibility traversal cutoff from stale text. All 277 linked scroll events match their frame's page; **78 other scroll events remain unlinked**, all in Auto. They are not counted as successes. There are no confirmed cross-page linked-event mismatches.
+
+For a concrete example, Auto frame 4 visibly shows rows 74–75, while its stored accessibility text only covers rows 0–26. None of its 19 on-screen-marked nodes identify the visible rows. [Exact saved text and OCR evidence](windows-corrected-2core-frame4.json) · [Actual saved screenshot](windows-corrected-2core-frame4.jpg). The legacy `bench4` guest path is intentional: the correction mapped the canonical four-core harness layout to preserve script bytes; it does not identify the VM size.
+
+The first two Auto trials have no observed settled tail in the retained quiet window. Trial three's tail timestamp is 0.534 seconds after input. Low impact tails are 0.622–0.901 seconds and More detail 0.249–0.757 seconds; database first observations are separately recorded upper bounds, not precise commit latency. More detail/Low impact reach the page boundary during the final roughly 4–6 seconds. Missing Auto frames prevent reconstructing movement through its silent intervals. The corrected guest reused the producer's binary and did not rebuild or rerun unit tests.
 
 ## Device tier and Automatic behavior
 
@@ -104,7 +139,13 @@ The [detail controller](https://github.com/screenpipe/screenpipe/blob/c369f333f2
 
 1. **Visible text coverage:** both Mac architectures can save the correct screenshot while indexing only off-screen rows. Prioritize visible accessibility content and evaluate the OCR fallback using useful visible text, with a bounded extraction path.
 2. **Serial capture stalls:** Intel OCR/hybrid operations coincide with 7–15-second capture gaps. Profile the capture path in a release build, and evaluate bounded asynchronous OCR while keeping every extraction tied to its original screenshot. Increasing the nominal checkpoint frequency alone does not remove this bottleneck.
-3. **Event context correctness:** two Intel scroll events from A link to B screenshots after a focus transition. The linker needs a regression case for window/page identity across delayed capture and focus changes.
-4. **Validation scope:** test release builds, multiple displays, real battery/thermal conditions, audio enabled and actual foreground input-to-display latency. These VM measurements identify problems and relative mode costs within a configuration; they cannot certify “no lag” on physical devices.
+3. **Event context correctness:** two Intel scroll events from A link to B screenshots after a focus transition. The capture-to-event association path needs a regression case for window/page identity across delayed capture and focus changes. Correlation messages carry IDs but no window identity, and trigger reduction accumulates IDs into one capture; this is a source-level explanation to investigate, not an isolated reproduction of the two observed failures.
+4. **Timeout handling in Auto:** the corrected 2-core Windows Automatic workload encountered repeated capture timeouts and a capture-manager restart. The detail controller only receives successful focused captures (`observe_capture`), so a stalled workload must not be interpreted as efficient low CPU. Include timeout/recovery behavior in further pressure-policy evaluation. This run alone does not isolate a mode-specific cause from startup or VM effects.
+5. **Validation scope:** test release builds, multiple displays, real battery/thermal conditions, audio enabled and actual foreground input-to-display latency. These VM measurements identify problems and relative mode costs within a configuration; they cannot certify “no lag” on physical devices.
 
 No matched base revision was run for this new fixture. These are observed issues, not established PR-introduced regressions. Native unit-test success and a healthy recorder endpoint do not override the saved-data failures. The draft PR remains unmerged.
+
+
+## Resource cleanup and evidence retention
+
+Both ephemeral Mac jobs completed successfully. All three task-owned Windows resource groups (the 4-core run, original 2-core run and corrected 2-core run) were independently verified absent after evidence download; the final verification was September 28 at 20:09 UTC. Shared immutable image, managed identity and evidence storage were preserved. The corrected guest also reported removing task auth and disabling autologon; the first two guest credential-cleanup receipts were unavailable and are not claimed verified. Resource deletion receipts are retained locally and summarized in the result JSON. No benchmark VM remains running, and no recurring job was created by this benchmark.

@@ -1,0 +1,22 @@
+{
+  "sourceSha": "c369f333f2752bd6e0c243c2d665dafc49b9f21c",
+  "mode": "automatic",
+  "frame": {
+    "id": 4,
+    "timestamp": "2026-09-28T19:38:26.775605700+00:00",
+    "full_text": "Minimize\nMaximize\nClose\nBack\nRefresh\nFile\nC:/screenpipe-worker/scratch/scroll7335-bench4-20260928/fixture-a.html?mode=automatic\nAdd this page to favorites (Ctrl+D)\nFavorites\nProfile 1 Profile, Please sign in\nSettings and more (Alt+F)\nChat\nCopilot menu\nFor quick access, place your favorites here on the favorites bar.\nManage favorites now\nfile:///C:/screenpipe-worker/scratch/scroll7335-bench4-20260928/fixture-a.html?mode=automatic\nPR #7335 native Windows scroll benchmark \u2014 PAGE A \u2014\nunlabeled\nNavigate to Page B\nPAGE A \u2014 row 0\nnative wheel target\nPAGE A \u2014 row 1\nnative wheel target\nPAGE A \u2014 row 2\nnative wheel target\nPAGE A \u2014 row 3\nnative wheel target\nPAGE A \u2014 row 4\nnative wheel target\nPAGE A \u2014 row 5\nnative wheel target\nPAGE A \u2014 row 6\nnative wheel target\nPAGE A \u2014 row 7\nnative wheel target\nPAGE A \u2014 row 8\nnative wheel target\nPAGE A \u2014 row 9\nnative wheel target\nPAGE A \u2014 row 10\nnative wheel target\nPAGE A \u2014 row 11\nnative wheel target\nPAGE A \u2014 row 12\nnative wheel target\nPAGE A \u2014 row 13\nnative wheel target\nPAGE A \u2014 row 14\nnative wheel target\nPAGE A \u2014 row 15\nnative wheel target\nPAGE A \u2014 row 16\nnative wheel target\nPAGE A \u2014 row 17\nnative wheel target\nPAGE A \u2014 row 18\nnative wheel target\nPAGE A \u2014 row 19\nnative wheel target\nPAGE A \u2014 row 20\nnative wheel target\nPAGE A \u2014 row 21\nnative wheel target\nPAGE A \u2014 row 22\nnative wheel target\nPAGE A \u2014 row 23\nnative wheel target\nPAGE A \u2014 row 24\nnative wheel target\nPAGE A \u2014 row 25\nnative wheel target\nPAGE A \u2014 row 26\nnative wheel target",
+    "accessibility_text": "Minimize\nMaximize\nClose\nBack\nRefresh\nFile\nC:/screenpipe-worker/scratch/scroll7335-bench4-20260928/fixture-a.html?mode=automatic\nAdd this page to favorites (Ctrl+D)\nFavorites\nProfile 1 Profile, Please sign in\nSettings and more (Alt+F)\nChat\nCopilot menu\nFor quick access, place your favorites here on the favorites bar.\nManage favorites now\nfile:///C:/screenpipe-worker/scratch/scroll7335-bench4-20260928/fixture-a.html?mode=automatic\nPR #7335 native Windows scroll benchmark \u2014 PAGE A \u2014\nunlabeled\nNavigate to Page B\nPAGE A \u2014 row 0\nnative wheel target\nPAGE A \u2014 row 1\nnative wheel target\nPAGE A \u2014 row 2\nnative wheel target\nPAGE A \u2014 row 3\nnative wheel target\nPAGE A \u2014 row 4\nnative wheel target\nPAGE A \u2014 row 5\nnative wheel target\nPAGE A \u2014 row 6\nnative wheel target\nPAGE A \u2014 row 7\nnative wheel target\nPAGE A \u2014 row 8\nnative wheel target\nPAGE A \u2014 row 9\nnative wheel target\nPAGE A \u2014 row 10\nnative wheel target\nPAGE A \u2014 row 11\nnative wheel target\nPAGE A \u2014 row 12\nnative wheel target\nPAGE A \u2014 row 13\nnative wheel target\nPAGE A \u2014 row 14\nnative wheel target\nPAGE A \u2014 row 15\nnative wheel target\nPAGE A \u2014 row 16\nnative wheel target\nPAGE A \u2014 row 17\nnative wheel target\nPAGE A \u2014 row 18\nnative wheel target\nPAGE A \u2014 row 19\nnative wheel target\nPAGE A \u2014 row 20\nnative wheel target\nPAGE A \u2014 row 21\nnative wheel target\nPAGE A \u2014 row 22\nnative wheel target\nPAGE A \u2014 row 23\nnative wheel target\nPAGE A \u2014 row 24\nnative wheel target\nPAGE A \u2014 row 25\nnative wheel target\nPAGE A \u2014 row 26\nnative wheel target",
+    "text_source": "accessibility",
+    "elements_ref_frame_id": null
+  },
+  "snapshotSha256": "012386d67fe00ac69199be8bfb17c27899861cf6784f7eccaf7e44ae59121dec",
+  "snapshotFile": "automatic-frame-000004.jpg",
+  "independentOcr": "ScrollBench Page A\nX\n-\nFile C:/screenpipe-worker/scratch/scroll7335-bench4-20260928/fixture-a.html?mode=automatic\nChat\nPR #7335 native Windows scroll benchmark - PAGE A - unlabeled\nNavigate to Page B\nPAGE A \u2014 row 74\nnative wheel target\nPAGE A - row 75\nnative wheel target\nQ Search\nM36S\n\u0414\u2022 C\n7:38 PM\n9/28/2026",
+  "treeSummary": {
+    "nodes": 73,
+    "onScreenTrue": 19,
+    "onScreenFalse": 54,
+    "visibleRowNodes": []
+  },
+  "mechanism": "Undetermined between incomplete tree traversal and temporal staleness. No new-regression claim."
+}

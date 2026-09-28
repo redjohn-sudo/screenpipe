@@ -1,0 +1,1851 @@
+{
+  "taskId": "scroll7335-bench2-correct-20260928",
+  "sourceSha": "c369f333f2752bd6e0c243c2d665dafc49b9f21c",
+  "status": "completed_with_capture_failures_not_pass",
+  "profile": "debug-dev",
+  "binarySha256": "9e872d6d0b7d86d4e3d34a0f5401ddc2aba76974c28aafebf60b6b8ab32c1db1",
+  "binaryRebuilt": false,
+  "hardware": {
+    "sku": "Standard_D2as_v5",
+    "logicalProcessors": 2,
+    "physicalMemoryBytes": 8531955712,
+    "display": [
+      {
+        "Name": "Microsoft Hyper-V Video",
+        "CurrentHorizontalResolution": 1024,
+        "CurrentVerticalResolution": 768
+      }
+    ],
+    "edgeVersion": "154.0.4258.37",
+    "cpuModel": null,
+    "osVersion": null,
+    "missingHardwareFields": "CPU model and OS version not captured by correction guest. Validated Windows11 image reused; do not infer physical CPU model from SKU.",
+    "powerScheme": "Power Scheme GUID: 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c  (High performance)"
+  },
+  "harnessHashes": {
+    "run-mode.ps1": "de3af79b558889de8de17edbc129d97c247a6b8f3e9a63e95c1af4895f619003",
+    "poll-db.ts": "c5e0b744a93b4a404fc36b8f3879a1ca2e4f4164c3cd7248543ccfa051579079",
+    "fixture-a.html": "221fc6822f0a28a3a9e64b8322b07866c7f9a29c01c9cb0610d4339d9b4abe6e",
+    "fixture-b.html": "cfecdb9511f6cb3bb5287178d572c5c7d18492b65f9cf60e9a471237c324af71"
+  },
+  "harnessUnchangedBeforeAfter": true,
+  "modes": {
+    "automatic": {
+      "performanceComparisonValidity": "FAILED_CAPTURE: Auto startup/capture stalls invalidate efficient-recording interpretation",
+      "verifiedSettings": {
+        "recordingDetail": "auto",
+        "powerMode": "auto",
+        "videoQuality": "balanced",
+        "idleCaptureIntervalMs": null,
+        "captureScroll": true,
+        "disableAudio": true
+      },
+      "powerBefore": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "auto",
+          "scroll_interval_ms": 2000,
+          "reason": "preference"
+        }
+      },
+      "powerAfter": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "auto",
+          "scroll_interval_ms": 5000,
+          "reason": "capture_cost"
+        }
+      },
+      "dbFrames": 39,
+      "images": 39,
+      "trials": [
+        {
+          "case": "trial-1-scroll60",
+          "actualCaseSeconds": 60.015068,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.959,
+          "activeFrameCount": 1,
+          "activeScrollCheckpointCount": 1,
+          "frameGapMedianSeconds": null,
+          "frameGapMaxSeconds": null,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 45.121576,
+          "savedImageBytesActive": 101939,
+          "cpu": {
+            "mode": "automatic",
+            "case": "trial-1-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 60.015068,
+            "sampledIntervalSeconds": 58.181259,
+            "sampleCount": 21,
+            "recorderPid": 2528,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 1.960468060686002,
+            "engineCpuMachineAvgPercent": 0.980234030343001,
+            "engineCpuOneCoreP95Percent": 9.126862512748401,
+            "engineRssMedianMiB": 69.3203125,
+            "engineRssActiveSampleMaxMiB": 75.9296875,
+            "engineRssLifetimePeakMiB": 114.07421875,
+            "otherEngineDescendantsObserved": [
+              "bun",
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "automatic",
+            "case": "trial-1-scroll60",
+            "durationSeconds": 60.015068,
+            "storedActiveFrames": 1,
+            "firstObservedBottomSeconds": null,
+            "observedBoundaryTailSeconds": 0,
+            "distinctVisibleRowSets": 1
+          },
+          "storedTailTimestampDelayMs": null,
+          "tailDbFirstObservationUpperBoundMs": null,
+          "tailAlreadyPresentInFirstPoll": null,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-2-scroll60",
+          "actualCaseSeconds": 59.960141,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.959,
+          "activeFrameCount": 0,
+          "activeScrollCheckpointCount": 0,
+          "frameGapMedianSeconds": null,
+          "frameGapMaxSeconds": null,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 59.960141,
+          "savedImageBytesActive": 0,
+          "cpu": {
+            "mode": "automatic",
+            "case": "trial-2-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.960141,
+            "sampledIntervalSeconds": 58.600064,
+            "sampleCount": 27,
+            "recorderPid": 2528,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 0.9865603559750379,
+            "engineCpuMachineAvgPercent": 0.49328017798751894,
+            "engineCpuOneCoreP95Percent": 2.1589200011330014,
+            "engineRssMedianMiB": 46.4453125,
+            "engineRssActiveSampleMaxMiB": 49.6640625,
+            "engineRssLifetimePeakMiB": 114.07421875,
+            "otherEngineDescendantsObserved": [
+              "bun",
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "automatic",
+            "case": "trial-2-scroll60",
+            "durationSeconds": 59.960141,
+            "storedActiveFrames": 0,
+            "firstObservedBottomSeconds": null,
+            "observedBoundaryTailSeconds": 0,
+            "distinctVisibleRowSets": 0
+          },
+          "storedTailTimestampDelayMs": null,
+          "tailDbFirstObservationUpperBoundMs": null,
+          "tailAlreadyPresentInFirstPoll": null,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-3-scroll60",
+          "actualCaseSeconds": 59.958813,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.958,
+          "activeFrameCount": 5,
+          "activeScrollCheckpointCount": 4,
+          "frameGapMedianSeconds": 5.3774925,
+          "frameGapMaxSeconds": 12.600828,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 32.692885,
+          "savedImageBytesActive": 518734,
+          "cpu": {
+            "mode": "automatic",
+            "case": "trial-3-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.958813,
+            "sampledIntervalSeconds": 58.065504,
+            "sampleCount": 20,
+            "recorderPid": 2528,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 9.821881508167053,
+            "engineCpuMachineAvgPercent": 4.910940754083526,
+            "engineCpuOneCoreP95Percent": 34.550912924545365,
+            "engineRssMedianMiB": 45.576171875,
+            "engineRssActiveSampleMaxMiB": 53.4765625,
+            "engineRssLifetimePeakMiB": 114.07421875,
+            "otherEngineDescendantsObserved": [
+              "bun",
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "automatic",
+            "case": "trial-3-scroll60",
+            "durationSeconds": 59.958813,
+            "storedActiveFrames": 5,
+            "firstObservedBottomSeconds": 57.729543,
+            "observedBoundaryTailSeconds": 2.2292699999999996,
+            "distinctVisibleRowSets": 5
+          },
+          "storedTailTimestampDelayMs": 534,
+          "tailDbFirstObservationUpperBoundMs": 2212,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        }
+      ],
+      "recorderMachineCpuPercentMedianOfTrialAverages": 0.980234030343001,
+      "recorderMachineCpuPercentTrialRange": [
+        0.49328017798751894,
+        4.910940754083526
+      ],
+      "scrollLinks": {
+        "total": 116,
+        "unlinked": 78,
+        "pageMismatch": 0
+      },
+      "zeroVisibleMarkerCoverageFrames": [
+        4,
+        5
+      ],
+      "logIndicators": {
+        "startup15sTimeouts": 2,
+        "event15sTimeouts": 5,
+        "visionStallRestarts": 1,
+        "osCpuSamples": {
+          "trial-1-scroll60": 100.0,
+          "trial-2-scroll60": 100.0,
+          "trial-3-scroll60": 100
+        }
+      },
+      "backupVerification": {
+        "backupMaxFrameId": 39,
+        "allRawPollFrameIdsPresent": true,
+        "pollMaxFrameId": 32,
+        "backupRowCount": 39
+      }
+    },
+    "low-impact": {
+      "performanceComparisonValidity": "Three measured trials; first-trial startup effects and capture gaps retained, not steady-state-only",
+      "verifiedSettings": {
+        "recordingDetail": "low_impact",
+        "powerMode": "auto",
+        "videoQuality": "balanced",
+        "idleCaptureIntervalMs": null,
+        "captureScroll": true,
+        "disableAudio": true
+      },
+      "powerBefore": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "low_impact",
+          "scroll_interval_ms": 5000,
+          "reason": "preference"
+        }
+      },
+      "powerAfter": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "low_impact",
+          "scroll_interval_ms": 5000,
+          "reason": "preference"
+        }
+      },
+      "dbFrames": 76,
+      "images": 76,
+      "trials": [
+        {
+          "case": "trial-1-scroll60",
+          "actualCaseSeconds": 60.21718,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.964,
+          "activeFrameCount": 10,
+          "activeScrollCheckpointCount": 9,
+          "frameGapMedianSeconds": 5.040516,
+          "frameGapMaxSeconds": 13.791693,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 13.791693,
+          "savedImageBytesActive": 1031421,
+          "cpu": {
+            "mode": "low-impact",
+            "case": "trial-1-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 60.21718,
+            "sampledIntervalSeconds": 57.142398,
+            "sampleCount": 35,
+            "recorderPid": 7508,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 15.17590318838212,
+            "engineCpuMachineAvgPercent": 7.58795159419106,
+            "engineCpuOneCoreP95Percent": 33.036667000263584,
+            "engineRssMedianMiB": 94.9140625,
+            "engineRssActiveSampleMaxMiB": 103.75390625,
+            "engineRssLifetimePeakMiB": 105.52734375,
+            "otherEngineDescendantsObserved": [
+              "bun",
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "low-impact",
+            "case": "trial-1-scroll60",
+            "durationSeconds": 60.21718,
+            "storedActiveFrames": 10,
+            "firstObservedBottomSeconds": 55.858786,
+            "observedBoundaryTailSeconds": 4.358393999999997,
+            "distinctVisibleRowSets": 9
+          },
+          "storedTailTimestampDelayMs": 901,
+          "tailDbFirstObservationUpperBoundMs": 3388,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-2-scroll60",
+          "actualCaseSeconds": 59.979825,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.951,
+          "activeFrameCount": 12,
+          "activeScrollCheckpointCount": 11,
+          "frameGapMedianSeconds": 5.008651,
+          "frameGapMaxSeconds": 5.272711,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 5.272711,
+          "savedImageBytesActive": 1248930,
+          "cpu": {
+            "mode": "low-impact",
+            "case": "trial-2-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.979825,
+            "sampledIntervalSeconds": 59.643096,
+            "sampleCount": 43,
+            "recorderPid": 7508,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 21.429554897686735,
+            "engineCpuMachineAvgPercent": 10.714777448843368,
+            "engineCpuOneCoreP95Percent": 37.26373437362237,
+            "engineRssMedianMiB": 65.6015625,
+            "engineRssActiveSampleMaxMiB": 73.15625,
+            "engineRssLifetimePeakMiB": 105.52734375,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "low-impact",
+            "case": "trial-2-scroll60",
+            "durationSeconds": 59.979825,
+            "storedActiveFrames": 12,
+            "firstObservedBottomSeconds": 55.697896,
+            "observedBoundaryTailSeconds": 4.281928999999998,
+            "distinctVisibleRowSets": 11
+          },
+          "storedTailTimestampDelayMs": 757,
+          "tailDbFirstObservationUpperBoundMs": 1713,
+          "tailAlreadyPresentInFirstPoll": false,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-3-scroll60",
+          "actualCaseSeconds": 59.953114,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.952,
+          "activeFrameCount": 12,
+          "activeScrollCheckpointCount": 11,
+          "frameGapMedianSeconds": 5.020589,
+          "frameGapMaxSeconds": 5.280261,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 5.280261,
+          "savedImageBytesActive": 1250480,
+          "cpu": {
+            "mode": "low-impact",
+            "case": "trial-3-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.953114,
+            "sampledIntervalSeconds": 58.551185,
+            "sampleCount": 42,
+            "recorderPid": 7508,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 21.722446778831205,
+            "engineCpuMachineAvgPercent": 10.861223389415603,
+            "engineCpuOneCoreP95Percent": 37.14585578108383,
+            "engineRssMedianMiB": 52.19140625,
+            "engineRssActiveSampleMaxMiB": 58.40234375,
+            "engineRssLifetimePeakMiB": 105.52734375,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "low-impact",
+            "case": "trial-3-scroll60",
+            "durationSeconds": 59.953114,
+            "storedActiveFrames": 12,
+            "firstObservedBottomSeconds": 55.965859,
+            "observedBoundaryTailSeconds": 3.9872549999999976,
+            "distinctVisibleRowSets": 12
+          },
+          "storedTailTimestampDelayMs": 622,
+          "tailDbFirstObservationUpperBoundMs": 2039,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        }
+      ],
+      "recorderMachineCpuPercentMedianOfTrialAverages": 10.714777448843368,
+      "recorderMachineCpuPercentTrialRange": [
+        7.58795159419106,
+        10.861223389415603
+      ],
+      "scrollLinks": {
+        "total": 49,
+        "unlinked": 0,
+        "pageMismatch": 0
+      },
+      "zeroVisibleMarkerCoverageFrames": [
+        3,
+        7,
+        8
+      ],
+      "logIndicators": {
+        "startup15sTimeouts": 1,
+        "event15sTimeouts": 1,
+        "visionStallRestarts": 0,
+        "osCpuSamples": {
+          "trial-1-scroll60": 100,
+          "trial-2-scroll60": 68,
+          "trial-3-scroll60": 79
+        }
+      },
+      "backupVerification": {
+        "backupMaxFrameId": 76,
+        "allRawPollFrameIdsPresent": true,
+        "pollMaxFrameId": 76,
+        "backupRowCount": 76
+      }
+    },
+    "more-detail": {
+      "performanceComparisonValidity": "Three measured trials; first-trial startup effects and capture gaps retained, not steady-state-only",
+      "verifiedSettings": {
+        "recordingDetail": "more_detail",
+        "powerMode": "auto",
+        "videoQuality": "balanced",
+        "idleCaptureIntervalMs": null,
+        "captureScroll": true,
+        "disableAudio": true
+      },
+      "powerBefore": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "more_detail",
+          "scroll_interval_ms": 1000,
+          "reason": "preference"
+        }
+      },
+      "powerAfter": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "more_detail",
+          "scroll_interval_ms": 1000,
+          "reason": "preference"
+        }
+      },
+      "dbFrames": 218,
+      "images": 218,
+      "trials": [
+        {
+          "case": "trial-1-scroll60",
+          "actualCaseSeconds": 59.958542,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.953,
+          "activeFrameCount": 52,
+          "activeScrollCheckpointCount": 52,
+          "frameGapMedianSeconds": 1.107569,
+          "frameGapMaxSeconds": 2.673827,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 2.673827,
+          "savedImageBytesActive": 5380271,
+          "cpu": {
+            "mode": "more-detail",
+            "case": "trial-1-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.958542,
+            "sampledIntervalSeconds": 59.582685,
+            "sampleCount": 42,
+            "recorderPid": 968,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 36.39899746041992,
+            "engineCpuMachineAvgPercent": 18.19949873020996,
+            "engineCpuOneCoreP95Percent": 51.955985895563785,
+            "engineRssMedianMiB": 95.548828125,
+            "engineRssActiveSampleMaxMiB": 106.54296875,
+            "engineRssLifetimePeakMiB": 111.80859375,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "more-detail",
+            "case": "trial-1-scroll60",
+            "durationSeconds": 59.958542,
+            "storedActiveFrames": 52,
+            "firstObservedBottomSeconds": 54.225515,
+            "observedBoundaryTailSeconds": 5.733027,
+            "distinctVisibleRowSets": 47
+          },
+          "storedTailTimestampDelayMs": 397,
+          "tailDbFirstObservationUpperBoundMs": 2520,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-2-scroll60",
+          "actualCaseSeconds": 59.959045,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.957,
+          "activeFrameCount": 56,
+          "activeScrollCheckpointCount": 56,
+          "frameGapMedianSeconds": 1.059362,
+          "frameGapMaxSeconds": 1.371988,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 1.54014,
+          "savedImageBytesActive": 5816232,
+          "cpu": {
+            "mode": "more-detail",
+            "case": "trial-2-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.959045,
+            "sampledIntervalSeconds": 59.503377,
+            "sampleCount": 42,
+            "recorderPid": 968,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 37.68168485630656,
+            "engineCpuMachineAvgPercent": 18.84084242815328,
+            "engineCpuOneCoreP95Percent": 50.02195746445919,
+            "engineRssMedianMiB": 56.125,
+            "engineRssActiveSampleMaxMiB": 72.515625,
+            "engineRssLifetimePeakMiB": 111.80859375,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "more-detail",
+            "case": "trial-2-scroll60",
+            "durationSeconds": 59.959045,
+            "storedActiveFrames": 56,
+            "firstObservedBottomSeconds": 54.123637,
+            "observedBoundaryTailSeconds": 5.835408000000001,
+            "distinctVisibleRowSets": 51
+          },
+          "storedTailTimestampDelayMs": 249,
+          "tailDbFirstObservationUpperBoundMs": 2581,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        },
+        {
+          "case": "trial-3-scroll60",
+          "actualCaseSeconds": 59.961284,
+          "nativeWheelEvents": 1200,
+          "nativeInputSpanSeconds": 59.961,
+          "activeFrameCount": 57,
+          "activeScrollCheckpointCount": 57,
+          "frameGapMedianSeconds": 1.0272540000000001,
+          "frameGapMaxSeconds": 2.346218,
+          "maxCaptureSilenceIncludingWindowBoundariesSeconds": 2.346218,
+          "savedImageBytesActive": 5871744,
+          "cpu": {
+            "mode": "more-detail",
+            "case": "trial-3-scroll60",
+            "kind": "continuous",
+            "requestedIntervalSeconds": 59.961284,
+            "sampledIntervalSeconds": 59.192308,
+            "sampleCount": 42,
+            "recorderPid": 968,
+            "recorderPidStable": true,
+            "engineCpuOneCoreAvgPercent": 38.61882695974619,
+            "engineCpuMachineAvgPercent": 19.309413479873093,
+            "engineCpuOneCoreP95Percent": 55.08232221674647,
+            "engineRssMedianMiB": 51.0625,
+            "engineRssActiveSampleMaxMiB": 54.8203125,
+            "engineRssLifetimePeakMiB": 111.80859375,
+            "otherEngineDescendantsObserved": [
+              "conhost"
+            ],
+            "note": "CPU-time deltas from first/last recorder-only samples inside active interval; no endpoint extrapolation; unrelated quiet/reset time excluded."
+          },
+          "movement": {
+            "mode": "more-detail",
+            "case": "trial-3-scroll60",
+            "durationSeconds": 59.961284,
+            "storedActiveFrames": 57,
+            "firstObservedBottomSeconds": 54.365705,
+            "observedBoundaryTailSeconds": 5.595579000000001,
+            "distinctVisibleRowSets": 51
+          },
+          "storedTailTimestampDelayMs": 757,
+          "tailDbFirstObservationUpperBoundMs": 2183,
+          "tailAlreadyPresentInFirstPoll": true,
+          "linkageDelayMeasured": false
+        }
+      ],
+      "recorderMachineCpuPercentMedianOfTrialAverages": 18.84084242815328,
+      "recorderMachineCpuPercentTrialRange": [
+        18.19949873020996,
+        19.309413479873093
+      ],
+      "scrollLinks": {
+        "total": 190,
+        "unlinked": 0,
+        "pageMismatch": 0
+      },
+      "zeroVisibleMarkerCoverageFrames": [],
+      "logIndicators": {
+        "startup15sTimeouts": 1,
+        "event15sTimeouts": 0,
+        "visionStallRestarts": 0,
+        "osCpuSamples": {
+          "trial-1-scroll60": 84,
+          "trial-2-scroll60": 96,
+          "trial-3-scroll60": 96
+        }
+      },
+      "backupVerification": {
+        "backupMaxFrameId": 218,
+        "allRawPollFrameIdsPresent": true,
+        "pollMaxFrameId": 212,
+        "backupRowCount": 218
+      }
+    }
+  },
+  "visibleContentAudit": {
+    "totalDbFrames": 333,
+    "totalOcrImages": 333,
+    "missingSnapshots": 0,
+    "ocrErrors": 0,
+    "framesWithVisibleRowMarkers": 333,
+    "fullTextZeroVisibleMarkerCoverage": 5,
+    "fullTextCompleteVisibleMarkerCoverage": 292,
+    "note": "Vision OCR provides independently observed visible row IDs; row OCR errors possible. Boundary timing is first stored image showing only final rows, so actual arrival lies between it and preceding capture.",
+    "normalizedO0CoverageClasses": {
+      "strict_complete": 292,
+      "still_partial_after_O0_normalization": 5,
+      "complete_after_O0_normalization": 36
+    },
+    "remainingPartialExamples": [
+      {
+        "mode": "automatic",
+        "id": 4,
+        "visibleRows": [
+          [
+            "A",
+            74
+          ],
+          [
+            "A",
+            75
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "automatic",
+        "id": 5,
+        "visibleRows": [
+          [
+            "A",
+            76
+          ],
+          [
+            "A",
+            77
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "low-impact",
+        "id": 3,
+        "visibleRows": [
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "low-impact",
+        "id": 7,
+        "visibleRows": [
+          [
+            "A",
+            69
+          ],
+          [
+            "A",
+            70
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ],
+          [
+            "A",
+            55
+          ],
+          [
+            "A",
+            56
+          ],
+          [
+            "A",
+            57
+          ],
+          [
+            "A",
+            58
+          ],
+          [
+            "A",
+            59
+          ],
+          [
+            "A",
+            60
+          ],
+          [
+            "A",
+            61
+          ],
+          [
+            "A",
+            62
+          ],
+          [
+            "A",
+            63
+          ],
+          [
+            "A",
+            64
+          ],
+          [
+            "A",
+            65
+          ],
+          [
+            "A",
+            66
+          ],
+          [
+            "A",
+            67
+          ],
+          [
+            "A",
+            68
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      },
+      {
+        "mode": "low-impact",
+        "id": 8,
+        "visibleRows": [
+          [
+            "A",
+            76
+          ],
+          [
+            "A",
+            77
+          ]
+        ],
+        "storedFullTextRows": [
+          [
+            "A",
+            0
+          ],
+          [
+            "A",
+            1
+          ],
+          [
+            "A",
+            2
+          ],
+          [
+            "A",
+            3
+          ],
+          [
+            "A",
+            4
+          ],
+          [
+            "A",
+            5
+          ],
+          [
+            "A",
+            6
+          ],
+          [
+            "A",
+            7
+          ],
+          [
+            "A",
+            8
+          ],
+          [
+            "A",
+            9
+          ],
+          [
+            "A",
+            10
+          ],
+          [
+            "A",
+            11
+          ],
+          [
+            "A",
+            12
+          ],
+          [
+            "A",
+            13
+          ],
+          [
+            "A",
+            14
+          ],
+          [
+            "A",
+            15
+          ],
+          [
+            "A",
+            16
+          ],
+          [
+            "A",
+            17
+          ],
+          [
+            "A",
+            18
+          ],
+          [
+            "A",
+            19
+          ],
+          [
+            "A",
+            20
+          ],
+          [
+            "A",
+            21
+          ],
+          [
+            "A",
+            22
+          ],
+          [
+            "A",
+            23
+          ],
+          [
+            "A",
+            24
+          ],
+          [
+            "A",
+            25
+          ],
+          [
+            "A",
+            26
+          ],
+          [
+            "A",
+            27
+          ],
+          [
+            "A",
+            28
+          ],
+          [
+            "A",
+            29
+          ],
+          [
+            "A",
+            30
+          ],
+          [
+            "A",
+            31
+          ],
+          [
+            "A",
+            32
+          ],
+          [
+            "A",
+            33
+          ],
+          [
+            "A",
+            34
+          ],
+          [
+            "A",
+            35
+          ],
+          [
+            "A",
+            36
+          ],
+          [
+            "A",
+            37
+          ],
+          [
+            "A",
+            38
+          ],
+          [
+            "A",
+            39
+          ],
+          [
+            "A",
+            40
+          ],
+          [
+            "A",
+            41
+          ],
+          [
+            "A",
+            42
+          ],
+          [
+            "A",
+            43
+          ],
+          [
+            "A",
+            44
+          ],
+          [
+            "A",
+            45
+          ],
+          [
+            "A",
+            46
+          ],
+          [
+            "A",
+            47
+          ],
+          [
+            "A",
+            48
+          ],
+          [
+            "A",
+            49
+          ],
+          [
+            "A",
+            50
+          ],
+          [
+            "A",
+            51
+          ],
+          [
+            "A",
+            52
+          ],
+          [
+            "A",
+            53
+          ],
+          [
+            "A",
+            54
+          ],
+          [
+            "A",
+            55
+          ],
+          [
+            "A",
+            56
+          ],
+          [
+            "A",
+            57
+          ],
+          [
+            "A",
+            58
+          ],
+          [
+            "A",
+            59
+          ],
+          [
+            "A",
+            60
+          ],
+          [
+            "A",
+            61
+          ],
+          [
+            "A",
+            62
+          ],
+          [
+            "A",
+            63
+          ],
+          [
+            "A",
+            64
+          ],
+          [
+            "A",
+            65
+          ],
+          [
+            "A",
+            66
+          ],
+          [
+            "A",
+            67
+          ],
+          [
+            "A",
+            68
+          ]
+        ],
+        "textSource": "accessibility",
+        "visibleRowRecallO0Normalized": 0.0
+      }
+    ]
+  },
+  "pageCoherenceAudit": {
+    "frames": 333,
+    "framesWithVisiblePageMarkers": 333,
+    "framesWithoutVisiblePageMarkers": 0,
+    "definitions": "Visible pages come from independent screenshot OCR PAGE A/B row markers. Stored text identity uses corresponding row markers (navigation-link text excluded). Window identity uses ScrollBench Page A/B title. A match is page identity only, not row completeness, temporal alignment or successful navigation.",
+    "windowTitleComparisonCounts": {
+      "match": 333
+    },
+    "fullTextComparisonCounts": {
+      "match": 333
+    },
+    "accessibilityTextComparisonCounts": {
+      "match": 332,
+      "unverified_no_stored_page": 1
+    },
+    "visiblePageCountsByMode": {
+      "automatic": {
+        "A": 35,
+        "B": 4
+      },
+      "low-impact": {
+        "A": 73,
+        "B": 3
+      },
+      "more-detail": {
+        "A": 215,
+        "B": 3
+      }
+    }
+  },
+  "eventFrameLinkAudit": {
+    "eventCount": 382,
+    "definitions": "Compare UI event ScrollBench Page A/B title with linked frame title and independently OCR-visible PAGE A/B row markers. Unknown, unlinked and dangling rows are separate. Match checks page identity only, not temporal freshness, row accuracy or navigation success.",
+    "allEvents": {
+      "count": 382,
+      "titleCounts": {
+        "unlinked": 88,
+        "match": 283,
+        "unknown_event_page": 11
+      },
+      "pixelCounts": {
+        "unlinked": 88,
+        "match": 283,
+        "unknown_event_page": 11
+      }
+    },
+    "scrollEvents": {
+      "count": 355,
+      "titleCounts": {
+        "unlinked": 78,
+        "match": 277
+      },
+      "pixelCounts": {
+        "unlinked": 78,
+        "match": 277
+      }
+    }
+  },
+  "tests": {
+    "status": "historical-same-binary-producer-receipts-reused-not-rerun",
+    "rerun": false,
+    "reason": "Task explicitly prohibited native test reruns."
+  },
+  "captureFailureLogExcerpts": [
+    "2026-09-28T19:32:10.347101Z  WARN screenpipe_engine::event_driven_capture: startup capture timed out after 15s for monitor 65537; continuing with live capture loop",
+    "2026-09-28T19:33:04.748103Z  WARN screenpipe_engine::event_driven_capture: event capture timed out after 15s (trigger=window_focus, monitor=65537) \u2014 frame dropped; likely a stuck DB write / saturated write pool or a slow a11y/OCR step",
+    "2026-09-28T19:34:07.001557Z  WARN screenpipe_engine::event_driven_capture: event capture timed out after 15s (trigger=key_press, monitor=65537) \u2014 frame dropped; likely a stuck DB write / saturated write pool or a slow a11y/OCR step",
+    "2026-09-28T19:34:18.178834Z  WARN screenpipe_engine::vision_manager::monitor_watcher: vision capture stalled on monitor 65537 (still-attempting wedge): status=Running, frozen in capture for 11s, loop heartbeat 11s ago, last attempt 11s ago, no terminal capture outcome for 122s \u2014 restarting VisionManager (#3939)",
+    "2026-09-28T19:35:02.415617Z  WARN screenpipe_engine::event_driven_capture: event capture timed out after 15s (trigger=scroll_stop, monitor=65537) \u2014 frame dropped; likely a stuck DB write / saturated write pool or a slow a11y/OCR step",
+    "2026-09-28T19:35:27.351885Z  WARN screenpipe_engine::event_driven_capture: startup capture timed out after 15s for monitor 65537; continuing with live capture loop",
+    "2026-09-28T19:37:35.658819Z  WARN screenpipe_engine::event_driven_capture: event capture timed out after 15s (trigger=key_press, monitor=65537) \u2014 frame dropped; likely a stuck DB write / saturated write pool or a slow a11y/OCR step",
+    "2026-09-28T19:38:05.797872Z  WARN screenpipe_engine::event_driven_capture: event capture timed out after 15s (trigger=scroll_stop, monitor=65537) \u2014 frame dropped; likely a stuck DB write / saturated write pool or a slow a11y/OCR step",
+    "2026-09-28T19:38:18.388639Z  INFO screenpipe_engine::event_driven_capture: monitor 65537 capture recovered after 2 consecutive errors"
+  ],
+  "limitations": [
+    "Auto CPU is invalid for efficiency ranking because recording stalled, not evidence of lower load while providing equivalent capture.",
+    "Operating-system total CPU sampler was saturated in early Auto trials; root cause not established. Built-in pipe installation activity also appears in logs. No additional run or causal isolation performed.",
+    "Recorder CPU is process CPU-time delta between first/last samples strictly inside native input window; no endpoint extrapolation. Whole-machine percent divides by2.",
+    "Memory is WorkingSet64 sampled during active window; PeakWorkingSet64 is labeled lifetime, never active peak.",
+    "Physical disk write I/O, independent foreground latency and battery/thermal response unmeasured.",
+    "Image byte counts are saved snapshots only; cannot substitute for total physical disk writes.",
+    "Known page boundary affects final few seconds, and Auto missing frames prevent reconstructing actual motion through missing intervals.",
+    "Visible marker recall is not whole-text accuracy; O/0 correction only replaces standalone letterO after row. Missing visible text mechanism may be walk cutoff or temporal staleness; no causal proof.",
+    "Page coherence is separate from UI-event linkage: unlinked events remain failures/unverified, not matched.",
+    "DB/frame/image counts matched andZIP CRC passed; full SQLite integrity check unavailable without vec_length extension.",
+    "Configuration comparison only: CPU model unrecorded, VM host placement and cold startup effects not controlled.",
+    "Cross-OS ranking invalid: quality/resolution/native features differ.",
+    "Illustrative15s recorder-off guest video is not trial performance evidence."
+  ],
+  "guestCleanup": {
+    "shutdownRequested": true,
+    "authRemoved": true,
+    "taskId": "scroll7335-bench2-correct-20260928",
+    "autoLogonDisabled": true
+  },
+  "resourceCleanup": {
+    "resourceGroup": "rg-spw-bench2-correct-20260928",
+    "vm": "spw-bench2c",
+    "taskId": "scroll7335-bench2-correct-20260928",
+    "deleteRequested": true,
+    "verifiedAbsent": true,
+    "verification": "az group exists -n rg-spw-bench2-correct-20260928 returned false",
+    "verifiedAtUtc": "2026-09-28T20:09:00.311036+00:00",
+    "evidenceDownloadedAndHashRecorded": true,
+    "guestCleanup": {
+      "shutdownRequested": true,
+      "authRemoved": true,
+      "taskId": "scroll7335-bench2-correct-20260928",
+      "autoLogonDisabled": true
+    },
+    "sharedImmutableImageManagedIdentityAndStoragePreserved": true
+  },
+  "evidenceZipSha256": "4b99fc8ac62e6fed70ee9717bfad28d95a8d871b8aa96e8f57610b230d539e96",
+  "allRuntimeHashesMatch": true
+}
