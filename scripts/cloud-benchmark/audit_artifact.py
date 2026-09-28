@@ -96,6 +96,31 @@ for mode in ("auto", "low_impact", "more_detail"):
         "uniqueImages": len({x.get("sha256") for x in audited if x.get("sha256")}),
         "frames": audited,
     }
+    events = json.loads((folder / 'ui_events.json').read_text())
+    link_failures = []
+    for event in events:
+        frame_id = event.get('frame_id')
+        if frame_id is None:
+            continue
+        frame = by_id.get(frame_id)
+        reasons = []
+        if frame is None:
+            reasons.append('missing_frame')
+        else:
+            for event_key, frame_key in [('app_name','app_name'),('window_title','window_name')]:
+                if not event.get(event_key) or not frame.get(frame_key):
+                    reasons.append('unknown_' + event_key)
+                elif event[event_key] != frame[frame_key]:
+                    reasons.append(event_key + '_mismatch')
+            if event.get('browser_url') and event['browser_url'] != frame.get('browser_url'):
+                reasons.append('browser_url_mismatch')
+        if reasons:
+            link_failures.append({'eventId':event['id'],'frameId':frame_id,'reasons':reasons})
+    report[mode]['eventLinks'] = {
+        'events':len(events), 'linked':sum(e.get('frame_id') is not None for e in events),
+        'unlinked':sum(e.get('frame_id') is None for e in events),
+        'invalid':len(link_failures), 'failures':link_failures,
+    }
 (root / "integrity.json").write_text(json.dumps(report, indent=2) + "\n")
 (root / "ocr-paths.json").write_text(json.dumps(sorted(set(ocr_paths)), indent=2) + "\n")
 print(json.dumps({k: {a: b for a, b in v.items() if a != "frames"} for k, v in report.items()}, indent=2))
