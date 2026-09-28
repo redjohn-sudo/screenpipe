@@ -7007,6 +7007,7 @@ dependencies = [
  "screenpipe-core",
  "screenpipe-db",
  "screenpipe-screen",
+ "serde",
  "serde_json",
  "tokio",
  "tracing",
