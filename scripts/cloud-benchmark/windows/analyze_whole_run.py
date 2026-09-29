@@ -5,10 +5,11 @@ import argparse
 import datetime
 import json
 import pathlib
+import re
 
 
 def timestamp(value):
-    return datetime.datetime.fromisoformat(value.replace('Z', '+00:00')).timestamp()
+    return datetime.datetime.fromisoformat(re.sub(r'(\.\d{6})\d+', r'\1', value).replace('Z', '+00:00')).timestamp()
 
 
 def process_map(row):

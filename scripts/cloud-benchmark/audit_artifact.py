@@ -1,6 +1,6 @@
 # screenpipe — AI that knows everything you've seen, said, or heard
 # https://screenpipe.com
-"""Read-only integrity/context audit of downloaded Mac evidence; requires Pillow."""
+"""Read-only integrity/context audit of downloaded native evidence; requires Pillow."""
 import collections
 import hashlib
 import json
@@ -46,7 +46,7 @@ for mode in ("auto", "low_impact", "more_detail"):
     audited = []
     for frame in frames:
         title = frame.get("window_name") or ""
-        match = re.search(r"Cloud Benchmark ([AB])", title)
+        match = re.search(r"(?:Cloud Benchmark|ScrollBench Page) ([AB])", title)
         expected = match.group(1) if match else None
         source, seen, ref_error = frame["id"], set(), None
         while source in by_id and by_id[source].get("elements_ref_frame_id") is not None:
@@ -57,10 +57,11 @@ for mode in ("auto", "low_impact", "more_detail"):
             source = by_id[source]["elements_ref_frame_id"]
         if source not in by_id:
             ref_error = "Missing referenced frame"
-        pages = lambda value: sorted(set(re.findall(r"\b([AB])\s+ROW\s+\d+", value or "")))
+        pages = lambda value: sorted(set(re.findall(r"\b([AB])\s*[—•·-]?\s*ROW\s+\d+", value or "", re.I)))
         contexts = {
             "text": pages(frame.get("accessibility_text")),
             "tree": pages(frame.get("accessibility_tree_json")),
+            "full_text": pages(frame.get("full_text")),
             "elements": pages(" ".join(str(x.get("text") or "") for x in elements_by_frame[source])),
         }
         row = {
@@ -69,7 +70,7 @@ for mode in ("auto", "low_impact", "more_detail"):
             "referenceError": ref_error, "elementSourceFrameId": source,
             "mismatches": [key for key, value in contexts.items() if expected and value and value != [expected]],
         }
-        paths = images[pathlib.Path(frame.get("snapshot_path") or "").name]
+        paths = images[pathlib.Path((frame.get("snapshot_path") or "").replace("\\", "/")).name]
         if len(paths) != 1:
             row["imageError"] = f"Expected one saved image; found {len(paths)}"
         else:

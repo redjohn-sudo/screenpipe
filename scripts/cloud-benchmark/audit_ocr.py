@@ -9,12 +9,12 @@ import statistics
 import sys
 
 root = pathlib.Path(sys.argv[1]).resolve()
-ocr = {str(pathlib.Path(row["path"]).resolve().relative_to(root)): row for row in
+ocr = {str(pathlib.Path(row["path"]).resolve()): row for row in
        (json.loads(line) for line in (root / "ocr.jsonl").read_text().splitlines() if line.strip())}
 integrity = json.loads((root / "integrity.json").read_text())
 report = {"method": "Independent Apple Vision OCR of every saved image. Row IDs identify visible fixture content, not every glyph. Unreadable/missing OCR remains unverified.", "modes": {}}
 def markers(text):
-    return set((page.upper(), int(row)) for page, row in re.findall(r"\b([AB])\s+ROW\s+(\d{4})\b", text or "", re.I))
+    return set((page.upper(), int(row)) for page, row in re.findall(r"\b([AB])\s*[—•·-]?\s*ROW\s+(\d{1,4})\b", text or "", re.I))
 for mode, audit in integrity.items():
     if not audit.get("complete"):
         continue
@@ -27,7 +27,7 @@ for mode, audit in integrity.items():
     rows = []
     for image in audit["frames"]:
         frame = frames[image["frameId"]]
-        pixels = ocr.get(image.get("image"), {})
+        pixels = ocr.get(str((root / image["image"]).resolve()), {}) if image.get("image") else {}
         visible = markers(pixels.get("text"))
         indexed = markers(frame.get("full_text"))
         exposed = markers(search_text.get(frame['id']))

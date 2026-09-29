@@ -47,7 +47,7 @@ for label in ['before', 'after']:
 def picture(label, frame_id):
     item = data[label]
     frame = next(f for f in item['frames'] if f['id'] == frame_id)
-    path = item['images'][pathlib.Path(frame['snapshot_path']).name]
+    path = item['images'][pathlib.Path(frame['snapshot_path'].replace('\\', '/')).name]
     with Image.open(path) as image:
         return ImageOps.contain(image.convert('RGB'), (944, 531), Image.Resampling.LANCZOS)
 

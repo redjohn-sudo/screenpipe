@@ -1,7 +1,7 @@
 # screenpipe — AI that knows everything you've seen, said, or heard
 # https://screenpipe.com
 import datetime
-from analyze_whole_run import measure
+from analyze_whole_run import measure, timestamp
 
 def sample(second, cpu):
     return dict(utc=datetime.datetime.fromtimestamp(second, datetime.timezone.utc).isoformat(),
@@ -18,3 +18,5 @@ assert measure(rows,8,9,4)['cpuPercentOneCore'] is None
 lost=[sample(0,0),{**sample(1,2),'processes':[]}]
 assert measure(lost,0,1,4)['disappearedProcessIds']==[1]
 print('Windows CPU audit calibration passed: normalization, boundaries, background cost, missing observations and exited processes')
+
+assert timestamp("2026-09-29T00:31:02.9577443Z") == timestamp("2026-09-29T00:31:02.957744Z")
