@@ -1550,7 +1550,7 @@ dependencies = [
 [[package]]
 name = "cidre"
 version = "0.16.1"
-source = "git+https://github.com/yury/cidre.git?rev=9c20f5ee5abaad4598843a33e13d6e48822d1f30#9c20f5ee5abaad4598843a33e13d6e48822d1f30"
+source = "git+https://github.com/yury/cidre.git?rev=8d0f7307d201d75328ed82ea0d4ca7bb0a649716#8d0f7307d201d75328ed82ea0d4ca7bb0a649716"
 dependencies = [
  "cc",
  "cidre-macros 0.6.0",
