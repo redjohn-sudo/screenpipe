@@ -1,0 +1,18 @@
+[
+  {
+    "path": "run-mode.ps1",
+    "sha256": "241a0346f3631a800d99b9bbad2f314b01f3bd55ee7a5404226e1a2c3d9dff38"
+  },
+  {
+    "path": "poll-db.ts",
+    "sha256": "c5e0b744a93b4a404fc36b8f3879a1ca2e4f4164c3cd7248543ccfa051579079"
+  },
+  {
+    "path": "fixture-a.html",
+    "sha256": "221fc6822f0a28a3a9e64b8322b07866c7f9a29c01c9cb0610d4339d9b4abe6e"
+  },
+  {
+    "path": "fixture-b.html",
+    "sha256": "cfecdb9511f6cb3bb5287178d572c5c7d18492b65f9cf60e9a471237c324af71"
+  }
+]

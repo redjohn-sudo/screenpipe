@@ -1,0 +1,4 @@
+<!doctype html><meta charset="utf-8"><title>ScrollBench Page B</title>
+<style>body{margin:0;font:24px Segoe UI;background:#fee;color:#211}header{position:fixed;inset:0 0 auto 0;height:90px;background:#621;color:white;padding:18px;z-index:2}#side{position:fixed;left:30px;top:120px;width:420px;height:560px;overflow:auto;background:white;border:5px solid #a43}section{height:180px;padding:25px;border-bottom:2px solid #dba}</style>
+<header><b>PR #7335 native Windows scroll benchmark — PAGE B — <span id="build"></span></b></header>
+<div id="side"></div><script>build.textContent=new URLSearchParams(location.search).get('build')||'unlabeled';const s=document.querySelector('#side');for(let i=0;i<80;i++)s.insertAdjacentHTML('beforeend',`<section>PAGE B — row ${i}<br>navigation boundary</section>`)</script>
