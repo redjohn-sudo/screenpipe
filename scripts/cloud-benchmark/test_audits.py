@@ -3,6 +3,7 @@
 """Adversarial calibration: broken references, wrong context and partial text stay visible."""
 import json
 import pathlib
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -34,6 +35,17 @@ with tempfile.TemporaryDirectory() as temp:
     assert integrity['imageErrors'] == 0, 'Windows paths must resolve on the auditing Mac'
     assert integrity['referenceErrors'] == 1 and integrity['contextMismatches'] == 1
     assert integrity['eventLinks']['invalid'] == 1, 'Wrong-window links must not be counted as correct'
+    assert integrity['databaseBackupVerified'] is False, 'JSON exports cannot establish SQLite backup validity'
+    with sqlite3.connect(folder / 'database-snapshot.sqlite') as connection:
+        connection.execute('CREATE TABLE secrets(id INTEGER)')
+    subprocess.run([sys.executable, str(scripts / 'audit_artifact.py'), str(root)], check=True, stdout=subprocess.DEVNULL)
+    assert json.loads((root / 'integrity.json').read_text())['auto']['databaseBackupVerified'] is False
+    with sqlite3.connect(folder / 'database-snapshot.sqlite') as connection:
+        for table, count in [('frames', 2), ('ui_events', 1), ('elements', 0)]:
+            connection.execute(f'CREATE TABLE {table}(id INTEGER)')
+            connection.executemany(f'INSERT INTO {table}(id) VALUES (?)', [(i,) for i in range(count)])
+    subprocess.run([sys.executable, str(scripts / 'audit_artifact.py'), str(root)], check=True, stdout=subprocess.DEVNULL)
+    assert json.loads((root / 'integrity.json').read_text())['auto']['databaseBackupVerified'] is True
     # The second image intentionally has no independent OCR record.
     (root / 'ocr.jsonl').write_text(json.dumps({'path':str(images / 'one.png'),'text':'A - ROW 1\nA - ROW 2'})+'\n')
     subprocess.run([sys.executable, str(scripts / 'audit_ocr.py'), str(root)], check=True, stdout=subprocess.DEVNULL)

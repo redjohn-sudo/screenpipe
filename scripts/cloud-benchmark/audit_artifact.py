@@ -86,9 +86,12 @@ for mode in ("auto", "low_impact", "more_detail"):
             except Exception as error:
                 row["imageError"] = str(error)
         audited.append(row)
+    export_counts = {name: len(json.loads((folder / f"{name}.json").read_text())) for name in ("frames", "ui_events", "elements")}
+    backup_counts = counts.get(str((folder / "database-snapshot.sqlite").relative_to(root)))
     report[mode] = {
         "complete": True, "databaseCountsWithoutWal": counts,
-        "exportCounts": {name: len(json.loads((folder / f"{name}.json").read_text())) for name in ("frames", "ui_events", "elements")},
+        "exportCounts": export_counts,
+        "databaseBackupVerified": backup_counts == export_counts,
         "framesAudited": len(audited),
         "imageErrors": sum("imageError" in x for x in audited),
         "referenceErrors": sum(bool(x["referenceError"]) for x in audited),

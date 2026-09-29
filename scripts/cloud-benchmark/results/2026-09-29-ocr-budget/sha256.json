@@ -1,0 +1,9 @@
+{
+  "after/integrity.json": "34b12129fc28c14386cd6bc4b45e1963bed45cfb79097da9cfa8cb746620859b",
+  "after/performance.json": "72bb0ecf87ca5ad77fc5b5647e5b0a048a95303032b4abd4fdb606d386ad77c1",
+  "after/visible-text.json": "7e252915d317c27107d07ea19f505bc5dbbbe438501c50151908d1967a6d2e4a",
+  "before/integrity.json": "e5dbe25b9146a73c822a6e5f52c865136fe3d0822598138228ba8200c8ba8e34",
+  "before/performance.json": "918dd8031a3cbf7a011d18c426102a634ef2029a1f12cea5d50e71f23fdd0229",
+  "before/visible-text.json": "1d7d097dba8e919ae17c79d7426b676815d2ca2c3a5b14712df0cff380a8a651",
+  "summary.json": "0fabb8bc5ef0547af709a80b5e47228ae8909840cac9dd9367e747348ba7ecd2"
+}

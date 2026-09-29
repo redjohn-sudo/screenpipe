@@ -63,3 +63,13 @@ All three task-owned Windows resource groups were deleted after verified evidenc
 ## AppImage validation repair
 
 The current PR's Linux smoke job failed before launch because extraction created root-owned directories with mode `0700`; its unprivileged smoke user could not enter them, even though `AppRun` itself was executable. [Inspection of the exact failed artifact](https://github.com/screenpipe/screenpipe/actions/runs/36509008262) reproduced the access failure and verified access after changing ownership. Product commit `cdfb542d0c5d9fd8d8d1a89b283a75d741e32be6` transfers ownership after extraction in both smoke steps. [Debian and Arch both passed](https://github.com/screenpipe/screenpipe/actions/runs/36509231416) with that same artifact using the repaired commands. Both apps ran until the existing 20-second observation timeout. This is a smoke-setup repair, not a recording performance result.
+
+The [normal current-head AppImage workflow](https://github.com/screenpipe/screenpipe/actions/runs/36509191748) subsequently passed a fresh build and both smoke environments.
+
+The benchmark harness now uploads completed workload evidence before regression-test compilation, reuses the release profile for those tests, and stops on a failed test command rather than allowing a later success to mask it. These workflow changes apply to future runs; the active budget run retains its original `a33e923d2ed66b9c172889648f0ce5b642e97f88` definition. YAML, upload ordering and shell failure-propagation checks pass; the revised workflow has not been dispatched.
+
+## Mac SQLite export correction
+
+Later schema inspection found that all M1 and Intel standalone `database-snapshot.sqlite` files were overwritten by an auxiliary database during export. They contain no recorder tables and provide no independent SQLite row-count verification. The per-frame JSON exports, actual search responses, images and CPU traces remain available; the image/text/event audit uses those records. All auxiliary stores contained zero secret rows. The harness now selects exactly one database with `frames`, `ui_events` and `elements`, with three passing regression cases. The existing native archives remain labeled with this defect; no replacement recorder backup was fabricated. Windows uses its separately verified canonical-database export.
+
+The [M1 OCR-budget follow-up](../2026-09-29-ocr-budget/README.md) audits another 348 saved images. CPU during scrolling decreased, but 30/11/32 Auto/Low/More jobs remained after two minutes of drain, and those frames still lacked visible row markers in search. This prevents a sustainable-throughput or ready-to-ship claim.

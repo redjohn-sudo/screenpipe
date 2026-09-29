@@ -2,6 +2,7 @@
 # https://screenpipe.com
 """Isolated native recording benchmark. Run only inside disposable macOS CI."""
 import datetime, hashlib, json, os, pathlib, signal, sqlite3, subprocess, sys, threading, time, urllib.request
+from database_evidence import recorder_database
 ROOT = pathlib.Path(sys.argv[1]).resolve()
 BIN = pathlib.Path(sys.argv[2]).resolve()
 FIX = pathlib.Path(sys.argv[3]).resolve()
@@ -110,7 +111,8 @@ try:
             if recorder:stop(recorder)
             if sampler:stop(sampler)
         if mode!='control':
-            databases=list((folder/'data').rglob('*.sqlite'))
+            databases=[recorder_database(folder/'data')]
+            write(folder/'database-source.json', {'path':str(databases[0].relative_to(folder/'data'))})
             exports={}
             for db in databases:
                 connection=sqlite3.connect('file:'+str(db)+'?mode=ro',uri=True);connection.row_factory=sqlite3.Row
