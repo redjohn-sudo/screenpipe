@@ -20,8 +20,14 @@ fn legacy_catalogs_keep_capture_identity_without_pixels_in_retained_drafts() {
     assert_eq!(shot["timestamp"], "2026-09-22T10:00:00Z");
     assert_eq!(shot["visualVerified"], true);
     assert_eq!(shot["dataUrl"], "");
-    assert_eq!(catalog["analysis"]["workflows"][0]["userCorrection"], "Keep my edits");
-    assert_eq!(catalog["unrelated"]["dataUrl"], "retain arbitrary user content");
+    assert_eq!(
+        catalog["analysis"]["workflows"][0]["userCorrection"],
+        "Keep my edits"
+    );
+    assert_eq!(
+        catalog["unrelated"]["dataUrl"],
+        "retain arbitrary user content"
+    );
     let once = catalog.clone();
     discard_screenshot_pixels(&mut catalog);
     assert_eq!(once, catalog);

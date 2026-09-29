@@ -1271,16 +1271,23 @@ pub fn measured_time_profile(
 pub fn discard_screenshot_pixels(value: &mut Value) {
     match value {
         Value::Object(object) => {
-            if object.get("frameId").and_then(Value::as_i64).is_some_and(|id| id > 0)
+            if object
+                .get("frameId")
+                .and_then(Value::as_i64)
+                .is_some_and(|id| id > 0)
                 && object.get("timestamp").and_then(Value::as_str).is_some()
                 && object.contains_key("dataUrl")
             {
                 object.insert("dataUrl".into(), json!(""));
             }
-            for child in object.values_mut() { discard_screenshot_pixels(child); }
+            for child in object.values_mut() {
+                discard_screenshot_pixels(child);
+            }
         }
         Value::Array(array) => {
-            for child in array { discard_screenshot_pixels(child); }
+            for child in array {
+                discard_screenshot_pixels(child);
+            }
         }
         _ => {}
     }

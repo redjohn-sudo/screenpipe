@@ -652,11 +652,7 @@ pub(crate) async fn correct(
     Ok(Json(json!({"success":true,"workflow":updated_workflow})))
 }
 
-fn attach_stage_screenshots(
-    stage: &mut Value,
-    frames: Vec<i64>,
-    evidence: &EvidenceCatalog,
-) {
+fn attach_stage_screenshots(stage: &mut Value, frames: Vec<i64>, evidence: &EvidenceCatalog) {
     let mut screenshots = Vec::new();
     for id in frames {
         if let Some((timestamp, app)) = evidence.frames.get(&id) {
@@ -712,7 +708,9 @@ mod tests {
             .as_array()
             .unwrap()
             .iter()
-            .all(|image| image["visualVerified"] == true && image["matchDistanceSeconds"] == 0 && image["dataUrl"] == ""));
+            .all(|image| image["visualVerified"] == true
+                && image["matchDistanceSeconds"] == 0
+                && image["dataUrl"] == ""));
         let dir = tempfile::tempdir().unwrap();
         let source = WorkflowCatalogSource(Some(dir.path().to_path_buf()));
         let previous = read_catalog(&source).await.unwrap();
