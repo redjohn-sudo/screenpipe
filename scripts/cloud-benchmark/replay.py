@@ -110,5 +110,6 @@ subprocess.run(['ffmpeg', '-v', 'error', '-i', str(video), '-f', 'null', '-'], c
     machine=args.machine, mode=args.mode, sources={k:v['source'] for k,v in data.items()},
     fps=fps, durationSeconds=elapsed, chapters=chapters, selectionsChecked=len(selections),
     futureFramesShown=0, fullDecodePassed=True,
+    limits=['Replay uses stored frame timestamps, not database commit or timeline rendering time.', 'Images are scaled to fit the comparison; original screenshots remain in the evidence.'],
     rule='Latest saved frame at or before each case-relative timestamp. Unequal durations end explicitly; recording gaps hold the preceding frame.'), indent=2) + '\n')
 print(video)

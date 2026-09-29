@@ -1,12 +1,12 @@
 # screenpipe — AI that knows everything you've seen, said, or heard
 # https://screenpipe.com
-name: PR 7335 matched release benchmark
+name: PR 7335 OCR budget follow-up
 on:
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: pr7335-cloud-benchmark-${{ github.ref }}
+  group: pr7335-ocr-budget-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   macos:
@@ -14,12 +14,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, macos-15-intel]
+        os: [macos-14]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 180
     env:
       GIT_LFS_SKIP_SMUDGE: 1
-      SUBJECT_SHA: e08fa22b93425806cc1a9dedcc8f56830cb51844
+      SUBJECT_SHA: 0f44642ee1f810195367b3ded1075ac9af822462
       CARGO_TERM_COLOR: always
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
           path: harness
       - uses: actions/checkout@v4
         with:
-          ref: e08fa22b93425806cc1a9dedcc8f56830cb51844
+          ref: 0f44642ee1f810195367b3ded1075ac9af822462
           path: source
       - name: Machine identity and native fixture
         shell: bash
@@ -57,8 +57,8 @@ jobs:
           SCCACHE_GHA_ENABLED: 'true'
         run: |
           set -euo pipefail
-          git fetch --depth=1 origin bd766a7597004df1c60a79b223a1cd11f957e219
-          for pair in before:bd766a7597004df1c60a79b223a1cd11f957e219 after:e08fa22b93425806cc1a9dedcc8f56830cb51844; do
+          git fetch --depth=1 origin e08fa22b93425806cc1a9dedcc8f56830cb51844
+          for pair in before:e08fa22b93425806cc1a9dedcc8f56830cb51844 after:0f44642ee1f810195367b3ded1075ac9af822462; do
             label="${pair%%:*}"
             sha="${pair#*:}"
             git checkout "$sha"
@@ -68,14 +68,14 @@ jobs:
             sudo bash scripts/tcc-grant/tcc-grant.sh grant --app "$GITHUB_WORKSPACE/CloudRecorder-$label.app" --service accessibility,input-monitoring,screen-recording --adhoc-sign
             shasum -a 256 "$GITHUB_WORKSPACE/CloudRecorder-$label.app/Contents/MacOS/CloudRecorder-$label" > "$GITHUB_WORKSPACE/evidence/binary-$label.txt"
           done
-          git checkout e08fa22b93425806cc1a9dedcc8f56830cb51844
+          git checkout 0f44642ee1f810195367b3ded1075ac9af822462
       - name: Matched native workloads
         timeout-minutes: 55
         run: |
           set -euo pipefail
           if [ "$(uname -m)" = arm64 ]; then order="before after"; else order="after before"; fi
           for label in $order; do
-            if [ "$label" = before ]; then export SUBJECT_SHA=bd766a7597004df1c60a79b223a1cd11f957e219; else export SUBJECT_SHA=e08fa22b93425806cc1a9dedcc8f56830cb51844; fi
+            if [ "$label" = before ]; then export SUBJECT_SHA=e08fa22b93425806cc1a9dedcc8f56830cb51844; else export SUBJECT_SHA=0f44642ee1f810195367b3ded1075ac9af822462; fi
             python3 harness/scripts/cloud-benchmark/run.py "$PWD/evidence/$label/benchmark" "$PWD/CloudRecorder-$label.app/Contents/MacOS/CloudRecorder-$label" "$PWD/CloudFixture.app/Contents/MacOS/CloudFixture" "$PWD/sample"
           done
       - name: Recording policy regression tests
