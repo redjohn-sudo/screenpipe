@@ -61,7 +61,7 @@ proc = subprocess.Popen(command, stdin=subprocess.PIPE)
 selections, chapters = [], []
 elapsed = 0
 names = {'continuous': 'Continuous scroll', 'short': 'Short scroll and settle',
-         'reverse': 'Scroll and reverse', 'focus': 'Switch window while scrolling'}
+         'reverse': 'Scroll and reverse', 'focus': 'Window navigation and focus'}
 try:
     for name in names:
         key = (name, 0)
@@ -93,7 +93,7 @@ try:
                     draw.text((x + 8, 690), f'Frame {frame["id"]} | age {now - frame["unix"]:.1f}s | {frame.get("capture_trigger") or "unknown trigger"}', font=fonts[24], fill='white')
                 else:
                     draw.text((x + 8, 350), 'No preceding saved frame', font=fonts[28], fill='white')
-                phase = 'case ended, holding last frame' if ended else ('input active' if now < case['inputEnd'] else 'quiet, waiting for settled capture')
+                phase = 'case ended, holding last frame' if ended else (('navigation/focus actions' if name == 'focus' else 'input active') if now < case['inputEnd'] else 'quiet, waiting for settled capture')
                 count = sum(case['start'] <= f['unix'] <= now for f in item['frames'])
                 draw.text((x + 8, 728), f'{offset:.1f}s | {phase} | {count} new frames', font=fonts[20], fill='#bac8dd')
             if name == 'continuous' and i == 100:
