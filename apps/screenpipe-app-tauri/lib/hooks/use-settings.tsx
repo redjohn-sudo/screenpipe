@@ -863,6 +863,7 @@ let DEFAULT_SETTINGS: Settings = {
 			hdRecordingIntervalMs: 100,
 			headless: false,
 			headlessRecordOnly: false,
+			keepSearchAvailableAfterQuit: true,
 			fontSize: "16px",
 		};
 
