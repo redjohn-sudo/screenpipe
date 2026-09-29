@@ -4230,7 +4230,7 @@ port: number;
  */
 powerMode?: string | null;
 /**
- * Bounds intermediate scroll checkpoints and accessibility extraction work.
+ * Controls scroll checkpoint frequency without changing text extraction.
  */
 recordingDetail?: RecordingDetail;
 /**

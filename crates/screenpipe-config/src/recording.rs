@@ -169,7 +169,7 @@ impl SemanticContextMode {
     }
 }
 
-/// Screen history detail, independent of image quality and audio capture.
+/// Scroll checkpoint frequency, independent of text extraction, image quality and audio.
 #[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "snake_case")]
@@ -812,7 +812,7 @@ pub struct RecordingSettings {
     #[serde(rename = "powerMode", default)]
     pub power_mode: Option<String>,
 
-    /// Bounds intermediate scroll checkpoints and accessibility extraction work.
+    /// Controls scroll checkpoint frequency without changing text extraction.
     #[serde(rename = "recordingDetail", default)]
     pub recording_detail: RecordingDetail,
 

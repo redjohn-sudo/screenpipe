@@ -349,6 +349,8 @@ jobs:
         run: |
           cargo test --locked -p screenpipe-a11y --lib --profile release-dev --target x86_64-pc-windows-msvc
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --locked -p screenpipe-engine --lib recording_detail --profile release-dev --target x86_64-pc-windows-msvc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cargo test --locked -p screenpipe-engine --lib ui_recorder:: --profile release-dev --target x86_64-pc-windows-msvc
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cargo test --locked -p screenpipe-engine --lib event_driven_capture::tests:: --profile release-dev --target x86_64-pc-windows-msvc

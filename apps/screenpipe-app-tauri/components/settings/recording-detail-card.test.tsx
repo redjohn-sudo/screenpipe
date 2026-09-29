@@ -13,10 +13,10 @@ describe("recording detail", () => {
   it("names the control and exposes each persisted preset", () => {
     const change = vi.fn();
     render(<RecordingDetailCard value="auto" onChange={change} />);
-    const control = screen.getByRole("combobox", { name: "Recording detail" });
+    const control = screen.getByRole("combobox", { name: "Scroll capture" });
     expect(control.getAttribute("aria-describedby")).toBe("recording-detail-description");
     fireEvent.keyDown(control, { key: "ArrowDown" });
-    for (const label of ["Auto (recommended)", "Low impact", "Balanced", "More detail"]) {
+    for (const label of ["Auto", "Low impact", "Balanced", "More detail"]) {
       expect(screen.getByRole("option", { name: label })).toBeTruthy();
     }
     fireEvent.click(screen.getByRole("option", { name: "Low impact" }));
@@ -26,9 +26,9 @@ describe("recording detail", () => {
 
   it("explains the tradeoff when a persisted choice is restored", () => {
     const view = render(<RecordingDetailCard value="low_impact" onChange={() => {}} />);
-    expect(screen.getByText(/less searchable text/)).toBeTruthy();
+    expect(screen.getByText(/one every 5 seconds/)).toBeTruthy();
     view.rerender(<RecordingDetailCard value="more_detail" onChange={() => {}} />);
-    expect(screen.getByText(/Uses more resources/)).toBeTruthy();
-    expect(screen.getByText(/Audio and image quality use their own settings/)).toBeTruthy();
+    expect(screen.getByText(/Uses more CPU and storage/)).toBeTruthy();
+    expect(screen.getByText(/Image quality and text extraction per snapshot stay the same/)).toBeTruthy();
   });
 });

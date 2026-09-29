@@ -602,7 +602,7 @@ mod tests {
     }
 
     #[test]
-    fn recording_detail_reaches_both_capture_paths_without_changing_privacy_or_audio() {
+    fn recording_detail_changes_only_scroll_cadence_and_preserves_other_settings() {
         for mode in [
             screenpipe_config::RecordingDetail::Auto,
             screenpipe_config::RecordingDetail::LowImpact,
@@ -611,6 +611,9 @@ mod tests {
         ] {
             let settings = screenpipe_config::RecordingSettings {
                 recording_detail: mode,
+                video_quality: "high".into(),
+                power_mode: Some("battery_saver".into()),
+                idle_capture_interval_ms: Some(45_000),
                 disable_audio: true,
                 disable_keyboard_capture: true,
                 ignored_windows: vec!["Private".into()],
@@ -627,6 +630,9 @@ mod tests {
                 &vision.recording_detail.scroll_interval()
             ));
             assert_eq!(vision.ignored_windows, vec!["Private"]);
+            assert_eq!(vision.video_quality, "high");
+            assert_eq!(vision.idle_capture_interval_ms, Some(45_000));
+            assert_eq!(c.power_mode.as_deref(), Some("battery_saver"));
             assert!(!c.to_ui_recorder_config().record_keyboard_events);
             assert!(c.disable_audio);
         }

@@ -1,9 +1,9 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
 
-//! User-authorized history sampling and bounded text extraction. This never
-//! gates capture admission, changes privacy filters, or changes audio settings.
-//! Native input reads one atomic; adaptation runs only after a durable capture.
+//! Adaptive scroll sampling only. Every admitted capture keeps the existing
+//! accessibility and OCR pipeline, image quality, audio and privacy settings.
+//! Native input reads one atomic; capture outcomes adjust future scroll cadence.
 use crate::power::ProfileName;
 use screenpipe_config::RecordingDetail;
 use std::sync::{
@@ -38,7 +38,7 @@ impl RecordingDetailController {
             mode,
             interval: Arc::new(AtomicU64::new(interval)),
             adaptive: Mutex::new(Adaptive {
-                cost_interval: 2_000,
+                cost_interval: interval,
                 power_floor: 1_000,
                 slow: 0,
                 fast: 0,
@@ -50,20 +50,7 @@ impl RecordingDetailController {
         self.interval.clone()
     }
 
-    /// Existing per-app budgets remain an upper bound. Reduced work can yield
-    /// less searchable text, but never introduces a new screenshot drop gate.
-    pub fn tree_budget(&self) -> (usize, Duration) {
-        match self.interval.load(Ordering::Relaxed) {
-            0..=1_000 => (5_000, Duration::from_millis(250)),
-            1_001..=2_000 => (2_000, Duration::from_millis(150)),
-            _ => (1_000, Duration::from_millis(100)),
-        }
-    }
-
     pub fn set_power_profile(&self, profile: ProfileName) {
-        if self.mode != RecordingDetail::Auto {
-            return;
-        }
         let mut state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
         let floor = match profile {
             ProfileName::Performance => 1_000,
@@ -79,6 +66,19 @@ impl RecordingDetailController {
         }
         self.interval
             .store(state.cost_interval.max(floor), Ordering::Relaxed);
+    }
+
+    /// A failed capture or timeout reduces future Auto scroll requests. This
+    /// never changes text processing or discards an admitted capture.
+    pub fn observe_failure(&self) {
+        if self.mode != RecordingDetail::Auto {
+            return;
+        }
+        let mut state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
+        state.cost_interval = 5_000;
+        state.slow = 0;
+        state.fast = 0;
+        self.interval.store(5_000, Ordering::Relaxed);
     }
 
     /// Duration is a recording-cost proxy, not a whole-machine CPU measurement.
@@ -136,19 +136,54 @@ mod tests {
     }
 
     #[test]
-    fn fixed_presets_ignore_cost_and_power_without_changing_their_budget() {
-        for (mode, ms, nodes) in [
-            (RecordingDetail::LowImpact, 5_000, 1_000),
-            (RecordingDetail::Balanced, 2_000, 2_000),
-            (RecordingDetail::MoreDetail, 1_000, 5_000),
+    fn fixed_presets_preserve_preference_but_respect_power_limits() {
+        for (mode, ms) in [
+            (RecordingDetail::LowImpact, 5_000),
+            (RecordingDetail::Balanced, 2_000),
+            (RecordingDetail::MoreDetail, 1_000),
         ] {
             let c = RecordingDetailController::new(mode);
             samples(&c, 30, 5_000);
+            c.observe_failure();
+            assert_eq!(interval(&c), ms);
             c.set_power_profile(ProfileName::Saver);
             samples(&c, 30, 10);
+            assert_eq!(interval(&c), 5_000);
+            c.set_power_profile(ProfileName::Balanced);
+            assert_eq!(interval(&c), ms.max(2_000));
+            c.set_power_profile(ProfileName::Performance);
             assert_eq!(interval(&c), ms);
-            assert_eq!(c.tree_budget().0, nodes);
         }
+    }
+
+    #[test]
+    fn failure_resets_recovery_evidence_and_requires_ten_successful_captures() {
+        let c = RecordingDetailController::new(RecordingDetail::Auto);
+        samples(&c, 9, 100);
+        c.observe_failure();
+        assert_eq!(interval(&c), 5_000);
+        samples(&c, 9, 100);
+        assert_eq!(interval(&c), 5_000);
+        samples(&c, 1, 100);
+        assert_eq!(interval(&c), 2_000);
+        c.observe_failure();
+        c.set_power_profile(ProfileName::Performance);
+        assert_eq!(interval(&c), 5_000);
+    }
+
+    #[test]
+    fn repeated_power_updates_do_not_reset_capture_cost_evidence() {
+        let c = RecordingDetailController::new(RecordingDetail::Auto);
+        for _ in 0..3 {
+            c.set_power_profile(ProfileName::Performance);
+            samples(&c, 1, 900);
+        }
+        assert_eq!(interval(&c), 5_000);
+        for _ in 0..10 {
+            c.set_power_profile(ProfileName::Performance);
+            samples(&c, 1, 100);
+        }
+        assert_eq!(interval(&c), 2_000);
     }
 
     #[test]

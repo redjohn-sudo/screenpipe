@@ -311,7 +311,6 @@ async fn wait_for_warm_focus_or_timeout(
 /// Groups parameters that don't change between captures on the same monitor,
 /// keeping `do_capture`'s argument list manageable.
 pub(crate) struct CaptureParams<'a> {
-    pub recording_detail: &'a crate::recording_detail::RecordingDetailController,
     pub db: &'a DatabaseManager,
     pub monitor: &'a SafeMonitor,
     pub monitor_id: u32,
@@ -1164,7 +1163,6 @@ pub(crate) async fn event_driven_capture_loop(
         TreeWalkerWorker::spawn(format!("monitor-{monitor_id}"), tree_walker_config.clone())?;
 
     let capture_params = CaptureParams {
-        recording_detail: &recording_detail,
         db: &db,
         monitor: &monitor,
         monitor_id,
@@ -2121,6 +2119,11 @@ pub(crate) async fn event_driven_capture_loop(
                 )
                 .await;
 
+                if !matches!(&capture_result, Ok(Ok(_)))
+                    && focus_controller.hosts_focus_for_monitor(&monitor)
+                {
+                    recording_detail.observe_failure();
+                }
                 match capture_result {
                     Ok(Ok(output)) => {
                         state.mark_captured();
@@ -3278,10 +3281,6 @@ async fn do_capture(
         config.max_nodes_override = Some(decision.max_nodes);
         config.walk_timeout_override = Some(decision.timeout);
     }
-
-    let (max_nodes, walk_timeout) = params.recording_detail.tree_budget();
-    config.max_nodes_override = Some(config.effective_max_nodes().min(max_nodes));
-    config.walk_timeout_override = Some(config.effective_walk_timeout().min(walk_timeout));
 
     // The AX walker returns the one globally focused window. Walking it for a
     // different monitor would both waste work and pair unrelated pixels with

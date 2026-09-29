@@ -48,7 +48,7 @@ export const screenSearchIndex: SettingsField[] = [
   { label: msg("Use all monitors", {}), keywords: ["monitor", "display"], conditional: true },
   // conditional: monitor picker only renders when "Use all monitors" is off — paired right under that toggle.
   { label: msg("Monitors", {}), conditional: true },
-  { label: msg("Recording detail", {}), keywords: ["performance", "low impact", "scroll", "accessibility", "auto", "slow", "cpu"], conditional: true },
+  { label: msg("Scroll capture", {}), keywords: ["performance", "low impact", "scroll", "auto", "slow", "cpu"], conditional: true },
   { label: msg("Recording quality", {}), keywords: ["fps", "quality"], conditional: true },
   // conditional: hidden when screen recording is off (same gate as Recording quality).
   { label: msg("Capture frequency", {}), keywords: ["screenshot", "interval", "idle", "cadence", "every", "minimum"], conditional: true },
