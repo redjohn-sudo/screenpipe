@@ -1,0 +1,253 @@
+{
+  "logicalCores": 4,
+  "cases": [
+    {
+      "case": "warmup",
+      "kind": "warmup",
+      "input": {
+        "requestedSeconds": 60.010963916778564,
+        "observedSeconds": 60.010963916778564,
+        "cpuSeconds": 0.7783711014618003,
+        "cpuPercentOneCore": 1.2970481569688206,
+        "cpuPercentMachineCapacity": 0.32426203924220515,
+        "rssPeakMiB": 103.21875,
+        "privatePeakMiB": 50.36328125,
+        "maximumSampleGapSeconds": 1.3609619140625,
+        "disappearedProcessIds": [],
+        "samples": 45
+      }
+    },
+    {
+      "case": "trial-1-idle",
+      "kind": "idle",
+      "input": {
+        "requestedSeconds": 14.995979070663452,
+        "observedSeconds": 14.995979070663452,
+        "cpuSeconds": 0.13813296862125657,
+        "cpuPercentOneCore": 0.9211333782899531,
+        "cpuPercentMachineCapacity": 0.23028334457248828,
+        "rssPeakMiB": 93.64453125,
+        "privatePeakMiB": 47.5234375,
+        "maximumSampleGapSeconds": 1.3605599403381348,
+        "disappearedProcessIds": [],
+        "samples": 11
+      }
+    },
+    {
+      "case": "trial-1-scroll30",
+      "kind": "continuous",
+      "input": {
+        "requestedSeconds": 29.955374002456665,
+        "observedSeconds": 29.955374002456665,
+        "cpuSeconds": 4.144737316272243,
+        "cpuPercentOneCore": 13.836373119335214,
+        "cpuPercentMachineCapacity": 3.4590932798338034,
+        "rssPeakMiB": 89.6015625,
+        "privatePeakMiB": 47.50390625,
+        "maximumSampleGapSeconds": 1.3624680042266846,
+        "disappearedProcessIds": [],
+        "samples": 22
+      },
+      "throughQuiet": {
+        "requestedSeconds": 42.357731103897095,
+        "observedSeconds": 42.357731103897095,
+        "cpuSeconds": 4.40625,
+        "cpuPercentOneCore": 10.402469360769434,
+        "cpuPercentMachineCapacity": 2.6006173401923585,
+        "rssPeakMiB": 89.6015625,
+        "privatePeakMiB": 49.49609375,
+        "maximumSampleGapSeconds": 1.3624680042266846,
+        "disappearedProcessIds": [],
+        "samples": 31
+      }
+    },
+    {
+      "case": "trial-2-idle",
+      "kind": "idle",
+      "input": {
+        "requestedSeconds": 15.003859996795654,
+        "observedSeconds": 15.003859996795654,
+        "cpuSeconds": 0.2971379202758591,
+        "cpuPercentOneCore": 1.9804098434624042,
+        "cpuPercentMachineCapacity": 0.49510246086560106,
+        "rssPeakMiB": 84.59375,
+        "privatePeakMiB": 49.29296875,
+        "maximumSampleGapSeconds": 1.3526620864868164,
+        "disappearedProcessIds": [],
+        "samples": 12
+      }
+    },
+    {
+      "case": "trial-2-scroll30",
+      "kind": "continuous",
+      "input": {
+        "requestedSeconds": 29.964773893356323,
+        "observedSeconds": 29.964773893356323,
+        "cpuSeconds": 4.3051171100026115,
+        "cpuPercentOneCore": 14.367260454974184,
+        "cpuPercentMachineCapacity": 3.591815113743546,
+        "rssPeakMiB": 79.46875,
+        "privatePeakMiB": 48.828125,
+        "maximumSampleGapSeconds": 1.3768410682678223,
+        "disappearedProcessIds": [],
+        "samples": 22
+      },
+      "throughQuiet": {
+        "requestedSeconds": 42.34358787536621,
+        "observedSeconds": 42.34358787536621,
+        "cpuSeconds": 4.642428808023491,
+        "cpuPercentOneCore": 10.963711487292905,
+        "cpuPercentMachineCapacity": 2.740927871823226,
+        "rssPeakMiB": 79.46875,
+        "privatePeakMiB": 49.30078125,
+        "maximumSampleGapSeconds": 1.3768410682678223,
+        "disappearedProcessIds": [],
+        "samples": 31
+      }
+    },
+    {
+      "case": "short2-1",
+      "kind": "short",
+      "input": {
+        "requestedSeconds": 1.9546620845794678,
+        "observedSeconds": 1.9546620845794678,
+        "cpuSeconds": 0.33647621598914124,
+        "cpuPercentOneCore": 17.214035031611704,
+        "cpuPercentMachineCapacity": 4.303508757902926,
+        "rssPeakMiB": 58.3515625,
+        "privatePeakMiB": 49.5546875,
+        "maximumSampleGapSeconds": 1.3602941036224365,
+        "disappearedProcessIds": [],
+        "samples": 2
+      },
+      "throughQuiet": {
+        "requestedSeconds": 14.265253067016602,
+        "observedSeconds": 14.265253067016602,
+        "cpuSeconds": 0.5731401642853214,
+        "cpuPercentOneCore": 4.017735693806283,
+        "cpuPercentMachineCapacity": 1.0044339234515707,
+        "rssPeakMiB": 59.828125,
+        "privatePeakMiB": 49.57421875,
+        "maximumSampleGapSeconds": 1.3602941036224365,
+        "disappearedProcessIds": [],
+        "samples": 11
+      }
+    },
+    {
+      "case": "short2-2",
+      "kind": "short",
+      "input": {
+        "requestedSeconds": 1.9549391269683838,
+        "observedSeconds": 1.9549391269683838,
+        "cpuSeconds": 0.42453646599669037,
+        "cpuPercentOneCore": 21.716096431863793,
+        "cpuPercentMachineCapacity": 5.429024107965948,
+        "rssPeakMiB": 50.5234375,
+        "privatePeakMiB": 51.11328125,
+        "maximumSampleGapSeconds": 1.3684659004211426,
+        "disappearedProcessIds": [],
+        "samples": 1
+      },
+      "throughQuiet": {
+        "requestedSeconds": 14.294308185577393,
+        "observedSeconds": 14.294308185577393,
+        "cpuSeconds": 0.8023790680723514,
+        "cpuPercentOneCore": 5.613276680867509,
+        "cpuPercentMachineCapacity": 1.4033191702168772,
+        "rssPeakMiB": 54.45703125,
+        "privatePeakMiB": 51.11328125,
+        "maximumSampleGapSeconds": 1.3684659004211426,
+        "disappearedProcessIds": [],
+        "samples": 10
+      }
+    },
+    {
+      "case": "reverse4-down4-up",
+      "kind": "reverse",
+      "input": {
+        "requestedSeconds": 7.924767017364502,
+        "observedSeconds": 7.924767017364502,
+        "cpuSeconds": 1.2462509500982673,
+        "cpuPercentOneCore": 15.726026359734249,
+        "cpuPercentMachineCapacity": 3.931506589933562,
+        "rssPeakMiB": 47.7890625,
+        "privatePeakMiB": 50.43359375,
+        "maximumSampleGapSeconds": 1.3599469661712646,
+        "disappearedProcessIds": [],
+        "samples": 5
+      },
+      "throughQuiet": {
+        "requestedSeconds": 20.24073314666748,
+        "observedSeconds": 20.24073314666748,
+        "cpuSeconds": 1.4252154386744997,
+        "cpuPercentOneCore": 7.041323198854351,
+        "cpuPercentMachineCapacity": 1.7603307997135877,
+        "rssPeakMiB": 50.6171875,
+        "privatePeakMiB": 50.49609375,
+        "maximumSampleGapSeconds": 1.3599469661712646,
+        "disappearedProcessIds": [],
+        "samples": 15
+      }
+    },
+    {
+      "case": "navigation-focus-away-back",
+      "kind": "navigation-focus",
+      "input": {
+        "requestedSeconds": 10.113838911056519,
+        "observedSeconds": 10.113838911056519,
+        "cpuSeconds": 1.0395938463378636,
+        "cpuPercentOneCore": 10.278924308368927,
+        "cpuPercentMachineCapacity": 2.5697310770922317,
+        "rssPeakMiB": 54.01171875,
+        "privatePeakMiB": 50.6796875,
+        "maximumSampleGapSeconds": 1.361274003982544,
+        "disappearedProcessIds": [],
+        "samples": 8
+      },
+      "throughQuiet": {
+        "requestedSeconds": 22.315470933914185,
+        "observedSeconds": 22.109105825424194,
+        "cpuSeconds": 1.1020938463378636,
+        "cpuPercentOneCore": 4.984796106365004,
+        "cpuPercentMachineCapacity": 1.246199026591251,
+        "rssPeakMiB": 54.01171875,
+        "privatePeakMiB": 50.6796875,
+        "maximumSampleGapSeconds": 1.361274003982544,
+        "disappearedProcessIds": [],
+        "samples": 17
+      }
+    }
+  ],
+  "workloadIncludingQuietResetAndDrain": {
+    "requestedSeconds": 239.72735905647278,
+    "observedSeconds": 239.72735905647278,
+    "cpuSeconds": 16.231882968621257,
+    "cpuPercentOneCore": 6.770976426098073,
+    "cpuPercentMachineCapacity": 1.6927441065245183,
+    "rssPeakMiB": 93.64453125,
+    "privatePeakMiB": 64.53515625,
+    "maximumSampleGapSeconds": 2.252815008163452,
+    "disappearedProcessIds": [],
+    "samples": 178
+  },
+  "textQueue": {
+    "supportedSamples": 237,
+    "peakPending": 0,
+    "oldestAgeSeconds": 0,
+    "captureDelayedSamples": 0
+  },
+  "drain": {
+    "elapsedSeconds": 0.0136064,
+    "remainingTextPending": 0,
+    "supported": true,
+    "completed": true,
+    "error": null
+  },
+  "limits": [
+    "Per-process cumulative counters; 100% equals one logical core.",
+    "Case boundaries prorate overlapping sample intervals; sub-sample CPU timing is approximate.",
+    "Exited child processes may have an unobserved final counter; disappearedProcessIds records them.",
+    "Includes engine descendants, excludes benchmark/browser/OS CPU. System CPU is retained in raw samples.",
+    "Warmup excluded from workload total. Native input-to-render latency remains unmeasured."
+  ]
+}

@@ -1,0 +1,1857 @@
+{
+  "before": "bd766a7597004df1c60a79b223a1cd11f957e219",
+  "after": "e08fa22b93425806cc1a9dedcc8f56830cb51844",
+  "configurations": {
+    "macos-m1": {
+      "logicalCpuCount": 3,
+      "versions": {
+        "before": {
+          "auto": {
+            "frames": 82,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 1,
+            "ocrReadableFrames": 82,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 71,
+            "allVisibleRowsInSearchText": 10,
+            "medianVisibleRowCoverage": 0.0,
+            "textSources": {
+              "accessibility": 82
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 82,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 71,
+            "searchApiAllVisibleRows": 10,
+            "performance": {
+              "sampleSeconds": 211.05259704589844,
+              "cpuSeconds": 9.50776,
+              "cpuPercentOneCore": 4.5049244278819796,
+              "rssPeakMiB": 199.6875,
+              "cpuPercentMachineCapacity": 1.5016414759606598
+            },
+            "textQueue": {
+              "peakPending": 0,
+              "oldestAgeSeconds": 0,
+              "captureDelayedSamples": 0,
+              "drain": {
+                "elapsedSeconds": 0.0010849169998436992,
+                "status": {
+                  "state": {
+                    "battery_pct": null,
+                    "on_ac": true,
+                    "thermal_state": "nominal",
+                    "os_low_power": false
+                  },
+                  "active_profile": "performance",
+                  "user_pref": "auto",
+                  "audio_disabled": false,
+                  "screenshot_disabled": false,
+                  "capture_paused": false,
+                  "pause_audio_on_low_battery": true,
+                  "recording_detail": {
+                    "preferred_mode": "auto",
+                    "scroll_interval_ms": 1000,
+                    "reason": "preference"
+                  }
+                }
+              },
+              "jobsRemaining": 0
+            },
+            "continuousScroll": {
+              "cpuPercentMachineCapacity": {
+                "n": 2,
+                "median": 2.504435197550457,
+                "min": 2.0925383338723815,
+                "max": 2.9163320612285326,
+                "p95": 2.9163320612285326
+              },
+              "cpuPercentOneCore": {
+                "n": 2,
+                "median": 7.513305592651371,
+                "min": 6.277615001617145,
+                "max": 8.748996183685598,
+                "p95": 8.748996183685598
+              },
+              "rssPeakMiB": {
+                "n": 2,
+                "median": 183.734375,
+                "min": 168.703125,
+                "max": 198.765625,
+                "p95": 198.765625
+              },
+              "footprintPeakMiB": {
+                "n": 2,
+                "median": 44.947265625,
+                "min": 43.06439208984375,
+                "max": 46.83013916015625,
+                "p95": 46.83013916015625
+              },
+              "diskWriteMiB": {
+                "n": 2,
+                "median": 5.865234375,
+                "min": 4.69140625,
+                "max": 7.0390625,
+                "p95": 7.0390625
+              },
+              "scrollFramesDuringInput": {
+                "n": 2,
+                "median": 23.0,
+                "min": 18,
+                "max": 28,
+                "p95": 28
+              },
+              "maxScrollGapSeconds": {
+                "n": 2,
+                "median": 1.9180810451507568,
+                "min": 1.5025718212127686,
+                "max": 2.333590269088745,
+                "p95": 2.333590269088745
+              },
+              "tailFrameDelaySeconds": {
+                "n": 2,
+                "median": 0.8632245063781738,
+                "min": 0.8456220626831055,
+                "max": 0.8808269500732422,
+                "p95": 0.8808269500732422
+              },
+              "accessibilityFrames": {
+                "n": 2,
+                "median": 24.5,
+                "min": 20,
+                "max": 29,
+                "p95": 29
+              },
+              "inputP95Ms": {
+                "n": 2,
+                "median": 5.834000500271941,
+                "min": 4.38633400017352,
+                "max": 7.281667000370362,
+                "p95": 7.281667000370362
+              },
+              "heartbeatP95Ms": {
+                "n": 2,
+                "median": 43.047770833436516,
+                "min": 40.45262500012541,
+                "max": 45.642916666747624,
+                "p95": 45.642916666747624
+              }
+            }
+          },
+          "low_impact": {
+            "frames": 28,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 1,
+            "ocrReadableFrames": 28,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 21,
+            "allVisibleRowsInSearchText": 7,
+            "medianVisibleRowCoverage": 0.0,
+            "textSources": {
+              "accessibility": 28
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 28,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 21,
+            "searchApiAllVisibleRows": 7,
+            "performance": {
+              "sampleSeconds": 210.83576202392578,
+              "cpuSeconds": 5.628570999999999,
+              "cpuPercentOneCore": 2.6696471917137403,
+              "rssPeakMiB": 172.125,
+              "cpuPercentMachineCapacity": 0.8898823972379134
+            },
+            "textQueue": {
+              "peakPending": 0,
+              "oldestAgeSeconds": 0,
+              "captureDelayedSamples": 0,
+              "drain": {
+                "elapsedSeconds": 0.0020136250000177824,
+                "status": {
+                  "state": {
+                    "battery_pct": null,
+                    "on_ac": true,
+                    "thermal_state": "nominal",
+                    "os_low_power": false
+                  },
+                  "active_profile": "performance",
+                  "user_pref": "auto",
+                  "audio_disabled": false,
+                  "screenshot_disabled": false,
+                  "capture_paused": false,
+                  "pause_audio_on_low_battery": true,
+                  "recording_detail": {
+                    "preferred_mode": "low_impact",
+                    "scroll_interval_ms": 5000,
+                    "reason": "preference"
+                  }
+                }
+              },
+              "jobsRemaining": 0
+            },
+            "continuousScroll": {
+              "cpuPercentMachineCapacity": {
+                "n": 2,
+                "median": 1.1400768554937093,
+                "min": 1.0807611117094247,
+                "max": 1.1993925992779941,
+                "p95": 1.1993925992779941
+              },
+              "cpuPercentOneCore": {
+                "n": 2,
+                "median": 3.420230566481128,
+                "min": 3.242283335128274,
+                "max": 3.598177797833982,
+                "p95": 3.598177797833982
+              },
+              "rssPeakMiB": {
+                "n": 2,
+                "median": 169.7421875,
+                "min": 167.984375,
+                "max": 171.5,
+                "p95": 171.5
+              },
+              "footprintPeakMiB": {
+                "n": 2,
+                "median": 39.11907958984375,
+                "min": 36.14251708984375,
+                "max": 42.09564208984375,
+                "p95": 42.09564208984375
+              },
+              "diskWriteMiB": {
+                "n": 2,
+                "median": 1.435546875,
+                "min": 1.3046875,
+                "max": 1.56640625,
+                "p95": 1.56640625
+              },
+              "scrollFramesDuringInput": {
+                "n": 2,
+                "median": 5.0,
+                "min": 5,
+                "max": 5,
+                "p95": 5
+              },
+              "maxScrollGapSeconds": {
+                "n": 2,
+                "median": 5.411222577095032,
+                "min": 5.325149059295654,
+                "max": 5.497296094894409,
+                "p95": 5.497296094894409
+              },
+              "tailFrameDelaySeconds": {
+                "n": 2,
+                "median": 0.6774474382400513,
+                "min": 0.6431570053100586,
+                "max": 0.711737871170044,
+                "p95": 0.711737871170044
+              },
+              "accessibilityFrames": {
+                "n": 2,
+                "median": 6.5,
+                "min": 6,
+                "max": 7,
+                "p95": 7
+              },
+              "inputP95Ms": {
+                "n": 2,
+                "median": 4.868271000304958,
+                "min": 3.721667000263551,
+                "max": 6.014875000346365,
+                "p95": 6.014875000346365
+              },
+              "heartbeatP95Ms": {
+                "n": 2,
+                "median": 42.67266666665819,
+                "min": 39.37604166658275,
+                "max": 45.969291666733625,
+                "p95": 45.969291666733625
+              }
+            }
+          },
+          "more_detail": {
+            "frames": 84,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 1,
+            "ocrReadableFrames": 84,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 73,
+            "allVisibleRowsInSearchText": 11,
+            "medianVisibleRowCoverage": 0.0,
+            "textSources": {
+              "ocr": 2,
+              "accessibility": 82
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 84,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 73,
+            "searchApiAllVisibleRows": 11,
+            "performance": {
+              "sampleSeconds": 209.64953684806824,
+              "cpuSeconds": 18.6067,
+              "cpuPercentOneCore": 8.875144815361153,
+              "rssPeakMiB": 416.234375,
+              "cpuPercentMachineCapacity": 2.9583816051203846
+            },
+            "textQueue": {
+              "peakPending": 0,
+              "oldestAgeSeconds": 0,
+              "captureDelayedSamples": 0,
+              "drain": {
+                "elapsedSeconds": 0.0008274589999928139,
+                "status": {
+                  "state": {
+                    "battery_pct": null,
+                    "on_ac": true,
+                    "thermal_state": "nominal",
+                    "os_low_power": false
+                  },
+                  "active_profile": "performance",
+                  "user_pref": "auto",
+                  "audio_disabled": false,
+                  "screenshot_disabled": false,
+                  "capture_paused": false,
+                  "pause_audio_on_low_battery": true,
+                  "recording_detail": {
+                    "preferred_mode": "more_detail",
+                    "scroll_interval_ms": 1000,
+                    "reason": "preference"
+                  }
+                }
+              },
+              "jobsRemaining": 0
+            },
+            "continuousScroll": {
+              "cpuPercentMachineCapacity": {
+                "n": 2,
+                "median": 7.462072778039774,
+                "min": 3.3689017478553365,
+                "max": 11.555243808224212,
+                "p95": 11.555243808224212
+              },
+              "cpuPercentOneCore": {
+                "n": 2,
+                "median": 22.386218334119324,
+                "min": 10.10670524356601,
+                "max": 34.665731424672636,
+                "p95": 34.665731424672636
+              },
+              "rssPeakMiB": {
+                "n": 2,
+                "median": 359.9140625,
+                "min": 303.59375,
+                "max": 416.234375,
+                "p95": 416.234375
+              },
+              "footprintPeakMiB": {
+                "n": 2,
+                "median": 63.74456787109375,
+                "min": 63.0804443359375,
+                "max": 64.40869140625,
+                "p95": 64.40869140625
+              },
+              "diskWriteMiB": {
+                "n": 2,
+                "median": 6.537109375,
+                "min": 5.74609375,
+                "max": 7.328125,
+                "p95": 7.328125
+              },
+              "scrollFramesDuringInput": {
+                "n": 2,
+                "median": 25.0,
+                "min": 22,
+                "max": 28,
+                "p95": 28
+              },
+              "maxScrollGapSeconds": {
+                "n": 2,
+                "median": 4.474328517913818,
+                "min": 1.3981010913848877,
+                "max": 7.550555944442749,
+                "p95": 7.550555944442749
+              },
+              "tailFrameDelaySeconds": {
+                "n": 2,
+                "median": 0.7842564582824707,
+                "min": 0.7534799575805664,
+                "max": 0.815032958984375,
+                "p95": 0.815032958984375
+              },
+              "accessibilityFrames": {
+                "n": 2,
+                "median": 26.0,
+                "min": 23,
+                "max": 29,
+                "p95": 29
+              },
+              "inputP95Ms": {
+                "n": 2,
+                "median": 10.564833500211535,
+                "min": 5.014833666791674,
+                "max": 16.114833333631395,
+                "p95": 16.114833333631395
+              },
+              "heartbeatP95Ms": {
+                "n": 2,
+                "median": 45.5148749997079,
+                "min": 41.77433333297813,
+                "max": 49.25541666643767,
+                "p95": 49.25541666643767
+              }
+            }
+          }
+        },
+        "after": {
+          "auto": {
+            "frames": 28,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 28,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 22,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "hybrid": 22,
+              "accessibility": 6
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 28,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 22,
+            "performance": {
+              "sampleSeconds": 210.14436101913452,
+              "cpuSeconds": 92.715592,
+              "cpuPercentOneCore": 44.11995237481431,
+              "rssPeakMiB": 600.34375,
+              "cpuPercentMachineCapacity": 14.70665079160477
+            },
+            "textQueue": {
+              "peakPending": 2,
+              "oldestAgeSeconds": 7,
+              "captureDelayedSamples": 0,
+              "drain": {
+                "elapsedSeconds": 0.0013411250001809094,
+                "status": {
+                  "state": {
+                    "battery_pct": null,
+                    "on_ac": true,
+                    "thermal_state": "nominal",
+                    "os_low_power": false
+                  },
+                  "active_profile": "performance",
+                  "user_pref": "auto",
+                  "audio_disabled": false,
+                  "screenshot_disabled": false,
+                  "capture_paused": false,
+                  "pause_audio_on_low_battery": true,
+                  "recording_detail": {
+                    "preferred_mode": "auto",
+                    "scroll_interval_ms": 5000,
+                    "reason": "capture_cost",
+                    "capture_delayed": false,
+                    "last_success_age_ms": 5419,
+                    "text_pending": 0,
+                    "text_oldest_age_seconds": 0
+                  }
+                }
+              },
+              "jobsRemaining": 0
+            },
+            "continuousScroll": {
+              "cpuPercentMachineCapacity": {
+                "n": 2,
+                "median": 30.830403078223608,
+                "min": 25.159494960309118,
+                "max": 36.5013111961381,
+                "p95": 36.5013111961381
+              },
+              "cpuPercentOneCore": {
+                "n": 2,
+                "median": 92.49120923467082,
+                "min": 75.47848488092735,
+                "max": 109.50393358841428,
+                "p95": 109.50393358841428
+              },
+              "rssPeakMiB": {
+                "n": 2,
+                "median": 523.046875,
+                "min": 500.546875,
+                "max": 545.546875,
+                "p95": 545.546875
+              },
+              "footprintPeakMiB": {
+                "n": 2,
+                "median": 69.00250244140625,
+                "min": 60.0181884765625,
+                "max": 77.98681640625,
+                "p95": 77.98681640625
+              },
+              "diskWriteMiB": {
+                "n": 2,
+                "median": 1.431640625,
+                "min": 1.30078125,
+                "max": 1.5625,
+                "p95": 1.5625
+              },
+              "scrollFramesDuringInput": {
+                "n": 2,
+                "median": 5.0,
+                "min": 5,
+                "max": 5,
+                "p95": 5
+              },
+              "maxScrollGapSeconds": {
+                "n": 2,
+                "median": 5.452378511428833,
+                "min": 5.445996999740601,
+                "max": 5.458760023117065,
+                "p95": 5.458760023117065
+              },
+              "tailFrameDelaySeconds": {
+                "n": 2,
+                "median": 0.5792014598846436,
+                "min": 0.5477008819580078,
+                "max": 0.6107020378112793,
+                "p95": 0.6107020378112793
+              },
+              "accessibilityFrames": {
+                "n": 2,
+                "median": 6.5,
+                "min": 6,
+                "max": 7,
+                "p95": 7
+              },
+              "inputP95Ms": {
+                "n": 2,
+                "median": 16.168979500434943,
+                "min": 4.5613333331857575,
+                "max": 27.77662566768413,
+                "p95": 27.77662566768413
+              },
+              "heartbeatP95Ms": {
+                "n": 2,
+                "median": 40.82502083356303,
+                "min": 32.01429166729213,
+                "max": 49.63574999983393,
+                "p95": 49.63574999983393
+              }
+            }
+          },
+          "low_impact": {
+            "frames": 28,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 28,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 23,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "accessibility": 7,
+              "hybrid": 21
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 28,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 23,
+            "performance": {
+              "sampleSeconds": 211.38579487800598,
+              "cpuSeconds": 95.244531,
+              "cpuPercentOneCore": 45.057205028827546,
+              "rssPeakMiB": 590.171875,
+              "cpuPercentMachineCapacity": 15.019068342942516
+            },
+            "textQueue": {
+              "peakPending": 2,
+              "oldestAgeSeconds": 9,
+              "captureDelayedSamples": 0,
+              "drain": {
+                "elapsedSeconds": 0.0011242079999647103,
+                "status": {
+                  "state": {
+                    "battery_pct": null,
+                    "on_ac": true,
+                    "thermal_state": "nominal",
+                    "os_low_power": false
+                  },
+                  "active_profile": "performance",
+                  "user_pref": "auto",
+                  "audio_disabled": false,
+                  "screenshot_disabled": false,
+                  "capture_paused": false,
+                  "pause_audio_on_low_battery": true,
+                  "recording_detail": {
+                    "preferred_mode": "low_impact",
+                    "scroll_interval_ms": 5000,
+                    "reason": "preference",
+                    "capture_delayed": false,
+                    "last_success_age_ms": 5355,
+                    "text_pending": 0,
+                    "text_oldest_age_seconds": 0
+                  }
+                }
+              },
+              "jobsRemaining": 0
+            },
+            "continuousScroll": {
+              "cpuPercentMachineCapacity": {
+                "n": 2,
+                "median": 31.089347847946094,
+                "min": 26.392903270831145,
+                "max": 35.78579242506105,
+                "p95": 35.78579242506105
+              },
+              "cpuPercentOneCore": {
+                "n": 2,
+                "median": 93.26804354383829,
+                "min": 79.17870981249344,
+                "max": 107.35737727518314,
+                "p95": 107.35737727518314
+              },
+              "rssPeakMiB": {
+                "n": 2,
+                "median": 556.1953125,
+                "min": 522.265625,
+                "max": 590.125,
+                "p95": 590.125
+              },
+              "footprintPeakMiB": {
+                "n": 2,
+                "median": 59.838623046875,
+                "min": 51.3934326171875,
+                "max": 68.2838134765625,
+                "p95": 68.2838134765625
+              },
+              "diskWriteMiB": {
+                "n": 2,
+                "median": 1.439453125,
+                "min": 1.31640625,
+                "max": 1.5625,
+                "p95": 1.5625
+              },
+              "scrollFramesDuringInput": {
+                "n": 2,
+                "median": 5.0,
+                "min": 5,
+                "max": 5,
+                "p95": 5
+              },
+              "maxScrollGapSeconds": {
+                "n": 2,
+                "median": 5.425625443458557,
+                "min": 5.380614757537842,
+                "max": 5.4706361293792725,
+                "p95": 5.4706361293792725
+              },
+              "tailFrameDelaySeconds": {
+                "n": 2,
+                "median": 0.7086514234542847,
+                "min": 0.6636340618133545,
+                "max": 0.7536687850952148,
+                "p95": 0.7536687850952148
+              },
+              "accessibilityFrames": {
+                "n": 2,
+                "median": 6.5,
+                "min": 6,
+                "max": 7,
+                "p95": 7
+              },
+              "inputP95Ms": {
+                "n": 2,
+                "median": 11.992729166649951,
+                "min": 6.147083333416958,
+                "max": 17.838374999882944,
+                "p95": 17.838374999882944
+              },
+              "heartbeatP95Ms": {
+                "n": 2,
+                "median": 39.66454166693438,
+                "min": 31.54766666666546,
+                "max": 47.7814166672033,
+                "p95": 47.7814166672033
+              }
+            }
+          },
+          "more_detail": {
+            "frames": 91,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 91,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 77,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "accessibility": 11,
+              "hybrid": 76,
+              "ocr": 4
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 91,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 77,
+            "performance": {
+              "sampleSeconds": 219.44881987571716,
+              "cpuSeconds": 296.173331,
+              "cpuPercentOneCore": 134.96237125710454,
+              "rssPeakMiB": 654.5625,
+              "cpuPercentMachineCapacity": 44.987457085701514
+            },
+            "textQueue": {
+              "peakPending": 24,
+              "oldestAgeSeconds": 47,
+              "captureDelayedSamples": 0,
+              "drain": {
+                "elapsedSeconds": 9.374465000000782,
+                "status": {
+                  "state": {
+                    "battery_pct": null,
+                    "on_ac": true,
+                    "thermal_state": "nominal",
+                    "os_low_power": false
+                  },
+                  "active_profile": "performance",
+                  "user_pref": "auto",
+                  "audio_disabled": false,
+                  "screenshot_disabled": false,
+                  "capture_paused": false,
+                  "pause_audio_on_low_battery": true,
+                  "recording_detail": {
+                    "preferred_mode": "more_detail",
+                    "scroll_interval_ms": 1000,
+                    "reason": "preference",
+                    "capture_delayed": false,
+                    "last_success_age_ms": 14705,
+                    "text_pending": 0,
+                    "text_oldest_age_seconds": 0
+                  }
+                }
+              },
+              "jobsRemaining": 0
+            },
+            "continuousScroll": {
+              "cpuPercentMachineCapacity": {
+                "n": 2,
+                "median": 42.826959359581494,
+                "min": 38.113166114647285,
+                "max": 47.540752604515696,
+                "p95": 47.540752604515696
+              },
+              "cpuPercentOneCore": {
+                "n": 2,
+                "median": 128.48087807874447,
+                "min": 114.33949834394186,
+                "max": 142.6222578135471,
+                "p95": 142.6222578135471
+              },
+              "rssPeakMiB": {
+                "n": 2,
+                "median": 582.7734375,
+                "min": 538.84375,
+                "max": 626.703125,
+                "p95": 626.703125
+              },
+              "footprintPeakMiB": {
+                "n": 2,
+                "median": 70.15093994140625,
+                "min": 62.690185546875,
+                "max": 77.6116943359375,
+                "p95": 77.6116943359375
+              },
+              "diskWriteMiB": {
+                "n": 2,
+                "median": 7.1796875,
+                "min": 7.03125,
+                "max": 7.328125,
+                "p95": 7.328125
+              },
+              "scrollFramesDuringInput": {
+                "n": 2,
+                "median": 28.0,
+                "min": 28,
+                "max": 28,
+                "p95": 28
+              },
+              "maxScrollGapSeconds": {
+                "n": 2,
+                "median": 1.5305500030517578,
+                "min": 1.4265880584716797,
+                "max": 1.634511947631836,
+                "p95": 1.634511947631836
+              },
+              "tailFrameDelaySeconds": {
+                "n": 2,
+                "median": 0.7841169834136963,
+                "min": 0.7068071365356445,
+                "max": 0.861426830291748,
+                "p95": 0.861426830291748
+              },
+              "accessibilityFrames": {
+                "n": 2,
+                "median": 27.0,
+                "min": 25,
+                "max": 29,
+                "p95": 29
+              },
+              "inputP95Ms": {
+                "n": 2,
+                "median": 28.383521333580575,
+                "min": 9.592250667083135,
+                "max": 47.174792000078014,
+                "p95": 47.174792000078014
+              },
+              "heartbeatP95Ms": {
+                "n": 2,
+                "median": 45.123916666580044,
+                "min": 32.7519583326648,
+                "max": 57.49587500049529,
+                "p95": 57.49587500049529
+              }
+            }
+          }
+        }
+      }
+    },
+    "windows-4cpu": {
+      "logicalCpuCount": 4,
+      "versions": {
+        "before": {
+          "auto": {
+            "frames": 110,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 3,
+            "ocrReadableFrames": 110,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 97,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 21,
+              "accessibility": 89
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 110,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 97,
+            "performance": {
+              "requestedSeconds": 239.85882306098938,
+              "observedSeconds": 239.85882306098938,
+              "cpuSeconds": 13.007415592009727,
+              "cpuPercentOneCore": 5.422946475770168,
+              "cpuPercentMachineCapacity": 1.355736618942542,
+              "rssPeakMiB": 78.71875,
+              "privatePeakMiB": 53.89453125,
+              "maximumSampleGapSeconds": 1.3729138374328613,
+              "disappearedProcessIds": [],
+              "samples": 179
+            },
+            "textQueue": {
+              "supportedSamples": 0,
+              "peakPending": null,
+              "oldestAgeSeconds": null,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0192346,
+              "remainingTextPending": null,
+              "supported": false,
+              "completed": false,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.953613996505737,
+                "framesDuringInput": 29,
+                "maximumCaptureGapSeconds": 2.2334859371185303,
+                "medianCaptureGapSeconds": 1.1010805368423462,
+                "pollObservations": 109,
+                "pollErrors": 0,
+                "observationsWithFrames": 101,
+                "firstPostInputScrollFrame": {
+                  "frameId": 34,
+                  "captureDelayMs": 761.2240314483643,
+                  "firstObservedAfterInputMs": 1176.0001182556152
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.9570631980896,
+                "framesDuringInput": 30,
+                "maximumCaptureGapSeconds": 1.156749963760376,
+                "medianCaptureGapSeconds": 1.0910871028900146,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 107,
+                "firstPostInputScrollFrame": {
+                  "frameId": 72,
+                  "captureDelayMs": 154.97899055480957,
+                  "firstObservedAfterInputMs": 279.9999713897705
+                }
+              }
+            ]
+          },
+          "low_impact": {
+            "frames": 59,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 5,
+            "ocrReadableFrames": 55,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 42,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 20,
+              "accessibility": 38,
+              "hybrid": 1
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 59,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 42,
+            "performance": {
+              "requestedSeconds": 239.01770997047424,
+              "observedSeconds": 239.01770997047424,
+              "cpuSeconds": 11.42400218015381,
+              "cpuPercentOneCore": 4.779563063157542,
+              "cpuPercentMachineCapacity": 1.1948907657893855,
+              "rssPeakMiB": 84.4140625,
+              "privatePeakMiB": 53.69921875,
+              "maximumSampleGapSeconds": 1.409081220626831,
+              "disappearedProcessIds": [],
+              "samples": 179
+            },
+            "textQueue": {
+              "supportedSamples": 0,
+              "peakPending": null,
+              "oldestAgeSeconds": null,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0136584,
+              "remainingTextPending": null,
+              "supported": false,
+              "completed": false,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.95558500289917,
+                "framesDuringInput": 5,
+                "maximumCaptureGapSeconds": 5.12625789642334,
+                "medianCaptureGapSeconds": 5.111375570297241,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 100,
+                "firstPostInputScrollFrame": {
+                  "frameId": 15,
+                  "captureDelayMs": 616.7240142822266,
+                  "firstObservedAfterInputMs": 1004.000186920166
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.950752019882202,
+                "framesDuringInput": 9,
+                "maximumCaptureGapSeconds": 5.066305875778198,
+                "medianCaptureGapSeconds": 2.950596570968628,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 100,
+                "firstPostInputScrollFrame": {
+                  "frameId": 31,
+                  "captureDelayMs": 604.315996170044,
+                  "firstObservedAfterInputMs": 1046.9999313354492
+                }
+              }
+            ]
+          },
+          "more_detail": {
+            "frames": 120,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 5,
+            "ocrReadableFrames": 116,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 1,
+            "allVisibleRowsInSearchText": 102,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 18,
+              "accessibility": 101,
+              "hybrid": 1
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 120,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 1,
+            "searchApiAllVisibleRows": 102,
+            "performance": {
+              "requestedSeconds": 238.69809913635254,
+              "observedSeconds": 238.69809913635254,
+              "cpuSeconds": 12.209029692520197,
+              "cpuPercentOneCore": 5.114841608162945,
+              "cpuPercentMachineCapacity": 1.2787104020407363,
+              "rssPeakMiB": 93.12109375,
+              "privatePeakMiB": 54.0546875,
+              "maximumSampleGapSeconds": 2.1599009037017822,
+              "disappearedProcessIds": [],
+              "samples": 178
+            },
+            "textQueue": {
+              "supportedSamples": 0,
+              "peakPending": null,
+              "oldestAgeSeconds": null,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0096673,
+              "remainingTextPending": null,
+              "supported": false,
+              "completed": false,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.952746868133545,
+                "framesDuringInput": 35,
+                "maximumCaptureGapSeconds": 1.1897060871124268,
+                "medianCaptureGapSeconds": 0.8577125072479248,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 99,
+                "firstPostInputScrollFrame": {
+                  "frameId": 44,
+                  "captureDelayMs": 794.9221134185791,
+                  "firstObservedAfterInputMs": 1211.0002040863037
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.958754062652588,
+                "framesDuringInput": 30,
+                "maximumCaptureGapSeconds": 1.1547608375549316,
+                "medianCaptureGapSeconds": 1.0913209915161133,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 103,
+                "firstPostInputScrollFrame": {
+                  "frameId": 82,
+                  "captureDelayMs": 313.0359649658203,
+                  "firstObservedAfterInputMs": 720.0000286102295
+                }
+              }
+            ]
+          }
+        },
+        "after": {
+          "auto": {
+            "frames": 112,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 108,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 1,
+            "allVisibleRowsInSearchText": 97,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 19,
+              "accessibility": 92,
+              "hybrid": 1
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 112,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 1,
+            "searchApiAllVisibleRows": 97,
+            "performance": {
+              "requestedSeconds": 239.79287695884705,
+              "observedSeconds": 239.79287695884705,
+              "cpuSeconds": 11.828125,
+              "cpuPercentOneCore": 4.932642349518134,
+              "cpuPercentMachineCapacity": 1.2331605873795335,
+              "rssPeakMiB": 93.55078125,
+              "privatePeakMiB": 60.76171875,
+              "maximumSampleGapSeconds": 1.7495841979980469,
+              "disappearedProcessIds": [],
+              "samples": 180
+            },
+            "textQueue": {
+              "supportedSamples": 238,
+              "peakPending": 1,
+              "oldestAgeSeconds": 0,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0118896,
+              "remainingTextPending": 0,
+              "supported": true,
+              "completed": true,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.95991802215576,
+                "framesDuringInput": 25,
+                "maximumCaptureGapSeconds": 2.156529188156128,
+                "medianCaptureGapSeconds": 1.1082435846328735,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 108,
+                "firstPostInputScrollFrame": {
+                  "frameId": 33,
+                  "captureDelayMs": 32.13000297546387,
+                  "firstObservedAfterInputMs": 180.9999942779541
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.95833396911621,
+                "framesDuringInput": 32,
+                "maximumCaptureGapSeconds": 1.136976957321167,
+                "medianCaptureGapSeconds": 1.0783209800720215,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 106,
+                "firstPostInputScrollFrame": {
+                  "frameId": 73,
+                  "captureDelayMs": 202.7719020843506,
+                  "firstObservedAfterInputMs": 371.99997901916504
+                }
+              }
+            ]
+          },
+          "low_impact": {
+            "frames": 59,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 55,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 42,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "hybrid": 1,
+              "accessibility": 41,
+              "ocr": 17
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 59,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 42,
+            "performance": {
+              "requestedSeconds": 239.3863570690155,
+              "observedSeconds": 239.3863570690155,
+              "cpuSeconds": 11.316869344039691,
+              "cpuPercentOneCore": 4.727449585097708,
+              "cpuPercentMachineCapacity": 1.181862396274427,
+              "rssPeakMiB": 93.625,
+              "privatePeakMiB": 53.29296875,
+              "maximumSampleGapSeconds": 1.3962061405181885,
+              "disappearedProcessIds": [],
+              "samples": 179
+            },
+            "textQueue": {
+              "supportedSamples": 238,
+              "peakPending": 0,
+              "oldestAgeSeconds": 0,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0109359,
+              "remainingTextPending": 0,
+              "supported": true,
+              "completed": true,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.963661909103394,
+                "framesDuringInput": 10,
+                "maximumCaptureGapSeconds": 4.826292991638184,
+                "medianCaptureGapSeconds": 2.666908025741577,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 101,
+                "firstPostInputScrollFrame": {
+                  "frameId": 17,
+                  "captureDelayMs": 498.0580806732178,
+                  "firstObservedAfterInputMs": 937.000036239624
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.956570148468018,
+                "framesDuringInput": 6,
+                "maximumCaptureGapSeconds": 5.139505863189697,
+                "medianCaptureGapSeconds": 5.014881134033203,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 101,
+                "firstPostInputScrollFrame": {
+                  "frameId": 30,
+                  "captureDelayMs": 483.4740161895752,
+                  "firstObservedAfterInputMs": 937.000036239624
+                }
+              }
+            ]
+          },
+          "more_detail": {
+            "frames": 124,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 121,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 109,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 18,
+              "accessibility": 105,
+              "hybrid": 1
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 124,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 109,
+            "performance": {
+              "requestedSeconds": 239.72735905647278,
+              "observedSeconds": 239.72735905647278,
+              "cpuSeconds": 16.231882968621257,
+              "cpuPercentOneCore": 6.770976426098073,
+              "cpuPercentMachineCapacity": 1.6927441065245183,
+              "rssPeakMiB": 93.64453125,
+              "privatePeakMiB": 64.53515625,
+              "maximumSampleGapSeconds": 2.252815008163452,
+              "disappearedProcessIds": [],
+              "samples": 178
+            },
+            "textQueue": {
+              "supportedSamples": 237,
+              "peakPending": 0,
+              "oldestAgeSeconds": 0,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0136064,
+              "remainingTextPending": 0,
+              "supported": true,
+              "completed": true,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.955374002456665,
+                "framesDuringInput": 32,
+                "maximumCaptureGapSeconds": 1.1427249908447266,
+                "medianCaptureGapSeconds": 0.8607490062713623,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 108,
+                "firstPostInputScrollFrame": {
+                  "frameId": 41,
+                  "captureDelayMs": 94.10309791564941,
+                  "firstObservedAfterInputMs": 190.00005722045898
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.964773893356323,
+                "framesDuringInput": 37,
+                "maximumCaptureGapSeconds": 1.1273629665374756,
+                "medianCaptureGapSeconds": 0.8439645767211914,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 107,
+                "firstPostInputScrollFrame": {
+                  "frameId": 85,
+                  "captureDelayMs": 110.11409759521484,
+                  "firstObservedAfterInputMs": 279.9999713897705
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "windows-2cpu": {
+      "logicalCpuCount": 2,
+      "versions": {
+        "before": {
+          "auto": {
+            "frames": 110,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 5,
+            "ocrReadableFrames": 107,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 95,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 20,
+              "accessibility": 90
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 110,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 95,
+            "performance": {
+              "requestedSeconds": 240.26255297660828,
+              "observedSeconds": 240.26255297660828,
+              "cpuSeconds": 20.421191221861193,
+              "cpuPercentOneCore": 8.499531437114705,
+              "cpuPercentMachineCapacity": 4.249765718557352,
+              "rssPeakMiB": 92.95703125,
+              "privatePeakMiB": 55.38671875,
+              "maximumSampleGapSeconds": 1.675990104675293,
+              "disappearedProcessIds": [],
+              "samples": 177
+            },
+            "textQueue": {
+              "supportedSamples": 0,
+              "peakPending": null,
+              "oldestAgeSeconds": null,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0104728,
+              "remainingTextPending": null,
+              "supported": false,
+              "completed": false,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.959375858306885,
+                "framesDuringInput": 20,
+                "maximumCaptureGapSeconds": 2.190438985824585,
+                "medianCaptureGapSeconds": 1.1418640613555908,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 106,
+                "firstPostInputScrollFrame": {
+                  "frameId": 30,
+                  "captureDelayMs": 131.63208961486816,
+                  "firstObservedAfterInputMs": 497.00021743774414
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.96337389945984,
+                "framesDuringInput": 31,
+                "maximumCaptureGapSeconds": 1.1732959747314453,
+                "medianCaptureGapSeconds": 1.0231300592422485,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 106,
+                "firstPostInputScrollFrame": {
+                  "frameId": 70,
+                  "captureDelayMs": 283.80608558654785,
+                  "firstObservedAfterInputMs": 368.0000305175781
+                }
+              }
+            ]
+          },
+          "low_impact": {
+            "frames": 62,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 5,
+            "ocrReadableFrames": 59,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 45,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 21,
+              "accessibility": 41
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 62,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 45,
+            "performance": {
+              "requestedSeconds": 240.49382901191711,
+              "observedSeconds": 240.49382901191711,
+              "cpuSeconds": 16.4062976464878,
+              "cpuPercentOneCore": 6.821920426771044,
+              "cpuPercentMachineCapacity": 3.410960213385522,
+              "rssPeakMiB": 97.30859375,
+              "privatePeakMiB": 53.546875,
+              "maximumSampleGapSeconds": 1.5570168495178223,
+              "disappearedProcessIds": [],
+              "samples": 178
+            },
+            "textQueue": {
+              "supportedSamples": 0,
+              "peakPending": null,
+              "oldestAgeSeconds": null,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0104748,
+              "remainingTextPending": null,
+              "supported": false,
+              "completed": false,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.958750009536743,
+                "framesDuringInput": 10,
+                "maximumCaptureGapSeconds": 5.083727121353149,
+                "medianCaptureGapSeconds": 2.4024839401245117,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 101,
+                "firstPostInputScrollFrame": {
+                  "frameId": 19,
+                  "captureDelayMs": 688.666820526123,
+                  "firstObservedAfterInputMs": 1141.9999599456787
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.95162296295166,
+                "framesDuringInput": 7,
+                "maximumCaptureGapSeconds": 5.076882839202881,
+                "medianCaptureGapSeconds": 3.893944025039673,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 101,
+                "firstPostInputScrollFrame": {
+                  "frameId": 33,
+                  "captureDelayMs": 568.8190460205078,
+                  "firstObservedAfterInputMs": 1029.9999713897705
+                }
+              }
+            ]
+          },
+          "more_detail": {
+            "frames": 117,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 5,
+            "ocrReadableFrames": 114,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 101,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 20,
+              "accessibility": 97
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 117,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 101,
+            "performance": {
+              "requestedSeconds": 240.52325987815857,
+              "observedSeconds": 240.52325987815857,
+              "cpuSeconds": 20.493503970491037,
+              "cpuPercentOneCore": 8.520383426065486,
+              "cpuPercentMachineCapacity": 4.260191713032743,
+              "rssPeakMiB": 94.44921875,
+              "privatePeakMiB": 56.45703125,
+              "maximumSampleGapSeconds": 2.6083741188049316,
+              "disappearedProcessIds": [],
+              "samples": 176
+            },
+            "textQueue": {
+              "supportedSamples": 0,
+              "peakPending": null,
+              "oldestAgeSeconds": null,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0100051,
+              "remainingTextPending": null,
+              "supported": false,
+              "completed": false,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.97560405731201,
+                "framesDuringInput": 29,
+                "maximumCaptureGapSeconds": 1.1494879722595215,
+                "medianCaptureGapSeconds": 1.0203269720077515,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 103,
+                "firstPostInputScrollFrame": {
+                  "frameId": 37,
+                  "captureDelayMs": 735.9840869903564,
+                  "firstObservedAfterInputMs": 1220.9999561309814
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.956142902374268,
+                "framesDuringInput": 30,
+                "maximumCaptureGapSeconds": 1.214073896408081,
+                "medianCaptureGapSeconds": 1.0973920822143555,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 107,
+                "firstPostInputScrollFrame": {
+                  "frameId": 75,
+                  "captureDelayMs": 9.870052337646484,
+                  "firstObservedAfterInputMs": 312.000036239624
+                }
+              }
+            ]
+          }
+        },
+        "after": {
+          "auto": {
+            "frames": 84,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 84,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 70,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 19,
+              "accessibility": 65
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 84,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 70,
+            "performance": {
+              "requestedSeconds": 241.93472504615784,
+              "observedSeconds": 241.93472504615784,
+              "cpuSeconds": 18.89068420949789,
+              "cpuPercentOneCore": 7.808173963408438,
+              "cpuPercentMachineCapacity": 3.904086981704219,
+              "rssPeakMiB": 82.3671875,
+              "privatePeakMiB": 55.33203125,
+              "maximumSampleGapSeconds": 2.401364803314209,
+              "disappearedProcessIds": [],
+              "samples": 176
+            },
+            "textQueue": {
+              "supportedSamples": 229,
+              "peakPending": 1,
+              "oldestAgeSeconds": 2,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.0158148,
+              "remainingTextPending": 0,
+              "supported": true,
+              "completed": true,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.984352111816406,
+                "framesDuringInput": 14,
+                "maximumCaptureGapSeconds": 2.2265899181365967,
+                "medianCaptureGapSeconds": 2.148933172225952,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 100,
+                "firstPostInputScrollFrame": {
+                  "frameId": 21,
+                  "captureDelayMs": 928.5769462585449,
+                  "firstObservedAfterInputMs": 1331.9997787475586
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.95122981071472,
+                "framesDuringInput": 20,
+                "maximumCaptureGapSeconds": 2.21976900100708,
+                "medianCaptureGapSeconds": 1.1186819076538086,
+                "pollObservations": 108,
+                "pollErrors": 0,
+                "observationsWithFrames": 107,
+                "firstPostInputScrollFrame": {
+                  "frameId": 48,
+                  "captureDelayMs": 117.53201484680176,
+                  "firstObservedAfterInputMs": 400.00009536743164
+                }
+              }
+            ]
+          },
+          "low_impact": {
+            "frames": 54,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 51,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 38,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "hybrid": 2,
+              "null": 1,
+              "accessibility": 33,
+              "ocr": 18
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 54,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 38,
+            "performance": {
+              "requestedSeconds": 240.93592381477356,
+              "observedSeconds": 240.93592381477356,
+              "cpuSeconds": 15.205872942740122,
+              "cpuPercentOneCore": 6.3111688377487765,
+              "cpuPercentMachineCapacity": 3.1555844188743882,
+              "rssPeakMiB": 93.38671875,
+              "privatePeakMiB": 52.046875,
+              "maximumSampleGapSeconds": 2.0015199184417725,
+              "disappearedProcessIds": [],
+              "samples": 174
+            },
+            "textQueue": {
+              "supportedSamples": 228,
+              "peakPending": 1,
+              "oldestAgeSeconds": 4,
+              "captureDelayedSamples": 0
+            },
+            "drain": {
+              "elapsedSeconds": 0.012747,
+              "remainingTextPending": 0,
+              "supported": true,
+              "completed": true,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.95650815963745,
+                "framesDuringInput": 6,
+                "maximumCaptureGapSeconds": 5.124017953872681,
+                "medianCaptureGapSeconds": 5.0394978523254395,
+                "pollObservations": 106,
+                "pollErrors": 0,
+                "observationsWithFrames": 102,
+                "firstPostInputScrollFrame": {
+                  "frameId": 15,
+                  "captureDelayMs": 493.8960075378418,
+                  "firstObservedAfterInputMs": 905.9998989105225
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.955694913864136,
+                "framesDuringInput": 5,
+                "maximumCaptureGapSeconds": 5.118088960647583,
+                "medianCaptureGapSeconds": 5.024358034133911,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 100,
+                "firstPostInputScrollFrame": {
+                  "frameId": 28,
+                  "captureDelayMs": 618.1180477142334,
+                  "firstObservedAfterInputMs": 1081.0000896453857
+                }
+              }
+            ]
+          },
+          "more_detail": {
+            "frames": 111,
+            "imageErrors": 0,
+            "referenceErrors": 0,
+            "contextMismatches": 0,
+            "invalidEventLinks": 0,
+            "ocrReadableFrames": 108,
+            "ocrMissingFrames": 0,
+            "ocrErrors": 0,
+            "pixelPageMismatches": 0,
+            "noVisibleRowInSearchText": 0,
+            "allVisibleRowsInSearchText": 96,
+            "medianVisibleRowCoverage": 1.0,
+            "textSources": {
+              "ocr": 18,
+              "accessibility": 93
+            },
+            "searchApiEvidencePresent": true,
+            "searchApiFramesFound": 111,
+            "searchApiFramesMissing": 0,
+            "searchApiZeroVisibleOverlap": 0,
+            "searchApiAllVisibleRows": 96,
+            "performance": {
+              "requestedSeconds": 240.75156593322754,
+              "observedSeconds": 240.75156593322754,
+              "cpuSeconds": 20.443103977883244,
+              "cpuPercentOneCore": 8.491369058655735,
+              "cpuPercentMachineCapacity": 4.2456845293278676,
+              "rssPeakMiB": 94.359375,
+              "privatePeakMiB": 54.2578125,
+              "maximumSampleGapSeconds": 2.215904951095581,
+              "disappearedProcessIds": [],
+              "samples": 177
+            },
+            "textQueue": {
+              "supportedSamples": 229,
+              "peakPending": 1,
+              "oldestAgeSeconds": 1,
+              "captureDelayedSamples": 1
+            },
+            "drain": {
+              "elapsedSeconds": 0.013364,
+              "remainingTextPending": 0,
+              "supported": true,
+              "completed": true,
+              "error": null
+            },
+            "continuousScroll": [
+              {
+                "case": "trial-1-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.966297149658203,
+                "framesDuringInput": 30,
+                "maximumCaptureGapSeconds": 1.166247844696045,
+                "medianCaptureGapSeconds": 1.0839569568634033,
+                "pollObservations": 106,
+                "pollErrors": 0,
+                "observationsWithFrames": 105,
+                "firstPostInputScrollFrame": {
+                  "frameId": 39,
+                  "captureDelayMs": 241.96290969848633,
+                  "firstObservedAfterInputMs": 521.9998359680176
+                }
+              },
+              {
+                "case": "trial-2-scroll30",
+                "kind": "continuous",
+                "inputDurationSeconds": 29.960285186767578,
+                "framesDuringInput": 28,
+                "maximumCaptureGapSeconds": 1.1895530223846436,
+                "medianCaptureGapSeconds": 1.1137490272521973,
+                "pollObservations": 107,
+                "pollErrors": 0,
+                "observationsWithFrames": 102,
+                "firstPostInputScrollFrame": {
+                  "frameId": 73,
+                  "captureDelayMs": 373.3479976654053,
+                  "firstObservedAfterInputMs": 842.0000076293945
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

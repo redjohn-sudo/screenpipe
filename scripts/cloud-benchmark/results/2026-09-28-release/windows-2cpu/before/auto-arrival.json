@@ -1,0 +1,101 @@
+{
+  "cases": [
+    {
+      "case": "trial-1-scroll30",
+      "kind": "continuous",
+      "inputDurationSeconds": 29.959375858306885,
+      "framesDuringInput": 20,
+      "maximumCaptureGapSeconds": 2.190438985824585,
+      "medianCaptureGapSeconds": 1.1418640613555908,
+      "pollObservations": 107,
+      "pollErrors": 0,
+      "observationsWithFrames": 106,
+      "firstPostInputScrollFrame": {
+        "frameId": 30,
+        "captureDelayMs": 131.63208961486816,
+        "firstObservedAfterInputMs": 497.00021743774414
+      }
+    },
+    {
+      "case": "trial-2-scroll30",
+      "kind": "continuous",
+      "inputDurationSeconds": 29.96337389945984,
+      "framesDuringInput": 31,
+      "maximumCaptureGapSeconds": 1.1732959747314453,
+      "medianCaptureGapSeconds": 1.0231300592422485,
+      "pollObservations": 107,
+      "pollErrors": 0,
+      "observationsWithFrames": 106,
+      "firstPostInputScrollFrame": {
+        "frameId": 70,
+        "captureDelayMs": 283.80608558654785,
+        "firstObservedAfterInputMs": 368.0000305175781
+      }
+    },
+    {
+      "case": "short2-1",
+      "kind": "short",
+      "inputDurationSeconds": 1.9523589611053467,
+      "framesDuringInput": 2,
+      "maximumCaptureGapSeconds": 0.7083101272583008,
+      "medianCaptureGapSeconds": 0.7083101272583008,
+      "pollObservations": 107,
+      "pollErrors": 0,
+      "observationsWithFrames": 101,
+      "firstPostInputScrollFrame": {
+        "frameId": 79,
+        "captureDelayMs": 496.40488624572754,
+        "firstObservedAfterInputMs": 951.9999027252197
+      }
+    },
+    {
+      "case": "short2-2",
+      "kind": "short",
+      "inputDurationSeconds": 1.95461106300354,
+      "framesDuringInput": 1,
+      "maximumCaptureGapSeconds": null,
+      "medianCaptureGapSeconds": null,
+      "pollObservations": 107,
+      "pollErrors": 0,
+      "observationsWithFrames": 102,
+      "firstPostInputScrollFrame": {
+        "frameId": 86,
+        "captureDelayMs": 306.87594413757324,
+        "firstObservedAfterInputMs": 808.0000877380371
+      }
+    },
+    {
+      "case": "reverse4-down4-up",
+      "kind": "reverse",
+      "inputDurationSeconds": 7.930957078933716,
+      "framesDuringInput": 7,
+      "maximumCaptureGapSeconds": 1.182765007019043,
+      "medianCaptureGapSeconds": 1.0299021005630493,
+      "pollObservations": 107,
+      "pollErrors": 0,
+      "observationsWithFrames": 99,
+      "firstPostInputScrollFrame": {
+        "frameId": 99,
+        "captureDelayMs": 731.5940856933594,
+        "firstObservedAfterInputMs": 1138.0000114440918
+      }
+    },
+    {
+      "case": "navigation-focus-away-back",
+      "kind": "navigation-focus",
+      "inputDurationSeconds": 10.20723295211792,
+      "framesDuringInput": 6,
+      "maximumCaptureGapSeconds": 2.0222599506378174,
+      "medianCaptureGapSeconds": 0.9562528133392334,
+      "pollObservations": 108,
+      "pollErrors": 0,
+      "observationsWithFrames": 0,
+      "firstPostInputScrollFrame": null
+    }
+  ],
+  "limits": [
+    "Frame time is capture time; firstObserved time is an upper bound on DB arrival at roughly 100 ms polling resolution.",
+    "A post-input scroll frame is not proof of settled pixels, text availability, or app rendering latency.",
+    "Navigation polling begins after its focus actions and waits, so an empty post-action poll does not imply a missing transition."
+  ]
+}
