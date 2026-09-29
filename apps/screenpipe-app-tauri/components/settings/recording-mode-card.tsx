@@ -34,6 +34,10 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
   if (!resetIdle) delete patch.idleCaptureIntervalMs;
   const resultingMode = recordingMode({ ...settings, ...patch });
   const status = useRecordingPowerStatus();
+  const queuedText = status?.recording_detail?.text_pending;
+  const oldestText = status?.recording_detail?.text_oldest_age_seconds;
+  const showTextQueue = typeof queuedText === "number" && Number.isSafeInteger(queuedText) && queuedText > 0 &&
+    typeof oldestText === "number" && Number.isFinite(oldestText) && oldestText >= 5;
   const labels = { auto: ui("Automatic (recommended)"), low_impact: ui("Low impact"), more_detail: ui("More detail"), custom: ui("Custom") };
   const descriptions = {
     auto: ui("Balances detail and recording work for your device. Adjusts with battery state and recording speed."),
@@ -64,6 +68,12 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
         {mode === "custom" && !locked && <Button variant="outline" size="sm" onClick={() => propose("auto")}>{ui("Restore Automatic")}</Button>}
         <div className="border-t border-border pt-3 text-xs space-y-1" role={interrupted ? "alert" : "status"}>
           <p className={interrupted ? "font-medium text-amber-600 dark:text-amber-400" : "text-muted-foreground"}>{ui(derive(recordingStatusText(status)))}</p>
+          {showTextQueue && <p className="text-muted-foreground">{ui("Images waiting for text: {count}. Oldest waiting: {age}.", {
+            count: queuedText,
+            age: oldestText >= 60
+              ? ui("{minutes} min {seconds}s", { minutes: Math.floor(oldestText / 60), seconds: Math.floor(oldestText % 60) })
+              : ui("{seconds}s", { seconds: Math.floor(oldestText) }),
+          })}</p>}
           {pending && <p className="font-medium">{ui("Changes pending. Apply & restart to activate them. The status above describes the running recorder.")}</p>}
         </div>
         <p className="text-xs text-muted-foreground">{ui("Modes keep the final capture after scrolling stops, subject to privacy and pause settings. Image clarity is set separately. Audio has its own battery policy.")}</p>
@@ -76,6 +86,7 @@ export function RecordingModeCard({ settings, onChange, onCustomize, pending, lo
           <DialogDescription>{ui("Review and customize the changes before saving. Existing recordings are preserved.")}</DialogDescription>
         </DialogHeader>
         <p className="text-sm">{proposed ? descriptions[proposed] : ""}</p>
+        <p className="text-xs text-muted-foreground">{ui("Images are saved before background text processing finishes. Searchable text can take longer to appear during heavy use, especially in Low impact.")}</p>
         {((settings.powerMode ?? "auto") !== "auto" || settings.idleCaptureIntervalMs != null) && (
           <fieldset disabled={locked} className="space-y-3 text-sm">
             <legend className="mb-3 text-xs text-muted-foreground">{ui("Choose the additional changes to include. Uncheck a change to keep your current preference.")}</legend>

@@ -30,6 +30,7 @@ describe("recording mode consent and runtime state", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
     expect(screen.queryByText("Image clarity: high → Balanced")).toBeNull();
     expect(screen.getByText(/Image clarity stays as set/)).toBeTruthy();
+    expect(screen.getByText(/Searchable text can take longer to appear during heavy use/)).toBeTruthy();
     expect(screen.getByText("Battery behavior: Ignore battery → Automatic")).toBeTruthy();
     expect(screen.getByText("Idle screenshots: Every 2s → Follow power profile")).toBeTruthy();
     expect(change).not.toHaveBeenCalled();
@@ -118,6 +119,20 @@ describe("recording mode consent and runtime state", () => {
     fetchStatus.mockResolvedValue({ ok: true, json: async () => ({}) });
     render(<RecordingModeCard settings={recordingPreset("auto")} onChange={() => {}} onCustomize={() => {}} pending={false} />);
     await waitFor(() => expect(screen.getByText(/status unavailable/)).toBeTruthy());
+  });
+  it("shows the measured text backlog without reporting a capture interruption or changing settings", async () => {
+    fetchStatus.mockResolvedValue({ ok: true, json: async () => ({ active_profile: "performance", user_pref: "auto", state: { on_ac: true, battery_pct: null, thermal_state: "nominal" }, recording_detail: { preferred_mode: "auto", scroll_interval_ms: 1000, reason: "preference", text_pending: 30, text_oldest_age_seconds: 188 } }) });
+    const change = vi.fn();
+    render(<RecordingModeCard settings={recordingPreset("auto")} onChange={change} onCustomize={() => {}} pending={false} />);
+    await waitFor(() => expect(screen.getByRole("status").textContent).toContain("Images waiting for text: 30. Oldest waiting: 3 min 8s."));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(change).not.toHaveBeenCalled();
+  });
+  it.each([[0, 188], [30, 4], ["30", 188], [30, null]])("omits cleared, transient or malformed queue details (%s, %s)", async (count, age) => {
+    fetchStatus.mockResolvedValue({ ok: true, json: async () => ({ active_profile: "performance", user_pref: "auto", state: { on_ac: true, battery_pct: null, thermal_state: "nominal" }, recording_detail: { preferred_mode: "auto", scroll_interval_ms: 1000, reason: "preference", text_pending: count, text_oldest_age_seconds: age } }) });
+    render(<RecordingModeCard settings={recordingPreset("auto")} onChange={() => {}} onCustomize={() => {}} pending={false} />);
+    await waitFor(() => expect(screen.queryByText(/status unavailable/)).toBeNull());
+    expect(screen.queryByText(/Images waiting for text:/)).toBeNull();
   });
   it("prevents a preset from overwriting managed preferences", () => {
     fetchStatus.mockResolvedValue({ ok: false });
