@@ -1,0 +1,6567 @@
+{
+  "auto": {
+    "complete": true,
+    "databaseCountsWithoutWal": {
+      "benchmark/auto/database-snapshot.sqlite": {
+        "error": "no such table: frames"
+      }
+    },
+    "exportCounts": {
+      "frames": 30,
+      "ui_events": 31,
+      "elements": 1428
+    },
+    "framesAudited": 30,
+    "imageErrors": 0,
+    "referenceErrors": 0,
+    "contextMismatches": 0,
+    "missingTextMarker": 0,
+    "uniqueImages": 28,
+    "frames": [
+      {
+        "frameId": 1,
+        "timestamp": "2026-09-29T00:23:43.421563+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 1,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641423421_m25165824.jpg",
+        "sha256": "971804b8b7e8e14dbbbee2e4bd0b9773d697f237463b908904f195a7b9ce2c8e",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 2,
+        "timestamp": "2026-09-29T00:23:45.018609+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 2,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641425018_m25165824.jpg",
+        "sha256": "9fac42db0ec6c993a27c8007ffadaecb6064c9058397e4307821d1833720c58d",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 3,
+        "timestamp": "2026-09-29T00:24:16.212469+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 3,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641456212_m25165824.jpg",
+        "sha256": "6553fb1b3f255e4141a287cc9e6468df00914969572031f9fafc28033e722dff",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 4,
+        "timestamp": "2026-09-29T00:24:43.967493+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 4,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641483967_m25165824.jpg",
+        "sha256": "b03ef4f9c46064a9ce59e23fd19e920494e2f6b55aaf56094acb96eac2058874",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 5,
+        "timestamp": "2026-09-29T00:25:13.820226+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 5,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641513820_m25165824.jpg",
+        "sha256": "b2fe774f30b0b75012b849aa8d38ff72a30f4891edc6d1741b5a841edec3181e",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 6,
+        "timestamp": "2026-09-29T00:25:15.792094+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 6,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641515792_m25165824.jpg",
+        "sha256": "353988520963bd5af6366f27e1e17b0343fa270cb13b3036765f4b4c2bedcf34",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 7,
+        "timestamp": "2026-09-29T00:25:17.777213+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 7,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641517777_m25165824.jpg",
+        "sha256": "fa7887433fb9d0854efb621b2f21e7e1e6a99438a67b3f107f219fc5b0967e2f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 8,
+        "timestamp": "2026-09-29T00:25:19.763952+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 8,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641519763_m25165824.jpg",
+        "sha256": "5bf11afa80b9b7a749894e2f3645a6679bef99878cd86a65223e8d82b46b8a9c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 9,
+        "timestamp": "2026-09-29T00:25:22.007685+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 9,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641522007_m25165824.jpg",
+        "sha256": "3177f6372e5cdb799b0405dd5b15c06c7d815fff9494e82afad1ed8ed65e135f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 10,
+        "timestamp": "2026-09-29T00:25:27.054352+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 10,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641527054_m25165824.jpg",
+        "sha256": "78c4c303d981e56d3dfcafae62291ec510bf47c0cbd4c0b99884ce29e8b60839",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 11,
+        "timestamp": "2026-09-29T00:25:31.869194+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 11,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641531869_m25165824.jpg",
+        "sha256": "26e943ea7995ccf190ff6e053ae602bd8067ef7687f8b3222e69d595cac5e007",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 12,
+        "timestamp": "2026-09-29T00:25:37.158592+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 12,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641537158_m25165824.jpg",
+        "sha256": "17b0066f6145eaf539eb8860c92cdffe6525f78200a6f520912dbc2b887c1da1",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 13,
+        "timestamp": "2026-09-29T00:25:42.168146+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 13,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641542168_m25165824.jpg",
+        "sha256": "e1368816d4433813d3aa9437ee7bd317ac0eccedc38ca03684c3ddcc3d6e357b",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 14,
+        "timestamp": "2026-09-29T00:25:53.563959+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 14,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641553563_m25165824.jpg",
+        "sha256": "c8a86eef157c5927a79a863fb66855d39634cb12004caf2c373f293f0541c359",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 15,
+        "timestamp": "2026-09-29T00:26:07.482862+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 15,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641567482_m25165824.jpg",
+        "sha256": "3509808e73b48b0edef1931c48e8553cb4e643fd8ed44def40da6bb79c607318",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 16,
+        "timestamp": "2026-09-29T00:26:09.213143+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 16,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641569213_m25165824.jpg",
+        "sha256": "6433d9999c397da3bc25c5a7010972d9fbbbce67ec32a603c43c26fa83ff9260",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 17,
+        "timestamp": "2026-09-29T00:26:21.070592+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 17,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641581070_m25165824.jpg",
+        "sha256": "9957dab0539c9c155ce2b16b22338fb4e95db21de2e6589a6296c328d00bff13",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 18,
+        "timestamp": "2026-09-29T00:26:24.988623+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 18,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641584988_m25165824.jpg",
+        "sha256": "9957dab0539c9c155ce2b16b22338fb4e95db21de2e6589a6296c328d00bff13",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 19,
+        "timestamp": "2026-09-29T00:26:30.475680+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 19,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641590475_m25165824.jpg",
+        "sha256": "127573921eeada9824a222a11e5bc774b299dbf6cc79101ea2d66e3774340f57",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 20,
+        "timestamp": "2026-09-29T00:27:03.351706+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 20,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641623351_m25165824.jpg",
+        "sha256": "5dfcb0445833f79c56281cc028e079b6d55a6cfd719a25fdb66b9e98768a31e4",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 21,
+        "timestamp": "2026-09-29T00:27:08.345221+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 21,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641628345_m25165824.jpg",
+        "sha256": "aefcdd35ca5a165840e2e4c9981df03f2d8c4a63f9591e508e4bebe25b991f4c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 22,
+        "timestamp": "2026-09-29T00:27:13.365379+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 22,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641633365_m25165824.jpg",
+        "sha256": "8fdbaa7f939b08944972d6b1eb2884299fb3c3509f6c9b27084f4e324427846b",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 23,
+        "timestamp": "2026-09-29T00:27:18.444055+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 23,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641638444_m25165824.jpg",
+        "sha256": "c7f026201a633599efc1c18fdef2e8ce6d33546c67f31968ac7c8ccd9ca3bc20",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 24,
+        "timestamp": "2026-09-29T00:27:23.484994+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 24,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641643484_m25165824.jpg",
+        "sha256": "fa02eddda2c4b4a7865f830bd8846afc59538a188a7116df2c58661e8e97f387",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 25,
+        "timestamp": "2026-09-29T00:27:28.503861+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 25,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641648503_m25165824.jpg",
+        "sha256": "aaac4d35c071f464fce430127a1312f97a8a3d06acea6df941ff2b1fa11d9f6c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 26,
+        "timestamp": "2026-09-29T00:27:39.938536+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 26,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641659938_m25165824.jpg",
+        "sha256": "e4e0ee0a17233d7c94c1f773ee1c17383b467056ac2129e001a0c5939fca169e",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 27,
+        "timestamp": "2026-09-29T00:27:54.025787+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 27,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641674025_m25165824.jpg",
+        "sha256": "3c89d9b7cac2e95c223d7b213d8c29e7472432abd2fca0acabb5698c685498c5",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 28,
+        "timestamp": "2026-09-29T00:27:55.745888+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 28,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641675745_m25165824.jpg",
+        "sha256": "2454210d5f875bbf7fe340841884e5e1da8043dea4ef7f7c83906fb4d23ca0bd",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 29,
+        "timestamp": "2026-09-29T00:28:07.877743+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 29,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641687877_m25165824.jpg",
+        "sha256": "4b4bc8c7e2d0029ada892c3fd1ab22e4bd5b7b06daa5387c417e9930dba7dc63",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 30,
+        "timestamp": "2026-09-29T00:28:11.488304+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 30,
+        "mismatches": [],
+        "image": "benchmark/auto/data/data/data/2026-09-29/1790641691488_m25165824.jpg",
+        "sha256": "4b4bc8c7e2d0029ada892c3fd1ab22e4bd5b7b06daa5387c417e9930dba7dc63",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      }
+    ],
+    "eventLinks": {
+      "events": 31,
+      "linked": 28,
+      "unlinked": 3,
+      "invalid": 0,
+      "failures": []
+    }
+  },
+  "low_impact": {
+    "complete": true,
+    "databaseCountsWithoutWal": {
+      "benchmark/low_impact/database-snapshot.sqlite": {
+        "error": "no such table: frames"
+      }
+    },
+    "exportCounts": {
+      "frames": 28,
+      "ui_events": 28,
+      "elements": 1338
+    },
+    "framesAudited": 28,
+    "imageErrors": 0,
+    "referenceErrors": 0,
+    "contextMismatches": 0,
+    "missingTextMarker": 1,
+    "uniqueImages": 26,
+    "frames": [
+      {
+        "frameId": 1,
+        "timestamp": "2026-09-29T00:19:07.515586+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 1,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641147515_m25165824.jpg",
+        "sha256": "1688fbb7e2ef55427bf40ed694e6cf556c6d061314561775e5fc4f3faf2f950e",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 2,
+        "timestamp": "2026-09-29T00:19:09.708409+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 2,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641149708_m25165824.jpg",
+        "sha256": "fd83d4767d15a5d6fd832ea0f686d31095f22308b406225554eece830a72df24",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 3,
+        "timestamp": "2026-09-29T00:19:40.213994+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 3,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641180213_m25165824.jpg",
+        "sha256": "f663c6e791bbc171c660287dd229315a8c340192e66a05e1b285f07e2180409a",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 4,
+        "timestamp": "2026-09-29T00:20:07.904966+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 4,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641207904_m25165824.jpg",
+        "sha256": "11498b5ea55b22278ad8be066177ed41767bdc783803174345f3d8220b4dd4d6",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 5,
+        "timestamp": "2026-09-29T00:20:38.278631+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 5,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641238278_m25165824.jpg",
+        "sha256": "64ad7ef206beb2a33295582947c4488407d5aa8ccce6b77e07a31ae3fc8c01e9",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 6,
+        "timestamp": "2026-09-29T00:20:40.763024+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 6,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641240763_m25165824.jpg",
+        "sha256": "486fba7efd3280a4229e15a3de6733458c3dad7aa17eb1771b4d64964d561694",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 7,
+        "timestamp": "2026-09-29T00:20:45.789294+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 7,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641245789_m25165824.jpg",
+        "sha256": "a42cfb5e27a70b8fc41fa4ca7dabc4542f5e3cd1d1c05efcd607ebb9c1254d08",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 8,
+        "timestamp": "2026-09-29T00:20:50.831902+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 8,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641250831_m25165824.jpg",
+        "sha256": "1f084cbe35215d523a3481bc89a32c8131f738f552f9f192c4ecd44d110de078",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 9,
+        "timestamp": "2026-09-29T00:20:55.863333+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 9,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641255863_m25165824.jpg",
+        "sha256": "bff29ba5708f93e3cffcacec4a5049494208513ff4bd36307c75b726a3fbd31c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 10,
+        "timestamp": "2026-09-29T00:21:00.889083+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 10,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641260889_m25165824.jpg",
+        "sha256": "7f51b07f865617b622781a553cee8bc0fff8eda4c928fe7ec2189656d241c01d",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 11,
+        "timestamp": "2026-09-29T00:21:05.930233+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 11,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641265930_m25165824.jpg",
+        "sha256": "99a6a34e57f092afcb495a4f7adb46e66b9531965e428cab9d63b3dd346d065e",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 12,
+        "timestamp": "2026-09-29T00:21:17.503128+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 12,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641277503_m25165824.jpg",
+        "sha256": "ac4e1c03977bec848b42ef56d25d9f76b7f9c818168ac740ca8c158167ca7693",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 13,
+        "timestamp": "2026-09-29T00:21:31.355578+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 13,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641291355_m25165824.jpg",
+        "sha256": "3f8b43b77525a4c77948484924c7188e9004ba7d2e483f135d6f9eae7a727595",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 14,
+        "timestamp": "2026-09-29T00:21:33.048079+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 14,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641293048_m25165824.jpg",
+        "sha256": "fbcacf3dcf5c279eff83041ab5c8094a3eca286bfdce13c6c37f0950da8c5a5d",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 15,
+        "timestamp": "2026-09-29T00:21:45.380087+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 15,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641305380_m25165824.jpg",
+        "sha256": "8c11d7c8e82024088ff70bdacfcf3246bbd6c40fe2f1c1c131157272f3057e35",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 16,
+        "timestamp": "2026-09-29T00:21:49.009111+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 16,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641309009_m25165824.jpg",
+        "sha256": "8c11d7c8e82024088ff70bdacfcf3246bbd6c40fe2f1c1c131157272f3057e35",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 17,
+        "timestamp": "2026-09-29T00:21:54.508130+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 17,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641314508_m25165824.jpg",
+        "sha256": "b835b287511174b542a5bae74e06bcfff5207f43cba6d22ba57f08239d252794",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 18,
+        "timestamp": "2026-09-29T00:22:27.428539+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 18,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641347428_m25165824.jpg",
+        "sha256": "10c655563e7d0f52b97601f667d8ada095d28b3cb055c23f5d6617862c191c8b",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 19,
+        "timestamp": "2026-09-29T00:22:32.425526+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 19,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641352425_m25165824.jpg",
+        "sha256": "ee5d3d2691a17961240d44027b7bfd2c8a2cf2f82c2c6724763dafe054cca2be",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 20,
+        "timestamp": "2026-09-29T00:22:37.516127+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [],
+          "tree": [],
+          "full_text": [
+            "A"
+          ],
+          "elements": []
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 20,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641357516_m25165824.jpg",
+        "sha256": "559d55ccd6a33395e4a8b99e187e7bf47442c2ec6bc54a0bc1cde18d2a39c611",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 21,
+        "timestamp": "2026-09-29T00:22:42.720550+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 21,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641362720_m25165824.jpg",
+        "sha256": "3d906105047bb49d422f1724ea01c52c6acad235988cc6dba6aea22f859f4cf6",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 22,
+        "timestamp": "2026-09-29T00:22:47.733344+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 22,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641367733_m25165824.jpg",
+        "sha256": "c58df5b5734f119b6b6e191a2f8ec012075f6dcbbf298c575fd813467907fe8f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 23,
+        "timestamp": "2026-09-29T00:22:52.751664+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 23,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641372751_m25165824.jpg",
+        "sha256": "dc94c562b369ad93decc960ad37fe321acf511d2aaf0e299fd1153d7764429a5",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 24,
+        "timestamp": "2026-09-29T00:23:04.069532+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 24,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641384069_m25165824.jpg",
+        "sha256": "bc7822f8cb83d508492074f1921154a580b7808936af3c5e60cdc7e55d1227af",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 25,
+        "timestamp": "2026-09-29T00:23:18.149332+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 25,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641398149_m25165824.jpg",
+        "sha256": "47fbf625d48a133014255881f1b840a945413cfa18c8592df9b470959e63dc6f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 26,
+        "timestamp": "2026-09-29T00:23:19.623941+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 26,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641399623_m25165824.jpg",
+        "sha256": "b2551fd8f4f4e0b44f103a90dfd8013ef744680ef7f3df8ba21dddf31f34fe2b",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 27,
+        "timestamp": "2026-09-29T00:23:31.448027+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 27,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641411448_m25165824.jpg",
+        "sha256": "2a2c50a8f0f5f4bfc492af131bc4fdb9fca0f69ba5e1d7e6543db36352a1187f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 28,
+        "timestamp": "2026-09-29T00:23:35.031002+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 28,
+        "mismatches": [],
+        "image": "benchmark/low_impact/data/data/data/2026-09-29/1790641415031_m25165824.jpg",
+        "sha256": "2a2c50a8f0f5f4bfc492af131bc4fdb9fca0f69ba5e1d7e6543db36352a1187f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      }
+    ],
+    "eventLinks": {
+      "events": 28,
+      "linked": 25,
+      "unlinked": 3,
+      "invalid": 0,
+      "failures": []
+    }
+  },
+  "more_detail": {
+    "complete": true,
+    "databaseCountsWithoutWal": {
+      "benchmark/more_detail/database-snapshot.sqlite": {
+        "error": "no such table: frames"
+      }
+    },
+    "exportCounts": {
+      "frames": 93,
+      "ui_events": 92,
+      "elements": 2986
+    },
+    "framesAudited": 93,
+    "imageErrors": 0,
+    "referenceErrors": 0,
+    "contextMismatches": 0,
+    "missingTextMarker": 1,
+    "uniqueImages": 84,
+    "frames": [
+      {
+        "frameId": 1,
+        "timestamp": "2026-09-29T00:12:28.336691+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 1,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640748336_m25165824.jpg",
+        "sha256": "14d7ab1713adc40de0c24ee86888c9aa1005e1e2850eda0db1e6df3ba7c2d123",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 2,
+        "timestamp": "2026-09-29T00:12:33.098595+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 2,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640753098_m25165824.jpg",
+        "sha256": "7d0fc1629e2e47e0ad50c2a32743500a26f8b1a80ad720b6c9853b8e0ba78c8f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 3,
+        "timestamp": "2026-09-29T00:13:03.725021+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 3,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640783725_m25165824.jpg",
+        "sha256": "6cad6c68096223ef3160575f6ed653eac7803a4a81326ec27d3df76bb67a1fab",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 4,
+        "timestamp": "2026-09-29T00:13:30.223619+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 4,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640810223_m25165824.jpg",
+        "sha256": "286306572c0f9f0241bf6001a63b0c0161655bac1d2871e8b61d9a450a02babd",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 5,
+        "timestamp": "2026-09-29T00:13:58.788870+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 5,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640838788_m25165824.jpg",
+        "sha256": "28f5d350259fe9d7f6d778ba5520f0abab32c0b06a6bf29dc5f0709c99a2c4cf",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 6,
+        "timestamp": "2026-09-29T00:13:59.992529+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 6,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640839992_m25165824.jpg",
+        "sha256": "90e240e6d58ef1b05833ef49b4b62dddbb847b889c974c6b6433a62b9fbcf93d",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 7,
+        "timestamp": "2026-09-29T00:14:00.977443+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 7,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640840977_m25165824.jpg",
+        "sha256": "678d28b2d986933b011af681c1a741979dc6dbced20f2f60a916b826cc457baa",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 8,
+        "timestamp": "2026-09-29T00:14:02.208108+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 8,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640842208_m25165824.jpg",
+        "sha256": "62ddc2960b99e3043dc7f973e7de7e6dc444f69118586d82da16e2a797fc9e74",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 9,
+        "timestamp": "2026-09-29T00:14:03.182907+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 9,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640843182_m25165824.jpg",
+        "sha256": "c6dbcea5d8c938f9e5b82e5f2861d494ae861fb42e3e32b7477ac2fb294c5745",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 10,
+        "timestamp": "2026-09-29T00:14:04.174720+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 10,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640844174_m25165824.jpg",
+        "sha256": "18cf0471bd246ea9df7aa3ad75073a06e17aa57806f3f4290051b631995b7ead",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 11,
+        "timestamp": "2026-09-29T00:14:05.138117+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 11,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640845138_m25165824.jpg",
+        "sha256": "038be1f2f5ec1b1e31c9463f4d9de3692ce1885561558fde6c79366d6dbfd585",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 12,
+        "timestamp": "2026-09-29T00:14:06.391155+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 12,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640846391_m25165824.jpg",
+        "sha256": "556b5d73bba6adb29edde4523ee90e7948916887eaea0ee231f83aa5796b3382",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 13,
+        "timestamp": "2026-09-29T00:14:07.352894+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 13,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640847352_m25165824.jpg",
+        "sha256": "5bdee438b8077449dd7221d94d5907875c7cf36dbde042cfb82c302caa8b0576",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 14,
+        "timestamp": "2026-09-29T00:14:08.333376+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 14,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640848333_m25165824.jpg",
+        "sha256": "97379a8fdc78676d2b08a48b20a1068228208d71570952fca010dc2e505e63f8",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 15,
+        "timestamp": "2026-09-29T00:14:09.319909+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 15,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640849319_m25165824.jpg",
+        "sha256": "7cf1128089ad5b4f148e0ac4ba9d721aedd1b2749fdaeb963d4e76d39a0f8633",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 16,
+        "timestamp": "2026-09-29T00:14:10.528982+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 16,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640850528_m25165824.jpg",
+        "sha256": "59dd5c26abbaa8a20ca7aad998b3014c6bb9440a6dd56e82a439555866396ab0",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 17,
+        "timestamp": "2026-09-29T00:14:11.512590+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 17,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640851512_m25165824.jpg",
+        "sha256": "196e9199de1f61b29ecb0dea5d68c887b4ab22f10160d3276a0be8b91c729d53",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 18,
+        "timestamp": "2026-09-29T00:14:12.584850+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 18,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640852584_m25165824.jpg",
+        "sha256": "1ef0c0fecf7da1d1fefb6e777e98a4b03d581b6f753adbcdf276de2c2d9e3e01",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 19,
+        "timestamp": "2026-09-29T00:14:13.557933+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 19,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640853557_m25165824.jpg",
+        "sha256": "dc3a43f89a0e0b43a8dd0c935b2fe3717e82f357e2bd7bd3cced9d93a18791e3",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 20,
+        "timestamp": "2026-09-29T00:14:14.588509+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 20,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640854588_m25165824.jpg",
+        "sha256": "5a7ecc39b7d88a2d1d089ce951bab474e5aee9b4ce9dfb668f7a3142c65b1a21",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 21,
+        "timestamp": "2026-09-29T00:14:15.864708+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 21,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640855864_m25165824.jpg",
+        "sha256": "30da7c471e20a03d4e9a1d2a7aca38f39215de4c69acffa79c2608d07c030433",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 22,
+        "timestamp": "2026-09-29T00:14:16.619289+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 22,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640856619_m25165824.jpg",
+        "sha256": "9d9542a27c1c7c1dd7087b68986fe173ba7e918bb7900209ffb72e25640e75b6",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 23,
+        "timestamp": "2026-09-29T00:14:17.883070+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 23,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640857883_m25165824.jpg",
+        "sha256": "fc6f0aeffd4a06a6db3c1cbbdd305d94d62a613d6fb88fa8b6ec3f4238e234ec",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 24,
+        "timestamp": "2026-09-29T00:14:18.859159+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 24,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640858859_m25165824.jpg",
+        "sha256": "ec87ed81cdd0190727045c319154d10db589f7b7399197b86ae05b9a1173673c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 25,
+        "timestamp": "2026-09-29T00:14:19.837415+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 25,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640859837_m25165824.jpg",
+        "sha256": "38f60a2d62ede3b729939cc8573cd275f08834f41500c76963e27ce6222f9fb7",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 26,
+        "timestamp": "2026-09-29T00:14:20.820613+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 26,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640860820_m25165824.jpg",
+        "sha256": "6ce6c6dd31ab7f2e298a6bed5c877f61ca6b418499971cafd70848d7d4e78c90",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 27,
+        "timestamp": "2026-09-29T00:14:21.812497+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 27,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640861812_m25165824.jpg",
+        "sha256": "4e1f9e5ce7b3006bad80b45d31f93d458f61955ea066e407a8ef39ace4eda28b",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 28,
+        "timestamp": "2026-09-29T00:14:22.820714+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 28,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640862820_m25165824.jpg",
+        "sha256": "f84d276fd2c289f6fefb5a1b99f4da24017cac5fe30413d7a3fee77907d559d7",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 29,
+        "timestamp": "2026-09-29T00:14:24.050136+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 29,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640864050_m25165824.jpg",
+        "sha256": "c791368eb9e82799c07157e2ec17b112871b3195fc1f5bdbf182c07c5ce4717e",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 30,
+        "timestamp": "2026-09-29T00:14:25.022598+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 30,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640865022_m25165824.jpg",
+        "sha256": "d3c0456f2f904b5af8b80efc37ef713d1b7cc60ab60b7dd52bafb7b3a8f2733d",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 31,
+        "timestamp": "2026-09-29T00:14:25.985789+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 31,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640865985_m25165824.jpg",
+        "sha256": "50313ec59a834e7b5baba323b2dcb8335af631a8f62be5db6e82e2b37d1995e7",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 32,
+        "timestamp": "2026-09-29T00:14:26.956123+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [],
+          "tree": [],
+          "full_text": [
+            "A"
+          ],
+          "elements": []
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 32,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640866956_m25165824.jpg",
+        "sha256": "96eb0f58511fd776592056ea27eed4bb30e1ab343de74ce32c6ebc877a329546",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 33,
+        "timestamp": "2026-09-29T00:14:28.069680+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 33,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640868069_m25165824.jpg",
+        "sha256": "1ce4cf74e5a31b64c45ab881e6cc1cffcca4b95c9a864eef7672431615d4f44a",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 34,
+        "timestamp": "2026-09-29T00:14:38.448188+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 34,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640878448_m25165824.jpg",
+        "sha256": "4dd8edbc58d2043c4e0f5bf01d03ebdd0eff66ace88f688bc46985d7b9b6e9dd",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 35,
+        "timestamp": "2026-09-29T00:14:39.419472+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 35,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640879419_m25165824.jpg",
+        "sha256": "2966c8f975e4e46484d7ac5e542e125aee4f448664b178a8d9cb9fe830cc6a87",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 36,
+        "timestamp": "2026-09-29T00:14:49.799516+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 36,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640889799_m25165824.jpg",
+        "sha256": "729057ef81fcfa625f03014b0ff6b8df6fc00ee7644bf30e0b10083cbd71845c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 37,
+        "timestamp": "2026-09-29T00:14:50.773411+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 37,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640890773_m25165824.jpg",
+        "sha256": "c3b5ad2a0446bbe343926acdaa30a39e1323cd30bac47c85b721070dc286170e",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 38,
+        "timestamp": "2026-09-29T00:14:51.739006+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 38,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640891739_m25165824.jpg",
+        "sha256": "9cad460ce841e248c3886d29382a7331d5fcd2f4c3d822eddfdc505691e1c782",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 39,
+        "timestamp": "2026-09-29T00:14:52.976991+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 39,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640892976_m25165824.jpg",
+        "sha256": "2966c8f975e4e46484d7ac5e542e125aee4f448664b178a8d9cb9fe830cc6a87",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 40,
+        "timestamp": "2026-09-29T00:14:53.939333+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 40,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640893939_m25165824.jpg",
+        "sha256": "4dd8edbc58d2043c4e0f5bf01d03ebdd0eff66ace88f688bc46985d7b9b6e9dd",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 41,
+        "timestamp": "2026-09-29T00:14:55.168417+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 41,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640895168_m25165824.jpg",
+        "sha256": "542c9e755f773a1bb900e61a8de917d3df85a4b2bd681d4746f4f77cefa0e539",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 42,
+        "timestamp": "2026-09-29T00:15:05.477675+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 42,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640905477_m25165824.jpg",
+        "sha256": "0939eb250f54cc91461525cf39832460fbbffc5f2d17a77807cf83bf5e3991a5",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 43,
+        "timestamp": "2026-09-29T00:15:06.531753+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 43,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640906531_m25165824.jpg",
+        "sha256": "0bba0fd57053f89d45e9901bd51292146ce54e8cb37bbb982de31fbda2ef45c4",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 44,
+        "timestamp": "2026-09-29T00:15:07.502975+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 44,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640907502_m25165824.jpg",
+        "sha256": "27a67583a2899b41ae25b0df2877b450dcb3be8b0dad487db867cc1adced50a4",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 45,
+        "timestamp": "2026-09-29T00:15:08.603333+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 45,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640908603_m25165824.jpg",
+        "sha256": "27a67583a2899b41ae25b0df2877b450dcb3be8b0dad487db867cc1adced50a4",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 46,
+        "timestamp": "2026-09-29T00:15:09.563788+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 46,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640909563_m25165824.jpg",
+        "sha256": "27a67583a2899b41ae25b0df2877b450dcb3be8b0dad487db867cc1adced50a4",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 47,
+        "timestamp": "2026-09-29T00:15:10.776158+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 47,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640910776_m25165824.jpg",
+        "sha256": "27a67583a2899b41ae25b0df2877b450dcb3be8b0dad487db867cc1adced50a4",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 48,
+        "timestamp": "2026-09-29T00:15:16.618283+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 48,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640916618_m25165824.jpg",
+        "sha256": "990a1ddabc3f0760bcb9442c5ecc9dc639c51e59933287570c1dc4232db230c6",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 49,
+        "timestamp": "2026-09-29T00:15:45.312449+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 49,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640945312_m25165824.jpg",
+        "sha256": "2ed55fd737ad9deff993968f60ef84c432fe9eaa4d0b3b3a7fd94b29b7ed5271",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 50,
+        "timestamp": "2026-09-29T00:15:46.283328+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 50,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640946283_m25165824.jpg",
+        "sha256": "cae5ed896f3f8aef9b26f1b006d59f1d921d806190dc7d9857533e29af6179d4",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 51,
+        "timestamp": "2026-09-29T00:15:47.243746+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 51,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640947243_m25165824.jpg",
+        "sha256": "6860b689d79e54a679d23792e4aac690d74e1b010109718a34e5859437c7035a",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 52,
+        "timestamp": "2026-09-29T00:15:48.249680+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 52,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640948249_m25165824.jpg",
+        "sha256": "e28ecbb426b0af045c329d8b3c5a077fa6c0f741a00039ccd1ab7c3b79c3ccce",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 53,
+        "timestamp": "2026-09-29T00:15:49.209209+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 53,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640949209_m25165824.jpg",
+        "sha256": "2f12e73f412e0711f4b66bc04a5c42f0b5f7a97d8c39d3d2b05f430d9d8b6313",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 54,
+        "timestamp": "2026-09-29T00:15:50.170755+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 54,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640950170_m25165824.jpg",
+        "sha256": "dd141eebd6a951457e9e1fb6bff23c19a5e80a922b292974ea702d555476e58c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 55,
+        "timestamp": "2026-09-29T00:15:51.396058+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 55,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640951396_m25165824.jpg",
+        "sha256": "330ef62a77fb343390945603ab55c6b6acd0185888801e9c3d9be1ff96c7131b",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 56,
+        "timestamp": "2026-09-29T00:15:52.394386+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 56,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640952394_m25165824.jpg",
+        "sha256": "174b1a33e633e9a2899ec656880a5d9346d565027fdb35fea8b1b86e04b7954f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 57,
+        "timestamp": "2026-09-29T00:15:53.387328+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 57,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640953387_m25165824.jpg",
+        "sha256": "1ace44b3b397e374199c17a4fc9b8074a012440ce2bc63d3225f1e6f843c6ea3",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 58,
+        "timestamp": "2026-09-29T00:15:54.369109+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 58,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640954369_m25165824.jpg",
+        "sha256": "0bd0f9d69560011aa3fa6d5824031a278d380d1cd874431160c7aead63e053ee",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 59,
+        "timestamp": "2026-09-29T00:15:55.592194+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 59,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640955592_m25165824.jpg",
+        "sha256": "48d45ab29fee5011ab2cffe92b06dfd24e4614e6e59e2d4c9e26671f745cdf6c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 60,
+        "timestamp": "2026-09-29T00:15:56.560830+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 60,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640956560_m25165824.jpg",
+        "sha256": "09f13bc1d32e970798d2d4f12dbc30e0f8d546fdd96cd7dc36da457acd8337a8",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 61,
+        "timestamp": "2026-09-29T00:15:57.794421+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 61,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640957794_m25165824.jpg",
+        "sha256": "f6447e6973bbdd38dda213dbaeda707c74f550a6cfffa397ebced63e82a7fcae",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 62,
+        "timestamp": "2026-09-29T00:15:58.779272+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 62,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640958779_m25165824.jpg",
+        "sha256": "839d5cbd98c4d0136d8343e611f4e4f989c0830c4ea5eac1def26e579f5a7215",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 63,
+        "timestamp": "2026-09-29T00:15:59.740885+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 63,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640959740_m25165824.jpg",
+        "sha256": "a9a5d66d9d33a17c04abbf835c6c8ec6c23920ab81583e86b5c66ae10448a72f",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 64,
+        "timestamp": "2026-09-29T00:16:00.953587+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 64,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640960953_m25165824.jpg",
+        "sha256": "a3bd38bfda34b63cb8965d26a510d7afddfab80316c6699fa0d1a8e447d72aa6",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 65,
+        "timestamp": "2026-09-29T00:16:01.951832+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 65,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640961951_m25165824.jpg",
+        "sha256": "29b72cefd2ff4c3dff6353ebd2beb0056987fa8e9ea68740bda908e0e03fcc22",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 66,
+        "timestamp": "2026-09-29T00:16:02.916645+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 66,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640962916_m25165824.jpg",
+        "sha256": "80dd62ce92e3ca0ae61f279d78586ab34b6fb113723bd8465e762c476cd63292",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 67,
+        "timestamp": "2026-09-29T00:16:03.888588+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 67,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640963888_m25165824.jpg",
+        "sha256": "ae09d6d6d9e7634a2941cf3553b183d6893dd9f3e3f6aca16e9bea944902ca2b",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 68,
+        "timestamp": "2026-09-29T00:16:04.888726+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 68,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640964888_m25165824.jpg",
+        "sha256": "8613e5c794cae20c878b2e7706298b96881831003874227d3629882cbfae4944",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 69,
+        "timestamp": "2026-09-29T00:16:06.116953+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 69,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640966116_m25165824.jpg",
+        "sha256": "d8ec4c2771e28dc8aef512e113a31f7ff05ccc8c5952ac2abe7a5c072fd5fb6a",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 70,
+        "timestamp": "2026-09-29T00:16:07.078205+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 70,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640967078_m25165824.jpg",
+        "sha256": "765246fbcfcbe7a9b423cbedfbedf9d49e7a62b0c2b7c8d10ab6a169bc7f98c9",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 71,
+        "timestamp": "2026-09-29T00:16:08.047134+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 71,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640968047_m25165824.jpg",
+        "sha256": "7ca56344c070b5a18e4edb55118c09548c93aacd722f02380da18fd1ced122e1",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 72,
+        "timestamp": "2026-09-29T00:16:09.257181+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 72,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640969257_m25165824.jpg",
+        "sha256": "14379af0f43de3895995eca2a3a83fe31e9d4253b3b3ae6e3c512c3c6db8210a",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 73,
+        "timestamp": "2026-09-29T00:16:10.290847+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 73,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640970290_m25165824.jpg",
+        "sha256": "f23dd91d564ab8d87b761f3b74c5911877b742358c1f29e556bbc545619d06dd",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 74,
+        "timestamp": "2026-09-29T00:16:11.283696+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 74,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640971283_m25165824.jpg",
+        "sha256": "4977868385d3f8bc5a0dd317bc254027726253fae1b77d7d3790698e510b5883",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 75,
+        "timestamp": "2026-09-29T00:16:12.271711+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 75,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640972271_m25165824.jpg",
+        "sha256": "17523c099a10e6672ff31dfc06a373a96b53ecf01e47c9393768ddab45d741cf",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 76,
+        "timestamp": "2026-09-29T00:16:13.238731+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 76,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640973238_m25165824.jpg",
+        "sha256": "4a6068fd6c74a8061583af4c961d24638970dcbb149243df0ac1e7e44a4f0e53",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 77,
+        "timestamp": "2026-09-29T00:16:14.201710+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 77,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640974201_m25165824.jpg",
+        "sha256": "724fc4f2c3c10289300fc4d56a17eefdc7db4338001c0f3fdbdddc0ca0313c18",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 78,
+        "timestamp": "2026-09-29T00:16:24.784366+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 78,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640984784_m25165824.jpg",
+        "sha256": "9d239583df7a4599cd99bc07a48977f666931c594d1535c3cef00dfce7ec9b6c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 79,
+        "timestamp": "2026-09-29T00:16:25.998595+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 79,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640985998_m25165824.jpg",
+        "sha256": "1d9b0dacbc38f703cff08ea7108e004fbe0e3a5acb99c1a90cbdc93264717b07",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 80,
+        "timestamp": "2026-09-29T00:16:36.328428+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 80,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640996328_m25165824.jpg",
+        "sha256": "482893387768916e733883a886e664df7e27f73a6e75e32a609a54fed9760cf9",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 81,
+        "timestamp": "2026-09-29T00:16:37.316032+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 81,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640997316_m25165824.jpg",
+        "sha256": "ffd7e03a4dd7f1dc21b63872e9142f11379dd1e95eb5240b501cb793f00bf1fc",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 82,
+        "timestamp": "2026-09-29T00:16:38.282900+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 82,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640998282_m25165824.jpg",
+        "sha256": "e69ab2f12e5a3d1f81e7df8a4e5d5bb3c2b6311ded18a7bb940e7d607c645313",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 83,
+        "timestamp": "2026-09-29T00:16:39.524557+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 83,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790640999524_m25165824.jpg",
+        "sha256": "e8a23e9e68b3c2d777a2e7a1f4f35de68554c6f276d5b03fdd3dba5247ee4adc",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 84,
+        "timestamp": "2026-09-29T00:16:40.501867+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 84,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641000501_m25165824.jpg",
+        "sha256": "9d239583df7a4599cd99bc07a48977f666931c594d1535c3cef00dfce7ec9b6c",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 85,
+        "timestamp": "2026-09-29T00:16:41.492120+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 85,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641001492_m25165824.jpg",
+        "sha256": "6092b65b2c81ce814b2f28137e1525e4b74583eea414fab9f434c6716641eeb9",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 86,
+        "timestamp": "2026-09-29T00:16:51.807920+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 86,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641011807_m25165824.jpg",
+        "sha256": "02eb1fac0ae1a257930c673290358d5cf339ba621ab010ddfd1cae04112f4bc8",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 87,
+        "timestamp": "2026-09-29T00:16:52.785037+00:00",
+        "title": "Screenpipe Cloud Benchmark A",
+        "expectedPage": "A",
+        "contexts": {
+          "text": [
+            "A"
+          ],
+          "tree": [
+            "A"
+          ],
+          "full_text": [
+            "A"
+          ],
+          "elements": [
+            "A"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 87,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641012785_m25165824.jpg",
+        "sha256": "4548855539aee3ec2653c69b2198eead95d76bf4b65bed9a6291eb1014e304e7",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 88,
+        "timestamp": "2026-09-29T00:16:53.739087+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 88,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641013739_m25165824.jpg",
+        "sha256": "93d82b6bf4134646a9269e97f2ad1cb57c38d39460f01197824c8f7601b6e530",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 89,
+        "timestamp": "2026-09-29T00:16:55.097139+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 89,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641015097_m25165824.jpg",
+        "sha256": "93d82b6bf4134646a9269e97f2ad1cb57c38d39460f01197824c8f7601b6e530",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 90,
+        "timestamp": "2026-09-29T00:16:56.307964+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 90,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641016307_m25165824.jpg",
+        "sha256": "93d82b6bf4134646a9269e97f2ad1cb57c38d39460f01197824c8f7601b6e530",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 91,
+        "timestamp": "2026-09-29T00:16:57.271467+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 91,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641017271_m25165824.jpg",
+        "sha256": "93d82b6bf4134646a9269e97f2ad1cb57c38d39460f01197824c8f7601b6e530",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 92,
+        "timestamp": "2026-09-29T00:17:57.705779+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 92,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641077705_m25165824.jpg",
+        "sha256": "26d4ef2ee710ec1e7e702ad2c47f854f8b6777dbd186db9ffdf3bef6754e1834",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      },
+      {
+        "frameId": 93,
+        "timestamp": "2026-09-29T00:18:58.126980+00:00",
+        "title": "Screenpipe Cloud Benchmark B",
+        "expectedPage": "B",
+        "contexts": {
+          "text": [
+            "B"
+          ],
+          "tree": [
+            "B"
+          ],
+          "full_text": [
+            "B"
+          ],
+          "elements": [
+            "B"
+          ]
+        },
+        "referenceError": null,
+        "elementSourceFrameId": 92,
+        "mismatches": [],
+        "image": "benchmark/more_detail/data/data/data/2026-09-29/1790641138126_m25165824.jpg",
+        "sha256": "7b089bcea6348fed9e0a60062f5de7c2bffd70995e7f8d96adea7eb14688491b",
+        "dimensions": [
+          1920,
+          1080
+        ],
+        "extrema": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ]
+      }
+    ],
+    "eventLinks": {
+      "events": 92,
+      "linked": 89,
+      "unlinked": 3,
+      "invalid": 0,
+      "failures": []
+    }
+  }
+}

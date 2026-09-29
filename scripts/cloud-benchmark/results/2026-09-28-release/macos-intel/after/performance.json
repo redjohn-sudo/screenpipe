@@ -1,0 +1,3451 @@
+{
+  "sourceSha": "e08fa22b93425806cc1a9dedcc8f56830cb51844",
+  "harnessSha": "b1a7ab479867065cb7e955048b1c834b0f72d4c4",
+  "machine": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830\nDarwin iad01-dz248-98b0dfec-34ef-4ec6-aced-65299ce4ded0-12FD34E98A5C.local 24.6.0 Darwin Kernel Version 24.6.0: Tue Jul 21 20:50:07 PDT 2026; root:xnu-11417.140.69.711.44~1/RELEASE_X86_64 x86_64\nhw.model: Macmini6,2\nhw.ncpu: 4\nhw.memsize: 15032385536\nmachdep.cpu.brand_string: Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz\nSystem Integrity Protection status: disabled.\n",
+  "binary": {
+    "sha256": "101f93c9cca9c260e56a1c81a1721e420d047801b8cb9fb7d72ddb01caaef18d",
+    "path": "/Users/runner/work/screenpipe/screenpipe/CloudRecorder-after.app/Contents/MacOS/CloudRecorder-after",
+    "sourceSha": "e08fa22b93425806cc1a9dedcc8f56830cb51844",
+    "profile": "release",
+    "audio": false,
+    "videoQuality": "high",
+    "powerMode": "auto",
+    "apiAuth": "disabled only on disposable localhost-bound fixture"
+  },
+  "completed": {
+    "sourceSha": "e08fa22b93425806cc1a9dedcc8f56830cb51844",
+    "unix": 1790641698.077572,
+    "modes": [
+      "control",
+      "more_detail",
+      "low_impact",
+      "auto"
+    ]
+  },
+  "limits": [
+    "release engine measurements on virtual hardware; not battery certification",
+    "process CPU excludes fixture, WindowServer and host hypervisor",
+    "input delivery is synthetic OS scroll latency, not physical trackpad-to-photon latency",
+    "timer delay is a 50ms main-run-loop heartbeat, not frame presentation",
+    "audio/transcription, packaged app timeline, physical battery and thermal throttling were not benchmarked",
+    "two repetitions per case on one VM per configuration; no statistical hardware population inference",
+    "capture latency uses frame timestamps, not durable commit or rendered timeline availability"
+  ],
+  "modes": {
+    "control": {
+      "cases": [
+        {
+          "case": "idle",
+          "repetition": 0,
+          "activeSeconds": 15.022892951965332,
+          "inputReceived": 0,
+          "inputDispatchMs": null,
+          "heartbeatDelayMs": {
+            "n": 224,
+            "median": 22.398233999592772,
+            "min": 0,
+            "max": 75.63173000035022,
+            "p95": 64.80041199956759
+          },
+          "scrollOffsetRange": null,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": null,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "continuous",
+          "repetition": 0,
+          "activeSeconds": 30.31749701499939,
+          "inputReceived": 404,
+          "inputDispatchMs": {
+            "n": 404,
+            "median": 2.4938100004874286,
+            "min": 1.6033530009735841,
+            "max": 20.235734000380035,
+            "p95": 17.965004000870977
+          },
+          "heartbeatDelayMs": {
+            "n": 545,
+            "median": 2.1900599997024957,
+            "min": 0,
+            "max": 68.70978499973717,
+            "p95": 56.463586000245414
+          },
+          "scrollOffsetRange": 4836,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 30.31749701499939,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "short",
+          "repetition": 0,
+          "activeSeconds": 2.3327009677886963,
+          "inputReceived": 26,
+          "inputDispatchMs": {
+            "n": 26,
+            "median": 2.5520820004203415,
+            "min": 1.6148210006576846,
+            "max": 18.69523500045034,
+            "p95": 16.71308000004501
+          },
+          "heartbeatDelayMs": {
+            "n": 42,
+            "median": 6.079307999425507,
+            "min": 0,
+            "max": 68.25216399938654,
+            "p95": 51.46693399929063
+          },
+          "scrollOffsetRange": 312,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 2.3327009677886963,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "reverse",
+          "repetition": 0,
+          "activeSeconds": 6.382307052612305,
+          "inputReceived": 84,
+          "inputDispatchMs": {
+            "n": 84,
+            "median": 2.583979000519321,
+            "min": 1.7803170003389823,
+            "max": 19.70200499999919,
+            "p95": 18.868195999857562
+          },
+          "heartbeatDelayMs": {
+            "n": 119,
+            "median": 0,
+            "min": 0,
+            "max": 71.29659800029913,
+            "p95": 59.591342999920016
+          },
+          "scrollOffsetRange": 504,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 6.382307052612305,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "focus",
+          "repetition": 0,
+          "activeSeconds": 6.573808908462524,
+          "inputReceived": 81,
+          "inputDispatchMs": {
+            "n": 81,
+            "median": 2.447988999847439,
+            "min": 1.5691620001234696,
+            "max": 19.876341000781395,
+            "p95": 17.110225000578794
+          },
+          "heartbeatDelayMs": {
+            "n": 116,
+            "median": 3.9405504996466307,
+            "min": 0,
+            "max": 69.08494700037409,
+            "p95": 50.26337100043747
+          },
+          "scrollOffsetRange": 14000,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 6.573808908462524,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "idle",
+          "repetition": 1,
+          "activeSeconds": 15.03302788734436,
+          "inputReceived": 0,
+          "inputDispatchMs": null,
+          "heartbeatDelayMs": {
+            "n": 242,
+            "median": 16.304197999670574,
+            "min": 0,
+            "max": 75.70332100040105,
+            "p95": 64.84476599980553
+          },
+          "scrollOffsetRange": null,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": null,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "continuous",
+          "repetition": 1,
+          "activeSeconds": 30.2687931060791,
+          "inputReceived": 403,
+          "inputDispatchMs": {
+            "n": 403,
+            "median": 2.5944560002244543,
+            "min": 1.60231800055044,
+            "max": 22.360113001013815,
+            "p95": 18.338116999984777
+          },
+          "heartbeatDelayMs": {
+            "n": 534,
+            "median": 3.4390275001896926,
+            "min": 0,
+            "max": 67.27104599958693,
+            "p95": 53.08562299996993
+          },
+          "scrollOffsetRange": 4824,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 30.2687931060791,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "short",
+          "repetition": 1,
+          "activeSeconds": 2.2502641677856445,
+          "inputReceived": 28,
+          "inputDispatchMs": {
+            "n": 28,
+            "median": 3.2114814998749353,
+            "min": 1.8287390003024484,
+            "max": 20.65771300021879,
+            "p95": 20.116918000894657
+          },
+          "heartbeatDelayMs": {
+            "n": 41,
+            "median": 4.63463800060708,
+            "min": 0,
+            "max": 60.28039800021361,
+            "p95": 56.99894299978041
+          },
+          "scrollOffsetRange": 324,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 2.2502641677856445,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "reverse",
+          "repetition": 1,
+          "activeSeconds": 6.180154800415039,
+          "inputReceived": 78,
+          "inputDispatchMs": {
+            "n": 78,
+            "median": 2.655761000369239,
+            "min": 1.6041720009525307,
+            "max": 19.919477999792434,
+            "p95": 18.156045000068843
+          },
+          "heartbeatDelayMs": {
+            "n": 100,
+            "median": 7.97800049958823,
+            "min": 0,
+            "max": 69.30807900080254,
+            "p95": 54.08763400027965
+          },
+          "scrollOffsetRange": 516,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 6.180154800415039,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        },
+        {
+          "case": "focus",
+          "repetition": 1,
+          "activeSeconds": 6.609891176223755,
+          "inputReceived": 81,
+          "inputDispatchMs": {
+            "n": 81,
+            "median": 2.2610369996982627,
+            "min": 1.611320000847627,
+            "max": 19.31180100018537,
+            "p95": 16.644276000079117
+          },
+          "heartbeatDelayMs": {
+            "n": 123,
+            "median": 1.5276950000043117,
+            "min": 0,
+            "max": 66.59374600003503,
+            "p95": 47.03080899998895
+          },
+          "scrollOffsetRange": 14000,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 6.609891176223755,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null
+        }
+      ],
+      "summary": {
+        "continuous": {
+          "cpuPercentMachineCapacity": null,
+          "cpuPercentOneCore": null,
+          "rssPeakMiB": null,
+          "footprintPeakMiB": null,
+          "diskWriteMiB": null,
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 30.293145060539246,
+            "min": 30.2687931060791,
+            "max": 30.31749701499939,
+            "p95": 30.31749701499939
+          },
+          "tailFrameDelaySeconds": null,
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 18.151560500427877,
+            "min": 17.965004000870977,
+            "max": 18.338116999984777,
+            "p95": 18.338116999984777
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 54.77460450010767,
+            "min": 53.08562299996993,
+            "max": 56.463586000245414,
+            "p95": 56.463586000245414
+          }
+        },
+        "focus": {
+          "cpuPercentMachineCapacity": null,
+          "cpuPercentOneCore": null,
+          "rssPeakMiB": null,
+          "footprintPeakMiB": null,
+          "diskWriteMiB": null,
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 6.59185004234314,
+            "min": 6.573808908462524,
+            "max": 6.609891176223755,
+            "p95": 6.609891176223755
+          },
+          "tailFrameDelaySeconds": null,
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 16.877250500328955,
+            "min": 16.644276000079117,
+            "max": 17.110225000578794,
+            "p95": 17.110225000578794
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 48.64709000021321,
+            "min": 47.03080899998895,
+            "max": 50.26337100043747,
+            "p95": 50.26337100043747
+          }
+        },
+        "idle": {
+          "cpuPercentMachineCapacity": null,
+          "cpuPercentOneCore": null,
+          "rssPeakMiB": null,
+          "footprintPeakMiB": null,
+          "diskWriteMiB": null,
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": null,
+          "tailFrameDelaySeconds": null,
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "inputP95Ms": null,
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 64.82258899968656,
+            "min": 64.80041199956759,
+            "max": 64.84476599980553,
+            "p95": 64.84476599980553
+          }
+        },
+        "reverse": {
+          "cpuPercentMachineCapacity": null,
+          "cpuPercentOneCore": null,
+          "rssPeakMiB": null,
+          "footprintPeakMiB": null,
+          "diskWriteMiB": null,
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 6.281230926513672,
+            "min": 6.180154800415039,
+            "max": 6.382307052612305,
+            "p95": 6.382307052612305
+          },
+          "tailFrameDelaySeconds": null,
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 18.512120499963203,
+            "min": 18.156045000068843,
+            "max": 18.868195999857562,
+            "p95": 18.868195999857562
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 56.83948850009983,
+            "min": 54.08763400027965,
+            "max": 59.591342999920016,
+            "p95": 59.591342999920016
+          }
+        },
+        "short": {
+          "cpuPercentMachineCapacity": null,
+          "cpuPercentOneCore": null,
+          "rssPeakMiB": null,
+          "footprintPeakMiB": null,
+          "diskWriteMiB": null,
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 2.2914825677871704,
+            "min": 2.2502641677856445,
+            "max": 2.3327009677886963,
+            "p95": 2.3327009677886963
+          },
+          "tailFrameDelaySeconds": null,
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 18.414999000469834,
+            "min": 16.71308000004501,
+            "max": 20.116918000894657,
+            "p95": 20.116918000894657
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 54.23293849953552,
+            "min": 51.46693399929063,
+            "max": 56.99894299978041,
+            "p95": 56.99894299978041
+          }
+        }
+      },
+      "workloadIncludingDrain": null,
+      "textQueue": {
+        "peakPending": 0,
+        "oldestAgeSeconds": 0,
+        "captureDelayedSamples": 0,
+        "drain": null,
+        "jobsRemaining": 0
+      },
+      "cpuCalibration": [],
+      "policySamples": [],
+      "firstInstallPower": null,
+      "controlledPower": null,
+      "storage": null,
+      "frameCount": 0,
+      "nonFixtureFrameCount": 0,
+      "uniqueSnapshotPaths": 0,
+      "completeness": {
+        "caseCount": 10,
+        "expectedCases": 10,
+        "hasCpu": false,
+        "hasAx": false,
+        "hasPolicy": false
+      }
+    },
+    "auto": {
+      "cases": [
+        {
+          "case": "idle",
+          "repetition": 0,
+          "activeSeconds": 15.072451829910278,
+          "inputReceived": 0,
+          "inputDispatchMs": null,
+          "heartbeatDelayMs": {
+            "n": 248,
+            "median": 16.613429499739137,
+            "min": 0,
+            "max": 63.89942000005249,
+            "p95": 50.82580299967958
+          },
+          "scrollOffsetRange": null,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": null,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null,
+          "cpuPercentOneCore": 34.052806174997734,
+          "rssPeakMiB": 359.53125,
+          "footprintPeakMiB": 107.59375,
+          "diskWriteMiB": 0.0,
+          "cpuPercentMachineCapacity": 8.513201543749433
+        },
+        {
+          "case": "continuous",
+          "repetition": 0,
+          "activeSeconds": 30.193209886550903,
+          "inputReceived": 385,
+          "inputDispatchMs": {
+            "n": 385,
+            "median": 2.985853000609495,
+            "min": 1.7274020010518143,
+            "max": 102.54644300039217,
+            "p95": 19.775215000663593
+          },
+          "heartbeatDelayMs": {
+            "n": 519,
+            "median": 9.224335999715546,
+            "min": 0,
+            "max": 133.6574050003037,
+            "p95": 65.02890299925639
+          },
+          "scrollOffsetRange": 4608,
+          "frames": 9,
+          "scrollFrames": 9,
+          "scrollFramesDuringInput": 8,
+          "maxScrollGapSeconds": 5.289397954940796,
+          "accessibilityFrames": 9,
+          "accessibilityChars": {
+            "n": 9,
+            "median": 1481,
+            "min": 455,
+            "max": 2811,
+            "p95": 2811
+          },
+          "accessibilityElements": {
+            "n": 9,
+            "median": 39,
+            "min": 12,
+            "max": 74,
+            "p95": 74
+          },
+          "scrollUiRows": 9,
+          "linkedScrollRows": 9,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.8107278347015381,
+          "cpuPercentOneCore": 155.3080296312498,
+          "rssPeakMiB": 379.44140625,
+          "footprintPeakMiB": 100.0859375,
+          "diskWriteMiB": 2.06640625,
+          "cpuPercentMachineCapacity": 38.82700740781245
+        },
+        {
+          "case": "short",
+          "repetition": 0,
+          "activeSeconds": 2.21028208732605,
+          "inputReceived": 26,
+          "inputDispatchMs": {
+            "n": 26,
+            "median": 3.4284085004401277,
+            "min": 2.2908889995960635,
+            "max": 31.741948000671982,
+            "p95": 31.18956700018316
+          },
+          "heartbeatDelayMs": {
+            "n": 37,
+            "median": 9.81205700027203,
+            "min": 0,
+            "max": 51.018866000231355,
+            "p95": 50.410628000645374
+          },
+          "scrollOffsetRange": 300,
+          "frames": 1,
+          "scrollFrames": 1,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 2.21028208732605,
+          "accessibilityFrames": 1,
+          "accessibilityChars": {
+            "n": 1,
+            "median": 2165,
+            "min": 2165,
+            "max": 2165,
+            "p95": 2165
+          },
+          "accessibilityElements": {
+            "n": 1,
+            "median": 57,
+            "min": 57,
+            "max": 57,
+            "p95": 57
+          },
+          "scrollUiRows": 1,
+          "linkedScrollRows": 1,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.8123867511749268,
+          "cpuPercentOneCore": 131.0916330761966,
+          "rssPeakMiB": 369.30859375,
+          "footprintPeakMiB": 77.1796875,
+          "diskWriteMiB": 0.0,
+          "cpuPercentMachineCapacity": 32.77290826904915
+        },
+        {
+          "case": "reverse",
+          "repetition": 0,
+          "activeSeconds": 6.468310832977295,
+          "inputReceived": 76,
+          "inputDispatchMs": {
+            "n": 76,
+            "median": 2.613294001093891,
+            "min": 1.7746110006555682,
+            "max": 21.28472500044154,
+            "p95": 17.190485000355693
+          },
+          "heartbeatDelayMs": {
+            "n": 97,
+            "median": 15.097624999907563,
+            "min": 0,
+            "max": 70.36125799932051,
+            "p95": 68.80762900000263
+          },
+          "scrollOffsetRange": 468,
+          "frames": 2,
+          "scrollFrames": 2,
+          "scrollFramesDuringInput": 1,
+          "maxScrollGapSeconds": 5.361171007156372,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 1367.0,
+            "min": 1215,
+            "max": 1519,
+            "p95": 1519
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 36.0,
+            "min": 32,
+            "max": 40,
+            "p95": 40
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 2,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.8202590942382812,
+          "cpuPercentOneCore": 41.02123313836439,
+          "rssPeakMiB": 360.8828125,
+          "footprintPeakMiB": 82.09375,
+          "diskWriteMiB": 0.26171875,
+          "cpuPercentMachineCapacity": 10.255308284591097
+        },
+        {
+          "case": "focus",
+          "repetition": 0,
+          "activeSeconds": 6.423449754714966,
+          "inputReceived": 74,
+          "inputDispatchMs": {
+            "n": 74,
+            "median": 2.3691240003245184,
+            "min": 1.7546710005262867,
+            "max": 19.566005000342557,
+            "p95": 6.434275000174239
+          },
+          "heartbeatDelayMs": {
+            "n": 112,
+            "median": 5.852526500075325,
+            "min": 0,
+            "max": 63.16689500017674,
+            "p95": 51.662307999504264
+          },
+          "scrollOffsetRange": 14000,
+          "frames": 2,
+          "scrollFrames": 1,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 6.423449754714966,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 1728.0,
+            "min": 1595,
+            "max": 1861,
+            "p95": 1861
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 45.5,
+            "min": 42,
+            "max": 49,
+            "p95": 49
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 1,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.9257180690765381,
+          "cpuPercentOneCore": 5.929972280853572,
+          "rssPeakMiB": 319.6484375,
+          "footprintPeakMiB": 74.6875,
+          "diskWriteMiB": 0.26171875,
+          "cpuPercentMachineCapacity": 1.482493070213393
+        },
+        {
+          "case": "idle",
+          "repetition": 1,
+          "activeSeconds": 15.069136142730713,
+          "inputReceived": 0,
+          "inputDispatchMs": null,
+          "heartbeatDelayMs": {
+            "n": 248,
+            "median": 9.830381999745438,
+            "min": 0,
+            "max": 64.81074999937846,
+            "p95": 50.91977100000804
+          },
+          "scrollOffsetRange": null,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": null,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null,
+          "cpuPercentOneCore": 27.426696057970638,
+          "rssPeakMiB": 373.4921875,
+          "footprintPeakMiB": 82.62109375,
+          "diskWriteMiB": 1.47265625,
+          "cpuPercentMachineCapacity": 6.8566740144926595
+        },
+        {
+          "case": "continuous",
+          "repetition": 1,
+          "activeSeconds": 30.12524104118347,
+          "inputReceived": 388,
+          "inputDispatchMs": {
+            "n": 388,
+            "median": 3.204060999905778,
+            "min": 1.6898540006877738,
+            "max": 47.85653100043419,
+            "p95": 21.994637000716466
+          },
+          "heartbeatDelayMs": {
+            "n": 494,
+            "median": 7.531725499757155,
+            "min": 0,
+            "max": 126.77437699967415,
+            "p95": 65.00109400003566
+          },
+          "scrollOffsetRange": 4656,
+          "frames": 6,
+          "scrollFrames": 6,
+          "scrollFramesDuringInput": 5,
+          "maxScrollGapSeconds": 5.4689860343933105,
+          "accessibilityFrames": 6,
+          "accessibilityChars": {
+            "n": 6,
+            "median": 1576.0,
+            "min": 797,
+            "max": 3115,
+            "p95": 3115
+          },
+          "accessibilityElements": {
+            "n": 6,
+            "median": 41.5,
+            "min": 21,
+            "max": 82,
+            "p95": 82
+          },
+          "scrollUiRows": 6,
+          "linkedScrollRows": 6,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.6167478561401367,
+          "cpuPercentOneCore": 135.10055031975327,
+          "rssPeakMiB": 382.734375,
+          "footprintPeakMiB": 101.16796875,
+          "diskWriteMiB": 1.296875,
+          "cpuPercentMachineCapacity": 33.77513757993832
+        },
+        {
+          "case": "short",
+          "repetition": 1,
+          "activeSeconds": 2.2076070308685303,
+          "inputReceived": 24,
+          "inputDispatchMs": {
+            "n": 24,
+            "median": 2.4407580003753537,
+            "min": 1.5535650009042001,
+            "max": 27.030952000131947,
+            "p95": 18.00327199998719
+          },
+          "heartbeatDelayMs": {
+            "n": 34,
+            "median": 0.0,
+            "min": 0,
+            "max": 108.05178299979161,
+            "p95": 88.6123360007332
+          },
+          "scrollOffsetRange": 276,
+          "frames": 1,
+          "scrollFrames": 1,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 2.2076070308685303,
+          "accessibilityFrames": 1,
+          "accessibilityChars": {
+            "n": 1,
+            "median": 3875,
+            "min": 3875,
+            "max": 3875,
+            "p95": 3875
+          },
+          "accessibilityElements": {
+            "n": 1,
+            "median": 102,
+            "min": 102,
+            "max": 102,
+            "p95": 102
+          },
+          "scrollUiRows": 1,
+          "linkedScrollRows": 1,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.7084038257598877,
+          "cpuPercentOneCore": 16.676494903476428,
+          "rssPeakMiB": 267.0234375,
+          "footprintPeakMiB": 74.7578125,
+          "diskWriteMiB": 0.0,
+          "cpuPercentMachineCapacity": 4.169123725869107
+        },
+        {
+          "case": "reverse",
+          "repetition": 1,
+          "activeSeconds": 6.355710029602051,
+          "inputReceived": 77,
+          "inputDispatchMs": {
+            "n": 77,
+            "median": 2.7257760011707433,
+            "min": 1.7395760005456395,
+            "max": 36.404423000931274,
+            "p95": 17.97709400034364
+          },
+          "heartbeatDelayMs": {
+            "n": 114,
+            "median": 5.599089499992258,
+            "min": 0,
+            "max": 89.53420600046229,
+            "p95": 65.43207500017161
+          },
+          "scrollOffsetRange": 468,
+          "frames": 2,
+          "scrollFrames": 2,
+          "scrollFramesDuringInput": 1,
+          "maxScrollGapSeconds": 5.309762001037598,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 1899.0,
+            "min": 1329,
+            "max": 2469,
+            "p95": 2469
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 50.0,
+            "min": 35,
+            "max": 65,
+            "p95": 65
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 2,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.8854169845581055,
+          "cpuPercentOneCore": 19.41047466927178,
+          "rssPeakMiB": 332.47265625,
+          "footprintPeakMiB": 80.69140625,
+          "diskWriteMiB": 0.2578125,
+          "cpuPercentMachineCapacity": 4.852618667317945
+        },
+        {
+          "case": "focus",
+          "repetition": 1,
+          "activeSeconds": 6.566677093505859,
+          "inputReceived": 79,
+          "inputDispatchMs": {
+            "n": 79,
+            "median": 2.380871999775991,
+            "min": 1.7673290003585862,
+            "max": 19.623056999989785,
+            "p95": 16.737987000851717
+          },
+          "heartbeatDelayMs": {
+            "n": 115,
+            "median": 3.2595560007393916,
+            "min": 0,
+            "max": 57.38257100001647,
+            "p95": 50.460408999424544
+          },
+          "scrollOffsetRange": 14000,
+          "frames": 2,
+          "scrollFrames": 1,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 6.566677093505859,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 1747.0,
+            "min": 1671,
+            "max": 1823,
+            "p95": 1823
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 46.0,
+            "min": 44,
+            "max": 48,
+            "p95": 48
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 1,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.6761078834533691,
+          "cpuPercentOneCore": 5.313840069375664,
+          "rssPeakMiB": 329.55078125,
+          "footprintPeakMiB": 70.83984375,
+          "diskWriteMiB": 0.26171875,
+          "cpuPercentMachineCapacity": 1.328460017343916
+        }
+      ],
+      "summary": {
+        "continuous": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 36.30107249387538,
+            "min": 33.77513757993832,
+            "max": 38.82700740781245,
+            "p95": 38.82700740781245
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 145.20428997550152,
+            "min": 135.10055031975327,
+            "max": 155.3080296312498,
+            "p95": 155.3080296312498
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 381.087890625,
+            "min": 379.44140625,
+            "max": 382.734375,
+            "p95": 382.734375
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 100.626953125,
+            "min": 100.0859375,
+            "max": 101.16796875,
+            "p95": 101.16796875
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 1.681640625,
+            "min": 1.296875,
+            "max": 2.06640625,
+            "p95": 2.06640625
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 6.5,
+            "min": 5,
+            "max": 8,
+            "p95": 8
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 5.379191994667053,
+            "min": 5.289397954940796,
+            "max": 5.4689860343933105,
+            "p95": 5.4689860343933105
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.7137378454208374,
+            "min": 0.6167478561401367,
+            "max": 0.8107278347015381,
+            "p95": 0.8107278347015381
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 7.5,
+            "min": 6,
+            "max": 9,
+            "p95": 9
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 20.88492600069003,
+            "min": 19.775215000663593,
+            "max": 21.994637000716466,
+            "p95": 21.994637000716466
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 65.01499849964603,
+            "min": 65.00109400003566,
+            "max": 65.02890299925639,
+            "p95": 65.02890299925639
+          }
+        },
+        "focus": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 1.4054765437786545,
+            "min": 1.328460017343916,
+            "max": 1.482493070213393,
+            "p95": 1.482493070213393
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 5.621906175114618,
+            "min": 5.313840069375664,
+            "max": 5.929972280853572,
+            "p95": 5.929972280853572
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 324.599609375,
+            "min": 319.6484375,
+            "max": 329.55078125,
+            "p95": 329.55078125
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 72.763671875,
+            "min": 70.83984375,
+            "max": 74.6875,
+            "p95": 74.6875
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.26171875,
+            "min": 0.26171875,
+            "max": 0.26171875,
+            "p95": 0.26171875
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 6.495063424110413,
+            "min": 6.423449754714966,
+            "max": 6.566677093505859,
+            "p95": 6.566677093505859
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.8009129762649536,
+            "min": 0.6761078834533691,
+            "max": 0.9257180690765381,
+            "p95": 0.9257180690765381
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 2.0,
+            "min": 2,
+            "max": 2,
+            "p95": 2
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 11.586131000512978,
+            "min": 6.434275000174239,
+            "max": 16.737987000851717,
+            "p95": 16.737987000851717
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 51.061358499464404,
+            "min": 50.460408999424544,
+            "max": 51.662307999504264,
+            "p95": 51.662307999504264
+          }
+        },
+        "idle": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 7.6849377791210465,
+            "min": 6.8566740144926595,
+            "max": 8.513201543749433,
+            "p95": 8.513201543749433
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 30.739751116484186,
+            "min": 27.426696057970638,
+            "max": 34.052806174997734,
+            "p95": 34.052806174997734
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 366.51171875,
+            "min": 359.53125,
+            "max": 373.4921875,
+            "p95": 373.4921875
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 95.107421875,
+            "min": 82.62109375,
+            "max": 107.59375,
+            "p95": 107.59375
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.736328125,
+            "min": 0.0,
+            "max": 1.47265625,
+            "p95": 1.47265625
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": null,
+          "tailFrameDelaySeconds": null,
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "inputP95Ms": null,
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 50.87278699984381,
+            "min": 50.82580299967958,
+            "max": 50.91977100000804,
+            "p95": 50.91977100000804
+          }
+        },
+        "reverse": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 7.553963475954521,
+            "min": 4.852618667317945,
+            "max": 10.255308284591097,
+            "p95": 10.255308284591097
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 30.215853903818083,
+            "min": 19.41047466927178,
+            "max": 41.02123313836439,
+            "p95": 41.02123313836439
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 346.677734375,
+            "min": 332.47265625,
+            "max": 360.8828125,
+            "p95": 360.8828125
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 81.392578125,
+            "min": 80.69140625,
+            "max": 82.09375,
+            "p95": 82.09375
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.259765625,
+            "min": 0.2578125,
+            "max": 0.26171875,
+            "p95": 0.26171875
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 1.0,
+            "min": 1,
+            "max": 1,
+            "p95": 1
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 5.335466504096985,
+            "min": 5.309762001037598,
+            "max": 5.361171007156372,
+            "p95": 5.361171007156372
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.8528380393981934,
+            "min": 0.8202590942382812,
+            "max": 0.8854169845581055,
+            "p95": 0.8854169845581055
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 2.0,
+            "min": 2,
+            "max": 2,
+            "p95": 2
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 17.583789500349667,
+            "min": 17.190485000355693,
+            "max": 17.97709400034364,
+            "p95": 17.97709400034364
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 67.11985200008712,
+            "min": 65.43207500017161,
+            "max": 68.80762900000263,
+            "p95": 68.80762900000263
+          }
+        },
+        "short": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 18.471015997459126,
+            "min": 4.169123725869107,
+            "max": 32.77290826904915,
+            "p95": 32.77290826904915
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 73.8840639898365,
+            "min": 16.676494903476428,
+            "max": 131.0916330761966,
+            "p95": 131.0916330761966
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 318.166015625,
+            "min": 267.0234375,
+            "max": 369.30859375,
+            "p95": 369.30859375
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 75.96875,
+            "min": 74.7578125,
+            "max": 77.1796875,
+            "p95": 77.1796875
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "p95": 0.0
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 2.20894455909729,
+            "min": 2.2076070308685303,
+            "max": 2.21028208732605,
+            "p95": 2.21028208732605
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.7603952884674072,
+            "min": 0.7084038257598877,
+            "max": 0.8123867511749268,
+            "p95": 0.8123867511749268
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 1.0,
+            "min": 1,
+            "max": 1,
+            "p95": 1
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 24.596419500085176,
+            "min": 18.00327199998719,
+            "max": 31.18956700018316,
+            "p95": 31.18956700018316
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 69.51148200068928,
+            "min": 50.410628000645374,
+            "max": 88.6123360007332,
+            "p95": 88.6123360007332
+          }
+        }
+      },
+      "workloadIncludingDrain": {
+        "sampleSeconds": 210.3475170135498,
+        "cpuSeconds": 186.301176,
+        "cpuPercentOneCore": 88.56827912449243,
+        "rssPeakMiB": 431.72265625
+      },
+      "textQueue": {
+        "peakPending": 4,
+        "oldestAgeSeconds": 15,
+        "captureDelayedSamples": 0,
+        "drain": {
+          "elapsedSeconds": 0.0011934999993172823,
+          "status": {
+            "state": {
+              "battery_pct": null,
+              "on_ac": true,
+              "thermal_state": "nominal",
+              "os_low_power": false
+            },
+            "active_profile": "performance",
+            "user_pref": "auto",
+            "audio_disabled": false,
+            "screenshot_disabled": false,
+            "capture_paused": false,
+            "pause_audio_on_low_battery": true,
+            "recording_detail": {
+              "preferred_mode": "auto",
+              "scroll_interval_ms": 5000,
+              "reason": "capture_cost",
+              "capture_delayed": false,
+              "last_success_age_ms": 5162,
+              "text_pending": 0,
+              "text_oldest_age_seconds": 0
+            }
+          }
+        },
+        "jobsRemaining": 0
+      },
+      "cpuCalibration": [
+        {
+          "kind": "calibration",
+          "clockCpuSeconds": 0.500034,
+          "rawDelta": 500041593,
+          "secondsPerUnit": 1e-09
+        }
+      ],
+      "policySamples": [
+        {
+          "intervalMs": 2000,
+          "reason": "preference",
+          "powerProfile": "performance",
+          "count": 95
+        },
+        {
+          "intervalMs": 5000,
+          "reason": "capture_cost",
+          "powerProfile": "performance",
+          "count": 177
+        }
+      ],
+      "firstInstallPower": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "auto",
+          "scroll_interval_ms": 2000,
+          "reason": "preference",
+          "capture_delayed": false,
+          "last_success_age_ms": null,
+          "text_pending": 0,
+          "text_oldest_age_seconds": 0
+        }
+      },
+      "controlledPower": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "auto",
+          "scroll_interval_ms": 2000,
+          "reason": "preference",
+          "capture_delayed": false,
+          "last_success_age_ms": null,
+          "text_pending": 0,
+          "text_oldest_age_seconds": 0
+        }
+      },
+      "storage": {
+        "fileBytes": 12967710,
+        "rows": {
+          "frames": 30,
+          "ui_events": 31,
+          "elements": 1428,
+          "frame_ocr_jobs": 0
+        }
+      },
+      "frameCount": 30,
+      "nonFixtureFrameCount": 0,
+      "uniqueSnapshotPaths": 30,
+      "completeness": {
+        "caseCount": 10,
+        "expectedCases": 10,
+        "hasCpu": true,
+        "hasAx": true,
+        "hasPolicy": true
+      }
+    },
+    "low_impact": {
+      "cases": [
+        {
+          "case": "idle",
+          "repetition": 0,
+          "activeSeconds": 15.025634050369263,
+          "inputReceived": 0,
+          "inputDispatchMs": null,
+          "heartbeatDelayMs": {
+            "n": 242,
+            "median": 14.680470999974201,
+            "min": 0,
+            "max": 61.77723499986314,
+            "p95": 51.86702400005743
+          },
+          "scrollOffsetRange": null,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": null,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null,
+          "cpuPercentOneCore": 37.059667307688805,
+          "rssPeakMiB": 365.9609375,
+          "footprintPeakMiB": 90.84375,
+          "diskWriteMiB": 0.0,
+          "cpuPercentMachineCapacity": 9.264916826922201
+        },
+        {
+          "case": "continuous",
+          "repetition": 0,
+          "activeSeconds": 30.109130859375,
+          "inputReceived": 384,
+          "inputDispatchMs": {
+            "n": 384,
+            "median": 3.044892000616528,
+            "min": 1.7108830006691278,
+            "max": 26.219276000119862,
+            "p95": 19.42888600024162
+          },
+          "heartbeatDelayMs": {
+            "n": 523,
+            "median": 11.525419999270522,
+            "min": 0,
+            "max": 77.10386900016601,
+            "p95": 59.58808699979272
+          },
+          "scrollOffsetRange": 4596,
+          "frames": 7,
+          "scrollFrames": 6,
+          "scrollFramesDuringInput": 5,
+          "maxScrollGapSeconds": 5.447320938110352,
+          "accessibilityFrames": 7,
+          "accessibilityChars": {
+            "n": 7,
+            "median": 1519,
+            "min": 37,
+            "max": 2545,
+            "p95": 2545
+          },
+          "accessibilityElements": {
+            "n": 7,
+            "median": 40,
+            "min": 1,
+            "max": 67,
+            "p95": 67
+          },
+          "scrollUiRows": 6,
+          "linkedScrollRows": 6,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.66709303855896,
+          "cpuPercentOneCore": 154.24094271837208,
+          "rssPeakMiB": 383.5234375,
+          "footprintPeakMiB": 92.8203125,
+          "diskWriteMiB": 1.5546875,
+          "cpuPercentMachineCapacity": 38.56023567959302
+        },
+        {
+          "case": "short",
+          "repetition": 0,
+          "activeSeconds": 2.2524991035461426,
+          "inputReceived": 25,
+          "inputDispatchMs": {
+            "n": 25,
+            "median": 2.6395830009278143,
+            "min": 1.8697300010899198,
+            "max": 18.508333000681887,
+            "p95": 17.40451400019083
+          },
+          "heartbeatDelayMs": {
+            "n": 38,
+            "median": 6.756107500405047,
+            "min": 0,
+            "max": 67.53133899946988,
+            "p95": 65.27804599973024
+          },
+          "scrollOffsetRange": 288,
+          "frames": 1,
+          "scrollFrames": 1,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 2.2524991035461426,
+          "accessibilityFrames": 1,
+          "accessibilityChars": {
+            "n": 1,
+            "median": 2127,
+            "min": 2127,
+            "max": 2127,
+            "p95": 2127
+          },
+          "accessibilityElements": {
+            "n": 1,
+            "median": 56,
+            "min": 56,
+            "max": 56,
+            "p95": 56
+          },
+          "scrollUiRows": 1,
+          "linkedScrollRows": 1,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.8452391624450684,
+          "cpuPercentOneCore": 3.9867765667298847,
+          "rssPeakMiB": 323.1328125,
+          "footprintPeakMiB": 68.33984375,
+          "diskWriteMiB": 0.0,
+          "cpuPercentMachineCapacity": 0.9966941416824712
+        },
+        {
+          "case": "reverse",
+          "repetition": 0,
+          "activeSeconds": 6.460434913635254,
+          "inputReceived": 78,
+          "inputDispatchMs": {
+            "n": 78,
+            "median": 2.655781500379817,
+            "min": 1.6955890005192487,
+            "max": 19.30382400041708,
+            "p95": 18.50244900015241
+          },
+          "heartbeatDelayMs": {
+            "n": 103,
+            "median": 8.275024999602461,
+            "min": 0,
+            "max": 67.97286300043197,
+            "p95": 66.89115599983779
+          },
+          "scrollOffsetRange": 480,
+          "frames": 2,
+          "scrollFrames": 2,
+          "scrollFramesDuringInput": 1,
+          "maxScrollGapSeconds": 5.303505897521973,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 1671.0,
+            "min": 1101,
+            "max": 2241,
+            "p95": 2241
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 44.0,
+            "min": 29,
+            "max": 59,
+            "p95": 59
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 2,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.7506430149078369,
+          "cpuPercentOneCore": 21.75464461794161,
+          "rssPeakMiB": 278.625,
+          "footprintPeakMiB": 90.828125,
+          "diskWriteMiB": 0.26171875,
+          "cpuPercentMachineCapacity": 5.438661154485403
+        },
+        {
+          "case": "focus",
+          "repetition": 0,
+          "activeSeconds": 6.530043840408325,
+          "inputReceived": 82,
+          "inputDispatchMs": {
+            "n": 82,
+            "median": 2.359658999921521,
+            "min": 1.774097000634356,
+            "max": 19.85791900096956,
+            "p95": 16.442045000076178
+          },
+          "heartbeatDelayMs": {
+            "n": 107,
+            "median": 6.685234999349629,
+            "min": 0,
+            "max": 68.43247899923881,
+            "p95": 51.10561800047435
+          },
+          "scrollOffsetRange": 14000,
+          "frames": 2,
+          "scrollFrames": 1,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 6.530043840408325,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 1823.0,
+            "min": 1557,
+            "max": 2089,
+            "p95": 2089
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 48.0,
+            "min": 41,
+            "max": 55,
+            "p95": 55
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 1,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.7966079711914062,
+          "cpuPercentOneCore": 5.380472427542273,
+          "rssPeakMiB": 319.2109375,
+          "footprintPeakMiB": 68.8984375,
+          "diskWriteMiB": 0.265625,
+          "cpuPercentMachineCapacity": 1.3451181068855682
+        },
+        {
+          "case": "idle",
+          "repetition": 1,
+          "activeSeconds": 15.024538278579712,
+          "inputReceived": 0,
+          "inputDispatchMs": null,
+          "heartbeatDelayMs": {
+            "n": 263,
+            "median": 5.055517000255347,
+            "min": 0,
+            "max": 55.13635000006616,
+            "p95": 50.893197000004875
+          },
+          "scrollOffsetRange": null,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": null,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null,
+          "cpuPercentOneCore": 16.525275371709178,
+          "rssPeakMiB": 364.66015625,
+          "footprintPeakMiB": 74.87890625,
+          "diskWriteMiB": 1.21484375,
+          "cpuPercentMachineCapacity": 4.1313188429272945
+        },
+        {
+          "case": "continuous",
+          "repetition": 1,
+          "activeSeconds": 30.143821001052856,
+          "inputReceived": 366,
+          "inputDispatchMs": {
+            "n": 366,
+            "median": 3.0978855002103955,
+            "min": 1.5747710003779503,
+            "max": 120.04363899995951,
+            "p95": 21.07159800016234
+          },
+          "heartbeatDelayMs": {
+            "n": 511,
+            "median": 5.271709999942684,
+            "min": 0,
+            "max": 91.86410600086674,
+            "p95": 62.77137599972775
+          },
+          "scrollOffsetRange": 4392,
+          "frames": 6,
+          "scrollFrames": 6,
+          "scrollFramesDuringInput": 5,
+          "maxScrollGapSeconds": 5.440978050231934,
+          "accessibilityFrames": 5,
+          "accessibilityChars": {
+            "n": 6,
+            "median": 1861.0,
+            "min": 0,
+            "max": 2887,
+            "p95": 2887
+          },
+          "accessibilityElements": {
+            "n": 6,
+            "median": 49.0,
+            "min": 0,
+            "max": 76,
+            "p95": 76
+          },
+          "scrollUiRows": 6,
+          "linkedScrollRows": 6,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.78135085105896,
+          "cpuPercentOneCore": 134.83139601025115,
+          "rssPeakMiB": 381.69140625,
+          "footprintPeakMiB": 109.0546875,
+          "diskWriteMiB": 1.296875,
+          "cpuPercentMachineCapacity": 33.70784900256279
+        },
+        {
+          "case": "short",
+          "repetition": 1,
+          "activeSeconds": 2.207426071166992,
+          "inputReceived": 29,
+          "inputDispatchMs": {
+            "n": 29,
+            "median": 2.4221370003942866,
+            "min": 1.784632000635611,
+            "max": 18.887506000282883,
+            "p95": 17.78464100061683
+          },
+          "heartbeatDelayMs": {
+            "n": 31,
+            "median": 25.076953999996473,
+            "min": 0,
+            "max": 69.34730499979196,
+            "p95": 53.89662200032035
+          },
+          "scrollOffsetRange": 336,
+          "frames": 1,
+          "scrollFrames": 1,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 2.207426071166992,
+          "accessibilityFrames": 1,
+          "accessibilityChars": {
+            "n": 1,
+            "median": 3153,
+            "min": 3153,
+            "max": 3153,
+            "p95": 3153
+          },
+          "accessibilityElements": {
+            "n": 1,
+            "median": 83,
+            "min": 83,
+            "max": 83,
+            "p95": 83
+          },
+          "scrollUiRows": 1,
+          "linkedScrollRows": 1,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.7324249744415283,
+          "cpuPercentOneCore": 3.6908650203178746,
+          "rssPeakMiB": 313.0,
+          "footprintPeakMiB": 70.87109375,
+          "diskWriteMiB": 0.0,
+          "cpuPercentMachineCapacity": 0.9227162550794686
+        },
+        {
+          "case": "reverse",
+          "repetition": 1,
+          "activeSeconds": 6.222532749176025,
+          "inputReceived": 78,
+          "inputDispatchMs": {
+            "n": 78,
+            "median": 2.714194499731093,
+            "min": 1.6884250007933588,
+            "max": 25.00701500048308,
+            "p95": 18.1884240000727
+          },
+          "heartbeatDelayMs": {
+            "n": 110,
+            "median": 8.093047000056682,
+            "min": 0,
+            "max": 60.19703100009792,
+            "p95": 50.69680900051026
+          },
+          "scrollOffsetRange": 480,
+          "frames": 2,
+          "scrollFrames": 2,
+          "scrollFramesDuringInput": 1,
+          "maxScrollGapSeconds": 5.532423973083496,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 2241.0,
+            "min": 2089,
+            "max": 2393,
+            "p95": 2393
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 59.0,
+            "min": 55,
+            "max": 63,
+            "p95": 63
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 2,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.8712201118469238,
+          "cpuPercentOneCore": 8.030322148544396,
+          "rssPeakMiB": 331.828125,
+          "footprintPeakMiB": 73.76953125,
+          "diskWriteMiB": 0.25390625,
+          "cpuPercentMachineCapacity": 2.007580537136099
+        },
+        {
+          "case": "focus",
+          "repetition": 1,
+          "activeSeconds": 6.323689937591553,
+          "inputReceived": 76,
+          "inputDispatchMs": {
+            "n": 76,
+            "median": 2.384228500432073,
+            "min": 1.823416000661382,
+            "max": 20.30741099952138,
+            "p95": 16.55036600004678
+          },
+          "heartbeatDelayMs": {
+            "n": 95,
+            "median": 17.586149999442565,
+            "min": 0,
+            "max": 69.93595700005244,
+            "p95": 55.31211300076393
+          },
+          "scrollOffsetRange": 14000,
+          "frames": 2,
+          "scrollFrames": 1,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": 6.323689937591553,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 1937.0,
+            "min": 1861,
+            "max": 2013,
+            "p95": 2013
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 51.0,
+            "min": 49,
+            "max": 53,
+            "p95": 53
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 1,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.7657361030578613,
+          "cpuPercentOneCore": 4.952901240362374,
+          "rssPeakMiB": 317.01953125,
+          "footprintPeakMiB": 70.3125,
+          "diskWriteMiB": 0.26171875,
+          "cpuPercentMachineCapacity": 1.2382253100905936
+        }
+      ],
+      "summary": {
+        "continuous": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 36.1340423410779,
+            "min": 33.70784900256279,
+            "max": 38.56023567959302,
+            "p95": 38.56023567959302
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 144.5361693643116,
+            "min": 134.83139601025115,
+            "max": 154.24094271837208,
+            "p95": 154.24094271837208
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 382.607421875,
+            "min": 381.69140625,
+            "max": 383.5234375,
+            "p95": 383.5234375
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 100.9375,
+            "min": 92.8203125,
+            "max": 109.0546875,
+            "p95": 109.0546875
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 1.42578125,
+            "min": 1.296875,
+            "max": 1.5546875,
+            "p95": 1.5546875
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 5.0,
+            "min": 5,
+            "max": 5,
+            "p95": 5
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 5.444149494171143,
+            "min": 5.440978050231934,
+            "max": 5.447320938110352,
+            "p95": 5.447320938110352
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.72422194480896,
+            "min": 0.66709303855896,
+            "max": 0.78135085105896,
+            "p95": 0.78135085105896
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 6.0,
+            "min": 5,
+            "max": 7,
+            "p95": 7
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 20.25024200020198,
+            "min": 19.42888600024162,
+            "max": 21.07159800016234,
+            "p95": 21.07159800016234
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 61.17973149976024,
+            "min": 59.58808699979272,
+            "max": 62.77137599972775,
+            "p95": 62.77137599972775
+          }
+        },
+        "focus": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 1.2916717084880809,
+            "min": 1.2382253100905936,
+            "max": 1.3451181068855682,
+            "p95": 1.3451181068855682
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 5.1666868339523235,
+            "min": 4.952901240362374,
+            "max": 5.380472427542273,
+            "p95": 5.380472427542273
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 318.115234375,
+            "min": 317.01953125,
+            "max": 319.2109375,
+            "p95": 319.2109375
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 69.60546875,
+            "min": 68.8984375,
+            "max": 70.3125,
+            "p95": 70.3125
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.263671875,
+            "min": 0.26171875,
+            "max": 0.265625,
+            "p95": 0.265625
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 6.426866888999939,
+            "min": 6.323689937591553,
+            "max": 6.530043840408325,
+            "p95": 6.530043840408325
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.7811720371246338,
+            "min": 0.7657361030578613,
+            "max": 0.7966079711914062,
+            "p95": 0.7966079711914062
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 2.0,
+            "min": 2,
+            "max": 2,
+            "p95": 2
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 16.49620550006148,
+            "min": 16.442045000076178,
+            "max": 16.55036600004678,
+            "p95": 16.55036600004678
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 53.20886550061914,
+            "min": 51.10561800047435,
+            "max": 55.31211300076393,
+            "p95": 55.31211300076393
+          }
+        },
+        "idle": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 6.698117834924748,
+            "min": 4.1313188429272945,
+            "max": 9.264916826922201,
+            "p95": 9.264916826922201
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 26.79247133969899,
+            "min": 16.525275371709178,
+            "max": 37.059667307688805,
+            "p95": 37.059667307688805
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 365.310546875,
+            "min": 364.66015625,
+            "max": 365.9609375,
+            "p95": 365.9609375
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 82.861328125,
+            "min": 74.87890625,
+            "max": 90.84375,
+            "p95": 90.84375
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.607421875,
+            "min": 0.0,
+            "max": 1.21484375,
+            "p95": 1.21484375
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": null,
+          "tailFrameDelaySeconds": null,
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "inputP95Ms": null,
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 51.38011050003115,
+            "min": 50.893197000004875,
+            "max": 51.86702400005743,
+            "p95": 51.86702400005743
+          }
+        },
+        "reverse": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 3.723120845810751,
+            "min": 2.007580537136099,
+            "max": 5.438661154485403,
+            "p95": 5.438661154485403
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 14.892483383243004,
+            "min": 8.030322148544396,
+            "max": 21.75464461794161,
+            "p95": 21.75464461794161
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 305.2265625,
+            "min": 278.625,
+            "max": 331.828125,
+            "p95": 331.828125
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 82.298828125,
+            "min": 73.76953125,
+            "max": 90.828125,
+            "p95": 90.828125
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.2578125,
+            "min": 0.25390625,
+            "max": 0.26171875,
+            "p95": 0.26171875
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 1.0,
+            "min": 1,
+            "max": 1,
+            "p95": 1
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 5.417964935302734,
+            "min": 5.303505897521973,
+            "max": 5.532423973083496,
+            "p95": 5.532423973083496
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.8109315633773804,
+            "min": 0.7506430149078369,
+            "max": 0.8712201118469238,
+            "p95": 0.8712201118469238
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 2.0,
+            "min": 2,
+            "max": 2,
+            "p95": 2
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 18.345436500112555,
+            "min": 18.1884240000727,
+            "max": 18.50244900015241,
+            "p95": 18.50244900015241
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 58.793982500174025,
+            "min": 50.69680900051026,
+            "max": 66.89115599983779,
+            "p95": 66.89115599983779
+          }
+        },
+        "short": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 0.9597051983809699,
+            "min": 0.9227162550794686,
+            "max": 0.9966941416824712,
+            "p95": 0.9966941416824712
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 3.8388207935238796,
+            "min": 3.6908650203178746,
+            "max": 3.9867765667298847,
+            "p95": 3.9867765667298847
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 318.06640625,
+            "min": 313.0,
+            "max": 323.1328125,
+            "p95": 323.1328125
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 69.60546875,
+            "min": 68.33984375,
+            "max": 70.87109375,
+            "p95": 70.87109375
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0,
+            "p95": 0.0
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 2.2299625873565674,
+            "min": 2.207426071166992,
+            "max": 2.2524991035461426,
+            "p95": 2.2524991035461426
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.7888320684432983,
+            "min": 0.7324249744415283,
+            "max": 0.8452391624450684,
+            "p95": 0.8452391624450684
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 1.0,
+            "min": 1,
+            "max": 1,
+            "p95": 1
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 17.59457750040383,
+            "min": 17.40451400019083,
+            "max": 17.78464100061683,
+            "p95": 17.78464100061683
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 59.587334000025294,
+            "min": 53.89662200032035,
+            "max": 65.27804599973024,
+            "p95": 65.27804599973024
+          }
+        }
+      },
+      "workloadIncludingDrain": {
+        "sampleSeconds": 209.81830596923828,
+        "cpuSeconds": 164.471393,
+        "cpuPercentOneCore": 78.38753260362007,
+        "rssPeakMiB": 422.796875
+      },
+      "textQueue": {
+        "peakPending": 2,
+        "oldestAgeSeconds": 6,
+        "captureDelayedSamples": 0,
+        "drain": {
+          "elapsedSeconds": 0.0011754910001400276,
+          "status": {
+            "state": {
+              "battery_pct": null,
+              "on_ac": true,
+              "thermal_state": "nominal",
+              "os_low_power": false
+            },
+            "active_profile": "performance",
+            "user_pref": "auto",
+            "audio_disabled": false,
+            "screenshot_disabled": false,
+            "capture_paused": false,
+            "pause_audio_on_low_battery": true,
+            "recording_detail": {
+              "preferred_mode": "low_impact",
+              "scroll_interval_ms": 5000,
+              "reason": "preference",
+              "capture_delayed": false,
+              "last_success_age_ms": 5207,
+              "text_pending": 0,
+              "text_oldest_age_seconds": 0
+            }
+          }
+        },
+        "jobsRemaining": 0
+      },
+      "cpuCalibration": [
+        {
+          "kind": "calibration",
+          "clockCpuSeconds": 0.500034,
+          "rawDelta": 500042927,
+          "secondsPerUnit": 1e-09
+        }
+      ],
+      "policySamples": [
+        {
+          "intervalMs": 5000,
+          "reason": "preference",
+          "powerProfile": "performance",
+          "count": 272
+        }
+      ],
+      "firstInstallPower": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "low_impact",
+          "scroll_interval_ms": 5000,
+          "reason": "preference",
+          "capture_delayed": false,
+          "last_success_age_ms": null,
+          "text_pending": 0,
+          "text_oldest_age_seconds": 0
+        }
+      },
+      "controlledPower": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "low_impact",
+          "scroll_interval_ms": 5000,
+          "reason": "preference",
+          "capture_delayed": false,
+          "last_success_age_ms": null,
+          "text_pending": 0,
+          "text_oldest_age_seconds": 0
+        }
+      },
+      "storage": {
+        "fileBytes": 12124984,
+        "rows": {
+          "frames": 28,
+          "ui_events": 28,
+          "elements": 1338,
+          "frame_ocr_jobs": 0
+        }
+      },
+      "frameCount": 28,
+      "nonFixtureFrameCount": 0,
+      "uniqueSnapshotPaths": 28,
+      "completeness": {
+        "caseCount": 10,
+        "expectedCases": 10,
+        "hasCpu": true,
+        "hasAx": true,
+        "hasPolicy": true
+      }
+    },
+    "more_detail": {
+      "cases": [
+        {
+          "case": "idle",
+          "repetition": 0,
+          "activeSeconds": 15.072845935821533,
+          "inputReceived": 0,
+          "inputDispatchMs": null,
+          "heartbeatDelayMs": {
+            "n": 241,
+            "median": 15.846816999510335,
+            "min": 0,
+            "max": 66.3037180003812,
+            "p95": 51.592045999495895
+          },
+          "scrollOffsetRange": null,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": null,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null,
+          "cpuPercentOneCore": 26.351939880736968,
+          "rssPeakMiB": 362.68359375,
+          "footprintPeakMiB": 110.50390625,
+          "diskWriteMiB": 0.0,
+          "cpuPercentMachineCapacity": 6.587984970184242
+        },
+        {
+          "case": "continuous",
+          "repetition": 0,
+          "activeSeconds": 30.183681964874268,
+          "inputReceived": 372,
+          "inputDispatchMs": {
+            "n": 372,
+            "median": 3.302368000277056,
+            "min": 1.7285599997194367,
+            "max": 90.33460799946624,
+            "p95": 27.4642810009027
+          },
+          "heartbeatDelayMs": {
+            "n": 521,
+            "median": 8.231330000126032,
+            "min": 0,
+            "max": 146.50911999997334,
+            "p95": 64.44800800018129
+          },
+          "scrollOffsetRange": 4440,
+          "frames": 29,
+          "scrollFrames": 29,
+          "scrollFramesDuringInput": 28,
+          "maxScrollGapSeconds": 1.2819030284881592,
+          "accessibilityFrames": 28,
+          "accessibilityChars": {
+            "n": 29,
+            "median": 1025,
+            "min": 0,
+            "max": 2013,
+            "p95": 1975
+          },
+          "accessibilityElements": {
+            "n": 29,
+            "median": 27,
+            "min": 0,
+            "max": 53,
+            "p95": 52
+          },
+          "scrollUiRows": 29,
+          "linkedScrollRows": 29,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.5508170127868652,
+          "cpuPercentOneCore": 157.76305330965636,
+          "rssPeakMiB": 384.62109375,
+          "footprintPeakMiB": 112.44140625,
+          "diskWriteMiB": 7.24609375,
+          "cpuPercentMachineCapacity": 39.44076332741409
+        },
+        {
+          "case": "short",
+          "repetition": 0,
+          "activeSeconds": 2.156370162963867,
+          "inputReceived": 26,
+          "inputDispatchMs": {
+            "n": 26,
+            "median": 2.632681000250159,
+            "min": 2.099319000080868,
+            "max": 35.20191900042846,
+            "p95": 21.605420999549096
+          },
+          "heartbeatDelayMs": {
+            "n": 36,
+            "median": 6.157599499783825,
+            "min": 0,
+            "max": 55.66876400025649,
+            "p95": 55.40214200045739
+          },
+          "scrollOffsetRange": 300,
+          "frames": 2,
+          "scrollFrames": 2,
+          "scrollFramesDuringInput": 1,
+          "maxScrollGapSeconds": 1.512458086013794,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 2241.0,
+            "min": 1823,
+            "max": 2659,
+            "p95": 2659
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 59.0,
+            "min": 48,
+            "max": 70,
+            "p95": 70
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 2,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.4309718608856201,
+          "cpuPercentOneCore": 145.80953105609547,
+          "rssPeakMiB": 362.6484375,
+          "footprintPeakMiB": 83.2421875,
+          "diskWriteMiB": 0.2578125,
+          "cpuPercentMachineCapacity": 36.45238276402387
+        },
+        {
+          "case": "reverse",
+          "repetition": 0,
+          "activeSeconds": 6.380701065063477,
+          "inputReceived": 78,
+          "inputDispatchMs": {
+            "n": 78,
+            "median": 3.0843525000818772,
+            "min": 1.9668290005938616,
+            "max": 23.90141400064749,
+            "p95": 18.71177599969087
+          },
+          "heartbeatDelayMs": {
+            "n": 113,
+            "median": 4.014938999898729,
+            "min": 0,
+            "max": 70.27532100000826,
+            "p95": 53.30348099978437
+          },
+          "scrollOffsetRange": 468,
+          "frames": 6,
+          "scrollFrames": 6,
+          "scrollFramesDuringInput": 5,
+          "maxScrollGapSeconds": 1.4186599254608154,
+          "accessibilityFrames": 6,
+          "accessibilityChars": {
+            "n": 6,
+            "median": 1557.0,
+            "min": 683,
+            "max": 2393,
+            "p95": 2393
+          },
+          "accessibilityElements": {
+            "n": 6,
+            "median": 41.0,
+            "min": 18,
+            "max": 63,
+            "p95": 63
+          },
+          "scrollUiRows": 6,
+          "linkedScrollRows": 6,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.5449409484863281,
+          "cpuPercentOneCore": 177.56831843977045,
+          "rssPeakMiB": 395.1484375,
+          "footprintPeakMiB": 109.015625,
+          "diskWriteMiB": 1.2890625,
+          "cpuPercentMachineCapacity": 44.39207960994261
+        },
+        {
+          "case": "focus",
+          "repetition": 0,
+          "activeSeconds": 6.333550930023193,
+          "inputReceived": 78,
+          "inputDispatchMs": {
+            "n": 78,
+            "median": 2.5874425004985824,
+            "min": 2.032239000982372,
+            "max": 63.503385000331036,
+            "p95": 19.82674900045822
+          },
+          "heartbeatDelayMs": {
+            "n": 108,
+            "median": 4.629491499781577,
+            "min": 0,
+            "max": 71.95345899999666,
+            "p95": 51.507558999401226
+          },
+          "scrollOffsetRange": 14000,
+          "frames": 6,
+          "scrollFrames": 5,
+          "scrollFramesDuringInput": 4,
+          "maxScrollGapSeconds": 2.071579933166504,
+          "accessibilityFrames": 6,
+          "accessibilityChars": {
+            "n": 6,
+            "median": 1405.0,
+            "min": 759,
+            "max": 1481,
+            "p95": 1481
+          },
+          "accessibilityElements": {
+            "n": 6,
+            "median": 37.0,
+            "min": 20,
+            "max": 39,
+            "p95": 39
+          },
+          "scrollUiRows": 6,
+          "linkedScrollRows": 5,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.470081090927124,
+          "cpuPercentOneCore": 181.0935661241925,
+          "rssPeakMiB": 374.484375,
+          "footprintPeakMiB": 86.6875,
+          "diskWriteMiB": 1.3046875,
+          "cpuPercentMachineCapacity": 45.27339153104813
+        },
+        {
+          "case": "idle",
+          "repetition": 1,
+          "activeSeconds": 15.000632047653198,
+          "inputReceived": 0,
+          "inputDispatchMs": null,
+          "heartbeatDelayMs": {
+            "n": 278,
+            "median": 3.019522999875332,
+            "min": 0,
+            "max": 73.54239899923414,
+            "p95": 50.429642000563035
+          },
+          "scrollOffsetRange": null,
+          "frames": 0,
+          "scrollFrames": 0,
+          "scrollFramesDuringInput": 0,
+          "maxScrollGapSeconds": null,
+          "accessibilityFrames": 0,
+          "accessibilityChars": null,
+          "accessibilityElements": null,
+          "scrollUiRows": 0,
+          "linkedScrollRows": 0,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": null,
+          "cpuPercentOneCore": 176.52633005769735,
+          "rssPeakMiB": 376.80078125,
+          "footprintPeakMiB": 91.3203125,
+          "diskWriteMiB": 6.1640625,
+          "cpuPercentMachineCapacity": 44.13158251442434
+        },
+        {
+          "case": "continuous",
+          "repetition": 1,
+          "activeSeconds": 30.26171374320984,
+          "inputReceived": 393,
+          "inputDispatchMs": {
+            "n": 393,
+            "median": 3.126183000858873,
+            "min": 1.8490889997337945,
+            "max": 52.96005900072487,
+            "p95": 20.22513500014611
+          },
+          "heartbeatDelayMs": {
+            "n": 534,
+            "median": 3.3969230000366197,
+            "min": 0,
+            "max": 76.8320240005778,
+            "p95": 56.48151300028985
+          },
+          "scrollOffsetRange": 4704,
+          "frames": 29,
+          "scrollFrames": 29,
+          "scrollFramesDuringInput": 28,
+          "maxScrollGapSeconds": 1.554560899734497,
+          "accessibilityFrames": 29,
+          "accessibilityChars": {
+            "n": 29,
+            "median": 1177,
+            "min": 151,
+            "max": 2089,
+            "p95": 2013
+          },
+          "accessibilityElements": {
+            "n": 29,
+            "median": 31,
+            "min": 4,
+            "max": 55,
+            "p95": 53
+          },
+          "scrollUiRows": 29,
+          "linkedScrollRows": 29,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.3559439182281494,
+          "cpuPercentOneCore": 178.3743874409709,
+          "rssPeakMiB": 397.45703125,
+          "footprintPeakMiB": 94.5,
+          "diskWriteMiB": 8.2578125,
+          "cpuPercentMachineCapacity": 44.59359686024273
+        },
+        {
+          "case": "short",
+          "repetition": 1,
+          "activeSeconds": 2.167206287384033,
+          "inputReceived": 25,
+          "inputDispatchMs": {
+            "n": 25,
+            "median": 3.067966000344313,
+            "min": 2.046768000582233,
+            "max": 19.977945999926305,
+            "p95": 19.060223000451515
+          },
+          "heartbeatDelayMs": {
+            "n": 38,
+            "median": 6.262593499923239,
+            "min": 0,
+            "max": 75.51518399959605,
+            "p95": 61.37590199996339
+          },
+          "scrollOffsetRange": 288,
+          "frames": 2,
+          "scrollFrames": 2,
+          "scrollFramesDuringInput": 1,
+          "maxScrollGapSeconds": 1.4261720180511475,
+          "accessibilityFrames": 2,
+          "accessibilityChars": {
+            "n": 2,
+            "median": 1956.0,
+            "min": 911,
+            "max": 3001,
+            "p95": 3001
+          },
+          "accessibilityElements": {
+            "n": 2,
+            "median": 51.5,
+            "min": 24,
+            "max": 79,
+            "p95": 79
+          },
+          "scrollUiRows": 2,
+          "linkedScrollRows": 2,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.5956230163574219,
+          "cpuPercentOneCore": 196.8946592321927,
+          "rssPeakMiB": 386.40625,
+          "footprintPeakMiB": 82.890625,
+          "diskWriteMiB": 0.26171875,
+          "cpuPercentMachineCapacity": 49.22366480804818
+        },
+        {
+          "case": "reverse",
+          "repetition": 1,
+          "activeSeconds": 6.447734117507935,
+          "inputReceived": 80,
+          "inputDispatchMs": {
+            "n": 80,
+            "median": 3.2359675001316646,
+            "min": 2.1440420005092165,
+            "max": 24.442631999590958,
+            "p95": 17.984092000915552
+          },
+          "heartbeatDelayMs": {
+            "n": 113,
+            "median": 3.0645409999124213,
+            "min": 0,
+            "max": 77.48633999945014,
+            "p95": 51.22843899989675
+          },
+          "scrollOffsetRange": 480,
+          "frames": 6,
+          "scrollFrames": 6,
+          "scrollFramesDuringInput": 5,
+          "maxScrollGapSeconds": 1.602851152420044,
+          "accessibilityFrames": 6,
+          "accessibilityChars": {
+            "n": 6,
+            "median": 987.0,
+            "min": 645,
+            "max": 2659,
+            "p95": 2659
+          },
+          "accessibilityElements": {
+            "n": 6,
+            "median": 26.0,
+            "min": 17,
+            "max": 70,
+            "p95": 70
+          },
+          "scrollUiRows": 6,
+          "linkedScrollRows": 6,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.43234896659851074,
+          "cpuPercentOneCore": 173.04683927767027,
+          "rssPeakMiB": 386.83203125,
+          "footprintPeakMiB": 84.13671875,
+          "diskWriteMiB": 1.29296875,
+          "cpuPercentMachineCapacity": 43.26170981941757
+        },
+        {
+          "case": "focus",
+          "repetition": 1,
+          "activeSeconds": 6.546626091003418,
+          "inputReceived": 70,
+          "inputDispatchMs": {
+            "n": 70,
+            "median": 2.8912575007780106,
+            "min": 1.9843319996653008,
+            "max": 29.994728000019677,
+            "p95": 11.51152100010222
+          },
+          "heartbeatDelayMs": {
+            "n": 106,
+            "median": 5.953994499759571,
+            "min": 0,
+            "max": 68.94165699959558,
+            "p95": 52.55910100022447
+          },
+          "scrollOffsetRange": 14000,
+          "frames": 6,
+          "scrollFrames": 5,
+          "scrollFramesDuringInput": 4,
+          "maxScrollGapSeconds": 2.3121018409729004,
+          "accessibilityFrames": 6,
+          "accessibilityChars": {
+            "n": 6,
+            "median": 1215.0,
+            "min": 949,
+            "max": 1709,
+            "p95": 1709
+          },
+          "accessibilityElements": {
+            "n": 6,
+            "median": 32.0,
+            "min": 25,
+            "max": 45,
+            "p95": 45
+          },
+          "scrollUiRows": 6,
+          "linkedScrollRows": 5,
+          "linkedTitleMismatchIds": [],
+          "tailFrameDelaySeconds": 0.44835996627807617,
+          "cpuPercentOneCore": 182.99171388924617,
+          "rssPeakMiB": 388.33984375,
+          "footprintPeakMiB": 108.546875,
+          "diskWriteMiB": 1.30078125,
+          "cpuPercentMachineCapacity": 45.74792847231154
+        }
+      ],
+      "summary": {
+        "continuous": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 42.01718009382841,
+            "min": 39.44076332741409,
+            "max": 44.59359686024273,
+            "p95": 44.59359686024273
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 168.06872037531363,
+            "min": 157.76305330965636,
+            "max": 178.3743874409709,
+            "p95": 178.3743874409709
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 391.0390625,
+            "min": 384.62109375,
+            "max": 397.45703125,
+            "p95": 397.45703125
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 103.470703125,
+            "min": 94.5,
+            "max": 112.44140625,
+            "p95": 112.44140625
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 7.751953125,
+            "min": 7.24609375,
+            "max": 8.2578125,
+            "p95": 8.2578125
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 28.0,
+            "min": 28,
+            "max": 28,
+            "p95": 28
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 1.4182319641113281,
+            "min": 1.2819030284881592,
+            "max": 1.554560899734497,
+            "p95": 1.554560899734497
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.4533804655075073,
+            "min": 0.3559439182281494,
+            "max": 0.5508170127868652,
+            "p95": 0.5508170127868652
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 28.5,
+            "min": 28,
+            "max": 29,
+            "p95": 29
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 23.844708000524406,
+            "min": 20.22513500014611,
+            "max": 27.4642810009027,
+            "p95": 27.4642810009027
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 60.46476050023557,
+            "min": 56.48151300028985,
+            "max": 64.44800800018129,
+            "p95": 64.44800800018129
+          }
+        },
+        "focus": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 45.51066000167984,
+            "min": 45.27339153104813,
+            "max": 45.74792847231154,
+            "p95": 45.74792847231154
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 182.04264000671935,
+            "min": 181.0935661241925,
+            "max": 182.99171388924617,
+            "p95": 182.99171388924617
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 381.412109375,
+            "min": 374.484375,
+            "max": 388.33984375,
+            "p95": 388.33984375
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 97.6171875,
+            "min": 86.6875,
+            "max": 108.546875,
+            "p95": 108.546875
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 1.302734375,
+            "min": 1.30078125,
+            "max": 1.3046875,
+            "p95": 1.3046875
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 4.0,
+            "min": 4,
+            "max": 4,
+            "p95": 4
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 2.191840887069702,
+            "min": 2.071579933166504,
+            "max": 2.3121018409729004,
+            "p95": 2.3121018409729004
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.4592205286026001,
+            "min": 0.44835996627807617,
+            "max": 0.470081090927124,
+            "p95": 0.470081090927124
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 6.0,
+            "min": 6,
+            "max": 6,
+            "p95": 6
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 15.669135000280221,
+            "min": 11.51152100010222,
+            "max": 19.82674900045822,
+            "p95": 19.82674900045822
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 52.03332999981285,
+            "min": 51.507558999401226,
+            "max": 52.55910100022447,
+            "p95": 52.55910100022447
+          }
+        },
+        "idle": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 25.35978374230429,
+            "min": 6.587984970184242,
+            "max": 44.13158251442434,
+            "p95": 44.13158251442434
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 101.43913496921716,
+            "min": 26.351939880736968,
+            "max": 176.52633005769735,
+            "p95": 176.52633005769735
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 369.7421875,
+            "min": 362.68359375,
+            "max": 376.80078125,
+            "p95": 376.80078125
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 100.912109375,
+            "min": 91.3203125,
+            "max": 110.50390625,
+            "p95": 110.50390625
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 3.08203125,
+            "min": 0.0,
+            "max": 6.1640625,
+            "p95": 6.1640625
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "maxScrollGapSeconds": null,
+          "tailFrameDelaySeconds": null,
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 0.0,
+            "min": 0,
+            "max": 0,
+            "p95": 0
+          },
+          "inputP95Ms": null,
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 51.010844000029465,
+            "min": 50.429642000563035,
+            "max": 51.592045999495895,
+            "p95": 51.592045999495895
+          }
+        },
+        "reverse": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 43.826894714680094,
+            "min": 43.26170981941757,
+            "max": 44.39207960994261,
+            "p95": 44.39207960994261
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 175.30757885872038,
+            "min": 173.04683927767027,
+            "max": 177.56831843977045,
+            "p95": 177.56831843977045
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 390.990234375,
+            "min": 386.83203125,
+            "max": 395.1484375,
+            "p95": 395.1484375
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 96.576171875,
+            "min": 84.13671875,
+            "max": 109.015625,
+            "p95": 109.015625
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 1.291015625,
+            "min": 1.2890625,
+            "max": 1.29296875,
+            "p95": 1.29296875
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 5.0,
+            "min": 5,
+            "max": 5,
+            "p95": 5
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 1.5107555389404297,
+            "min": 1.4186599254608154,
+            "max": 1.602851152420044,
+            "p95": 1.602851152420044
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.48864495754241943,
+            "min": 0.43234896659851074,
+            "max": 0.5449409484863281,
+            "p95": 0.5449409484863281
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 6.0,
+            "min": 6,
+            "max": 6,
+            "p95": 6
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 18.347934000303212,
+            "min": 17.984092000915552,
+            "max": 18.71177599969087,
+            "p95": 18.71177599969087
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 52.26595999984056,
+            "min": 51.22843899989675,
+            "max": 53.30348099978437,
+            "p95": 53.30348099978437
+          }
+        },
+        "short": {
+          "cpuPercentMachineCapacity": {
+            "n": 2,
+            "median": 42.83802378603602,
+            "min": 36.45238276402387,
+            "max": 49.22366480804818,
+            "p95": 49.22366480804818
+          },
+          "cpuPercentOneCore": {
+            "n": 2,
+            "median": 171.35209514414407,
+            "min": 145.80953105609547,
+            "max": 196.8946592321927,
+            "p95": 196.8946592321927
+          },
+          "rssPeakMiB": {
+            "n": 2,
+            "median": 374.52734375,
+            "min": 362.6484375,
+            "max": 386.40625,
+            "p95": 386.40625
+          },
+          "footprintPeakMiB": {
+            "n": 2,
+            "median": 83.06640625,
+            "min": 82.890625,
+            "max": 83.2421875,
+            "p95": 83.2421875
+          },
+          "diskWriteMiB": {
+            "n": 2,
+            "median": 0.259765625,
+            "min": 0.2578125,
+            "max": 0.26171875,
+            "p95": 0.26171875
+          },
+          "scrollFramesDuringInput": {
+            "n": 2,
+            "median": 1.0,
+            "min": 1,
+            "max": 1,
+            "p95": 1
+          },
+          "maxScrollGapSeconds": {
+            "n": 2,
+            "median": 1.4693150520324707,
+            "min": 1.4261720180511475,
+            "max": 1.512458086013794,
+            "p95": 1.512458086013794
+          },
+          "tailFrameDelaySeconds": {
+            "n": 2,
+            "median": 0.513297438621521,
+            "min": 0.4309718608856201,
+            "max": 0.5956230163574219,
+            "p95": 0.5956230163574219
+          },
+          "accessibilityFrames": {
+            "n": 2,
+            "median": 2.0,
+            "min": 2,
+            "max": 2,
+            "p95": 2
+          },
+          "inputP95Ms": {
+            "n": 2,
+            "median": 20.332822000000306,
+            "min": 19.060223000451515,
+            "max": 21.605420999549096,
+            "p95": 21.605420999549096
+          },
+          "heartbeatP95Ms": {
+            "n": 2,
+            "median": 58.38902200021039,
+            "min": 55.40214200045739,
+            "max": 61.37590199996339,
+            "p95": 61.37590199996339
+          }
+        }
+      },
+      "workloadIncludingDrain": {
+        "sampleSeconds": 331.74130392074585,
+        "cpuSeconds": 542.742029,
+        "cpuPercentOneCore": 163.60399582008728,
+        "rssPeakMiB": 433.71484375
+      },
+      "textQueue": {
+        "peakPending": 41,
+        "oldestAgeSeconds": 161,
+        "captureDelayedSamples": 2,
+        "drain": {
+          "elapsedSeconds": 120.86666638800034,
+          "status": {
+            "state": {
+              "battery_pct": null,
+              "on_ac": true,
+              "thermal_state": "nominal",
+              "os_low_power": false
+            },
+            "active_profile": "performance",
+            "user_pref": "auto",
+            "audio_disabled": false,
+            "screenshot_disabled": false,
+            "capture_paused": false,
+            "pause_audio_on_low_battery": true,
+            "recording_detail": {
+              "preferred_mode": "more_detail",
+              "scroll_interval_ms": 1000,
+              "reason": "preference",
+              "capture_delayed": false,
+              "last_success_age_ms": 5535,
+              "text_pending": 9,
+              "text_oldest_age_seconds": 157
+            }
+          }
+        },
+        "jobsRemaining": 9
+      },
+      "cpuCalibration": [
+        {
+          "kind": "calibration",
+          "clockCpuSeconds": 0.500019,
+          "rawDelta": 500025662,
+          "secondsPerUnit": 1e-09
+        }
+      ],
+      "policySamples": [
+        {
+          "intervalMs": 1000,
+          "reason": "preference",
+          "powerProfile": "performance",
+          "count": 391
+        }
+      ],
+      "firstInstallPower": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "more_detail",
+          "scroll_interval_ms": 1000,
+          "reason": "preference",
+          "capture_delayed": false,
+          "last_success_age_ms": null,
+          "text_pending": 0,
+          "text_oldest_age_seconds": 0
+        }
+      },
+      "controlledPower": {
+        "state": {
+          "battery_pct": null,
+          "on_ac": true,
+          "thermal_state": "nominal",
+          "os_low_power": false
+        },
+        "active_profile": "performance",
+        "user_pref": "auto",
+        "audio_disabled": false,
+        "screenshot_disabled": false,
+        "capture_paused": false,
+        "pause_audio_on_low_battery": true,
+        "recording_detail": {
+          "preferred_mode": "more_detail",
+          "scroll_interval_ms": 1000,
+          "reason": "preference",
+          "capture_delayed": false,
+          "last_success_age_ms": null,
+          "text_pending": 0,
+          "text_oldest_age_seconds": 0
+        }
+      },
+      "storage": {
+        "fileBytes": 37043655,
+        "rows": {
+          "frames": 93,
+          "ui_events": 92,
+          "elements": 2986,
+          "frame_ocr_jobs": 9
+        }
+      },
+      "frameCount": 93,
+      "nonFixtureFrameCount": 0,
+      "uniqueSnapshotPaths": 93,
+      "completeness": {
+        "caseCount": 10,
+        "expectedCases": 10,
+        "hasCpu": true,
+        "hasAx": true,
+        "hasPolicy": true
+      }
+    }
+  },
+  "logicalCpuCount": 4
+}
