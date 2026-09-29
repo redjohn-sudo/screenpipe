@@ -1,0 +1,438 @@
+[
+  {
+    "role": "Button",
+    "text": "Minimize",
+    "depth": 5,
+    "bounds": {
+      "left": 0.84765625,
+      "top": 0.014322917,
+      "width": 0.044921875,
+      "height": 0.05078125
+    },
+    "on_screen": true,
+    "automation_id": "view_2",
+    "class_name": "EdgeWindowsCaptionButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Maximize",
+    "depth": 5,
+    "bounds": {
+      "left": 0.8925781,
+      "top": 0.014322917,
+      "width": 0.044921875,
+      "height": 0.05078125
+    },
+    "on_screen": true,
+    "automation_id": "view_3",
+    "class_name": "EdgeWindowsCaptionButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Close",
+    "depth": 5,
+    "bounds": {
+      "left": 0.9375,
+      "top": 0.014322917,
+      "width": 0.044921875,
+      "height": 0.05078125
+    },
+    "on_screen": true,
+    "automation_id": "view_7",
+    "class_name": "EdgeWindowsCaptionButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Back",
+    "depth": 7,
+    "bounds": {
+      "left": 0.021484375,
+      "top": 0.0703125,
+      "width": 0.03125,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "automation_id": "view_1001",
+    "class_name": "BackForwardButton",
+    "role_description": "button",
+    "is_enabled": false,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": false
+  },
+  {
+    "role": "Button",
+    "text": "Refresh",
+    "depth": 7,
+    "bounds": {
+      "left": 0.056640625,
+      "top": 0.0703125,
+      "width": 0.03125,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "automation_id": "view_1003",
+    "class_name": "ReloadButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "File",
+    "depth": 8,
+    "bounds": {
+      "left": 0.095703125,
+      "top": 0.075520836,
+      "width": 0.049804688,
+      "height": 0.03125
+    },
+    "on_screen": true,
+    "automation_id": "view_1015",
+    "class_name": "LocationIconView",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Edit",
+    "text": "file:///benchmark/fixture-a.html",
+    "depth": 8,
+    "bounds": {
+      "left": 0.14550781,
+      "top": 0.075520836,
+      "width": 0.5996094,
+      "height": 0.03125
+    },
+    "on_screen": true,
+    "automation_id": "view_1017",
+    "class_name": "OmniboxViewViews",
+    "value": "file:///benchmark/fixture-a.html",
+    "help_text": "Search or enter web address",
+    "role_description": "edit",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true,
+    "accelerator_key": "Ctrl+L"
+  },
+  {
+    "role": "Button",
+    "text": "Add this page to favorites (Ctrl+D)",
+    "depth": 9,
+    "bounds": {
+      "left": 0.74902344,
+      "top": 0.075520836,
+      "width": 0.0234375,
+      "height": 0.03125
+    },
+    "on_screen": true,
+    "automation_id": "view_1006",
+    "class_name": "StarView",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Favorites",
+    "depth": 8,
+    "bounds": {
+      "left": 0.78027344,
+      "top": 0.0703125,
+      "width": 0.03125,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "automation_id": "view_1007",
+    "class_name": "HubToggleToolbarButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Profile 1 Profile, Please sign in",
+    "depth": 7,
+    "bounds": {
+      "left": 0.8154297,
+      "top": 0.0703125,
+      "width": 0.03125,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "automation_id": "view_1009",
+    "class_name": "EdgeAvatarToolbarButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Settings and more (Alt+F)",
+    "depth": 7,
+    "bounds": {
+      "left": 0.85058594,
+      "top": 0.0703125,
+      "width": 0.03125,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "automation_id": "view_1011",
+    "class_name": "BrowserAppMenuButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Chat",
+    "depth": 8,
+    "bounds": {
+      "left": 0.8857422,
+      "top": 0.0703125,
+      "width": 0.06933594,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "automation_id": "view_1078",
+    "class_name": "EdgeCopilotToolbarLabelButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Copilot menu",
+    "depth": 8,
+    "bounds": {
+      "left": 0.9550781,
+      "top": 0.0703125,
+      "width": 0.0234375,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "automation_id": "view_1095",
+    "class_name": "EdgeCopilotDropdownMenuButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Text",
+    "text": "For quick access, place your favorites here on the favorites bar.",
+    "depth": 6,
+    "bounds": {
+      "left": 0.20996094,
+      "top": 0.098958336,
+      "width": 0.37695312,
+      "height": 0.036458332
+    },
+    "on_screen": true,
+    "class_name": "Label",
+    "role_description": "text",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": false
+  },
+  {
+    "role": "Hyperlink",
+    "text": "Manage favorites now",
+    "depth": 6,
+    "bounds": {
+      "left": 0.5908203,
+      "top": 0.098958336,
+      "width": 0.119140625,
+      "height": 0.036458332
+    },
+    "on_screen": true,
+    "class_name": "Link",
+    "role_description": "link",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Document",
+    "text": "file:///benchmark/fixture-a.html",
+    "depth": 10,
+    "bounds": {
+      "left": 0.021484375,
+      "top": 0.1171875,
+      "width": 0.95703125,
+      "height": 0.7916667
+    },
+    "on_screen": true,
+    "automation_id": "RootWebArea",
+    "value": "file:///benchmark/fixture-a.html",
+    "role_description": "document",
+    "is_enabled": true,
+    "is_focused": true,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Text",
+    "text": "PR #7335 native Windows scroll benchmark \u2014 PAGE A \u2014",
+    "depth": 12,
+    "bounds": {
+      "left": 0.0390625,
+      "top": 0.140625,
+      "width": 0.6357422,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "role_description": "text",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": false
+  },
+  {
+    "role": "Text",
+    "text": "unlabeled",
+    "depth": 12,
+    "bounds": {
+      "left": 0.6738281,
+      "top": 0.140625,
+      "width": 0.11035156,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "role_description": "text",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": false
+  },
+  {
+    "role": "Hyperlink",
+    "text": "Navigate to Page B",
+    "depth": 12,
+    "bounds": {
+      "left": 0.0390625,
+      "top": 0.18229167,
+      "width": 0.19726562,
+      "height": 0.041666668
+    },
+    "on_screen": true,
+    "automation_id": "to-b",
+    "value": "file:///benchmark/fixture-a.html",
+    "role_description": "link",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Search tabs",
+    "depth": 6,
+    "bounds": {
+      "left": 0.021484375,
+      "top": 0.013020833,
+      "width": 0.03125,
+      "height": 0.046875
+    },
+    "on_screen": true,
+    "automation_id": "view_1052",
+    "class_name": "EdgeTabActionsMenuButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "TabItem",
+    "text": "ScrollBench Page A - Memory usage - 25.1 MB",
+    "depth": 8,
+    "bounds": {
+      "left": 0.048828125,
+      "top": 0.013020833,
+      "width": 0.25,
+      "height": 0.053385418
+    },
+    "on_screen": true,
+    "automation_id": "view_24",
+    "class_name": "EdgeTab",
+    "role_description": "tab item",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true
+  },
+  {
+    "role": "Button",
+    "text": "Close tab",
+    "depth": 9,
+    "bounds": {
+      "left": 0.26757812,
+      "top": 0.028645834,
+      "width": 0.015625,
+      "height": 0.020833334
+    },
+    "on_screen": true,
+    "automation_id": "view_27",
+    "class_name": "EdgeTabCloseButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true,
+    "accelerator_key": "Ctrl+W"
+  },
+  {
+    "role": "Button",
+    "text": "New Tab",
+    "depth": 6,
+    "bounds": {
+      "left": 0.29492188,
+      "top": 0.013020833,
+      "width": 0.03125,
+      "height": 0.053385418
+    },
+    "on_screen": true,
+    "automation_id": "view_28",
+    "class_name": "EdgeNewTabButton",
+    "role_description": "button",
+    "is_enabled": true,
+    "is_focused": false,
+    "is_password": false,
+    "is_keyboard_focusable": true,
+    "accelerator_key": "Ctrl+T"
+  }
+]

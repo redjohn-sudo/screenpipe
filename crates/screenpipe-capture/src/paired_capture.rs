@@ -1109,12 +1109,47 @@ fn a11y_content_is_thin(
         "AXIncrementor",
         "AXComboBox",
         "AXScrollBar",
+        // Windows UI Automation role names.
+        "Button",
+        "MenuItem",
+        "MenuBar",
+        "Menu",
+        "ToolBar",
+        "Tab",
+        "TabItem",
+        "ComboBox",
+        "CheckBox",
+        "RadioButton",
+        "Slider",
+        "Spinner",
+        "ScrollBar",
+        "SplitButton",
     ];
+
+    // UIA exposes browser controls and the address as text nodes alongside
+    // RootWebArea. When that document root exists, assess its descendants only.
+    // Its own value is the URL, not evidence that the page body was captured.
+    let has_web_document = snap.nodes.iter().any(|node| {
+        node.role == "Document" && node.automation_id.as_deref() == Some("RootWebArea")
+    });
+    let mut document_depth = None;
 
     let mut content_chars: usize = 0;
     let mut total_chars: usize = 0;
 
     for node in &snap.nodes {
+        if has_web_document {
+            if node.role == "Document" && node.automation_id.as_deref() == Some("RootWebArea") {
+                document_depth = Some(node.depth);
+                continue;
+            }
+            if document_depth.is_some_and(|depth| node.depth <= depth) {
+                document_depth = None;
+            }
+            if document_depth.is_none() {
+                continue;
+            }
+        }
         // A long off-screen prefix is not evidence that the viewport was read.
         // Unknown geometry in a truncated walk cannot establish coverage either.
         if node.on_screen == Some(false) || (snap.truncated && node.on_screen != Some(true)) {
@@ -2030,6 +2065,48 @@ mod tests {
 
     /// Content-dense snapshot: enough real text that the generic density
     /// heuristic does NOT flag it as thin.
+    #[test]
+    fn windows_browser_chrome_cannot_stand_in_for_page_content() {
+        // Sanitized native VM frame: Edge exposed its controls, URL and page
+        // header while the screenshot already contained two body rows.
+        let nodes = serde_json::from_str(include_str!(
+            "../tests/data/windows-browser-chrome-only.json"
+        ))
+        .unwrap();
+        let mut snap = make_snap(nodes);
+        assert!(a11y_content_is_thin(
+            &snap,
+            Some("ScrollBench Page A"),
+            None
+        ));
+        let root = snap
+            .nodes
+            .iter()
+            .position(|n| n.automation_id.as_deref() == Some("RootWebArea"))
+            .unwrap();
+        snap.nodes.insert(
+            root + 1,
+            AccessibilityTreeNode {
+                role: "Text".into(),
+                text: "The visible document has substantive body content. ".repeat(5),
+                depth: snap.nodes[root].depth + 1,
+                on_screen: Some(true),
+                ..Default::default()
+            },
+        );
+        assert!(!a11y_content_is_thin(
+            &snap,
+            Some("ScrollBench Page A"),
+            None
+        ));
+        snap.nodes[root + 1].on_screen = Some(false);
+        assert!(a11y_content_is_thin(
+            &snap,
+            Some("ScrollBench Page A"),
+            None
+        ));
+    }
+
     #[test]
     fn offscreen_prefix_does_not_suppress_visible_ocr_fallback() {
         let mut snap = rich_meeting_snap();
