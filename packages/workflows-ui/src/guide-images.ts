@@ -1,0 +1,36 @@
+// screenpipe — AI that knows everything you've seen, said, or heard
+// https://screenpipe.com
+import { guideHtml, guideImage, guideSourceImage, type WorkflowGuide } from "./guide";
+import type { WorkflowMap } from "./model";
+import type { WorkflowsPlatform } from "./platform";
+
+/** Only an explicit image export copies recorder pixels into the exported document. */
+export async function exportGuideHtml(guide: WorkflowGuide, workflow: WorkflowMap, images: boolean,
+  load?: WorkflowsPlatform["loadWorkflowScreenshot"]): Promise<string> {
+  if (!images || !load || guide.sourceRevision !== (workflow.revision ?? 0)) return guideHtml(guide, workflow, images);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 60_000);
+  const stages = workflow.stages.map(stage => ({ ...stage }));
+  try {
+    const indices = new Set(guide.steps.filter(step => step.includeImage && step.sourceStage !== null
+      && guideImage(workflow, step.sourceStage, step.imageReview) !== null).map(step => step.sourceStage!));
+    for (const index of indices) {
+      const source = guideSourceImage(workflow, index);
+      if (!source) continue;
+      const image = await load(source.timestamp, source.app, controller.signal, source.frameId);
+      if (!image) throw new Error("A selected screenshot is no longer available. Remove it or export without screenshots.");
+      try {
+        const blob = await (await fetch(image.dataUrl, { signal: controller.signal })).blob();
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(blob);
+        });
+        const capture = { ...source, dataUrl };
+        stages[index] = { ...stages[index], screenshot: capture, screenshots: [capture] };
+      } finally { if (image.dataUrl.startsWith("blob:")) URL.revokeObjectURL(image.dataUrl); }
+    }
+    return guideHtml(guide, { ...workflow, stages }, true);
+  } finally { clearTimeout(timeout); controller.abort(); }
+}

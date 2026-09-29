@@ -135,7 +135,7 @@ export function guideSourceImage(
   const image =
     sourceStage === null ? null : workflow.stages[sourceStage] ? stageScreenshots(workflow.stages[sourceStage])[0] : null;
   return image &&
-    /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(image.dataUrl)
+    (!image.dataUrl || /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(image.dataUrl))
     ? image
     : null;
 }

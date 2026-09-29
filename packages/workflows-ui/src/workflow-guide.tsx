@@ -18,11 +18,11 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { useSourceScreenshot } from "./use-source-screenshot";
+import { exportGuideHtml } from "./guide-images";
 import type { WorkflowMap } from "./model";
 import type { WorkflowsPlatform } from "./platform";
 import {
-  guideHtml,
-  guideImage,
   guideSourceImage,
   type WorkflowGuide as Guide,
 } from "./guide";
@@ -37,10 +37,12 @@ export function WorkflowGuide({
   workflow,
   platform,
   close,
+  loadScreenshot,
 }: {
   workflow: WorkflowMap;
   platform: NonNullable<WorkflowsPlatform["guides"]>;
   close: () => void;
+  loadScreenshot?: WorkflowsPlatform["loadWorkflowScreenshot"];
 }) {
   const ui = useGT();
   const [promptRequest, setPromptRequest] = useState<{
@@ -398,10 +400,6 @@ export function WorkflowGuide({
             )}
             <div className={styles.steps}>
               {draft.steps.map((step, i) => {
-                const image =
-                  !stale && step.includeImage
-                    ? guideImage(workflow, step.sourceStage, step.imageReview)
-                    : null;
                 const source = !stale
                   ? guideSourceImage(workflow, step.sourceStage)
                   : null;
@@ -547,32 +545,12 @@ export function WorkflowGuide({
                           changeStep(i, { instruction })
                         }
                       />
-                      {image ? (
-                        <figure>
-                          <img
-                            src={image}
-                            alt={ui("Source for {value1}", {
-                              value1: step.title,
-                            })}
-                            draggable={false}
-                          />
-                          <button
-                            onClick={() =>
-                              update({
-                                ...draft,
-                                steps: draft.steps.map((s, j) =>
-                                  j === i ? { ...s, includeImage: false } : s,
-                                ),
-                              })
-                            }
-                          >
-                            <ImageOff size={14} />
-                            Remove screenshot
-                          </button>
-                        </figure>
-                      ) : source ? (
+                      {source ? (
                         <ScreenshotReview
-                          key={`${step.sourceStage}:${source.dataUrl}`}
+                          key={`${step.sourceStage}:${source.frameId}:${source.timestamp}`}
+                          load={loadScreenshot}
+                          included={step.includeImage && !!(source.visualVerified || (step.imageReview?.frameId === source.frameId && step.imageReview.timestamp === source.timestamp))}
+                          remove={() => changeStep(i, { includeImage: false })}
                           source={source}
                           title={step.title}
                           include={() => {
@@ -703,7 +681,7 @@ export function WorkflowGuide({
             try {
               if (
                 await platform.export(
-                  guideHtml(draft, workflow, images),
+                  await exportGuideHtml(draft, workflow, images, loadScreenshot),
                   draft.title,
                 )
               )
@@ -725,54 +703,36 @@ export function WorkflowGuide({
   );
 }
 
-function ScreenshotReview({
-  source,
-  title,
-  include,
-}: {
+function ScreenshotReview({ source, title, include, included, remove, load }: {
   source: NonNullable<ReturnType<typeof guideSourceImage>>;
-  title: string;
-  include: () => void;
+  title: string; include: () => void; included: boolean; remove: () => void;
+  load?: WorkflowsPlatform["loadWorkflowScreenshot"];
 }) {
   const ui = useGT();
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  return (
-    <div className={styles.imageReview}>
+  const [imageHeight, setImageHeight] = useState(0);
+  const shown = included || open;
+  const preview = useSourceScreenshot({ evidence: [] }, !load || !shown, load, source);
+  const url = load ? preview.image?.dataUrl : source.dataUrl;
+  useEffect(() => { setLoaded(false); setFailed(false); }, [url]);
+  return <div ref={preview.ref as React.RefObject<HTMLDivElement>} className={styles.imageReview}>
+    {!included && <div className={styles.imageReviewHeader}>
+      <span>Saved screenshot available</span>
+      <button aria-expanded={open} onClick={() => setOpen(!open)}>{open ? ui("Hide screenshot") : ui("Review screenshot")}</button>
+    </div>}
+    {shown && <>
+      <div style={!url && preview.status === "loading" ? { minHeight: imageHeight } : undefined}>{url && <img src={url} alt={ui(included ? "Source for {value1}" : "Review source for {value1}", { value1: title })} draggable={false}
+        onLoad={event => { setImageHeight(event.currentTarget.getBoundingClientRect().height); setLoaded(true); setFailed(false); }} onError={() => { setFailed(true); setLoaded(false); }} />}</div>
       <div className={styles.imageReviewHeader}>
-        <span>Saved screenshot available</span>
-        <button aria-expanded={open} onClick={() => setOpen(!open)}>
-          {open ? ui("Hide screenshot") : ui("Review screenshot")}
-        </button>
+        <span>{failed || (load && preview.status === "error") ? ui("This screenshot could not be loaded.")
+          : load && preview.status === "unavailable" ? ui("This screenshot is no longer available.")
+          : !url ? ui("Loading source screenshot…") : !included ? ui("Does this image show the step clearly?") : ""}</span>
+        {load && (failed || preview.status === "error") && <button onClick={preview.retry}>Retry screenshot</button>}
+        {included ? <button onClick={remove}><ImageOff size={14} />Remove screenshot</button>
+          : <button disabled={!loaded || failed} onClick={include}>Include screenshot</button>}
       </div>
-      {open && (
-        <>
-          <img
-            src={source.dataUrl}
-            alt={ui("Review source for {value1}", { value1: title })}
-            draggable={false}
-            onLoad={() => {
-              setLoaded(true);
-              setFailed(false);
-            }}
-            onError={() => {
-              setFailed(true);
-              setLoaded(false);
-            }}
-          />
-          <div className={styles.imageReviewHeader}>
-            <span>
-              {failed
-                ? ui("This screenshot could not be loaded.")
-                : ui("Does this image show the step clearly?")}
-            </span>
-            <button disabled={!loaded || failed} onClick={include}>
-              Include screenshot
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
+    </>}
+  </div>;
 }

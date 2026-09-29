@@ -27,3 +27,5 @@ export * from "./confidential-verification";
 export * from "./workflow-edits";
 
 export * from "./questionnaire-voice";
+
+export { serializeWorkflowData } from "./screenshots";
