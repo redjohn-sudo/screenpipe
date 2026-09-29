@@ -11,7 +11,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 pub fn spawn(
@@ -23,6 +23,7 @@ pub fn spawn(
 ) {
     tokio::spawn(async move {
         let mut processor = DeferredOcrProcessor::default();
+        let mut last_work: Option<(Instant, Duration)> = None;
         while !stop.load(Ordering::Relaxed) {
             match db.deferred_ocr_status().await {
                 Ok(status) => detail.observe_text_queue(
@@ -40,8 +41,17 @@ pub fn spawn(
                 tokio::time::sleep(Duration::from_millis(500)).await;
                 continue;
             }
+            // Re-evaluate the budget while resting so battery/detail changes
+            // take effect without holding a native OCR permit or DB transaction.
+            if last_work.is_some_and(|(finished, cost)| {
+                finished.elapsed() < detail.text_processing_rest(cost)
+            }) {
+                tokio::time::sleep(Duration::from_millis(500)).await;
+                continue;
+            }
             match db.next_frame_ocr_job().await {
                 Ok(Some(job)) => {
+                    let started = Instant::now();
                     let processing = processor.process(&db, &job);
                     tokio::pin!(processing);
                     let result = loop {
@@ -55,6 +65,7 @@ pub fn spawn(
                             }
                         }
                     };
+                    last_work = Some((Instant::now(), started.elapsed()));
                     if let Ok(Some(ref text)) = result {
                         if let (Some(cache), Some(timestamp)) = (&cache, job.captured_at) {
                             cache.update_frame_text(timestamp, job.frame_id, text).await;

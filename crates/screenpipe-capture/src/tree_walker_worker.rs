@@ -937,11 +937,15 @@ mod tests {
         let config = TreeWalkerConfig::default();
         let worker =
             TreeWalkerWorker::spawn_with_factory("slow-yield", config.clone(), factory).unwrap();
-        worker
-            .walk_with_timeout(config, Duration::from_millis(100))
+        // This test measures spacing between native calls, not scheduler
+        // latency. A tight request deadline can retire the worker on a busy
+        // runner before its continuation is scheduled.
+        let outcome = worker
+            .walk_with_timeout(config, Duration::from_secs(5))
             .await
             .unwrap();
-        tokio::time::timeout(Duration::from_secs(1), async {
+        assert!(matches!(outcome, TreeWalkerWorkerOutcome::Completed(_)));
+        tokio::time::timeout(Duration::from_secs(5), async {
             while !worker.take_background_ready() {
                 tokio::time::sleep(Duration::from_millis(5)).await;
             }

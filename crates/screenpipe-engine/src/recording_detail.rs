@@ -114,20 +114,30 @@ impl RecordingDetailController {
         }
     }
 
-    /// Background OCR never blocks saving pixels. Auto slows optional scroll
-    /// sampling while processing is behind; fixed user preferences stay fixed.
+    /// Indexing status is informational. Processing backlog must not reduce
+    /// recording cadence; the OCR worker budgets its own background work.
     pub fn observe_text_queue(&self, pending: u64, oldest_age_seconds: u64) {
         let mut state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
         state.text_pending = pending;
         state.text_oldest_age_seconds = oldest_age_seconds;
-        if self.mode == RecordingDetail::Auto && pending > 0 && oldest_age_seconds >= 5 {
-            state.cost_interval = 5_000;
-            state.fast = 0;
-            self.interval.store(
-                state.cost_interval.max(state.power_floor),
-                Ordering::Relaxed,
-            );
-        }
+    }
+
+    /// Rest between serial OCR jobs. This bounds worker busy time rather than
+    /// promising a CPU percentage: native OCR may use several cores at once.
+    /// Battery profiles can reduce background work without changing image quality.
+    pub fn text_processing_rest(&self, work: Duration) -> Duration {
+        let state = self.adaptive.lock().unwrap_or_else(|p| p.into_inner());
+        let preference = match self.mode {
+            RecordingDetail::MoreDetail => 1, // at most half the worker's time
+            RecordingDetail::LowImpact => 9,  // at most one tenth
+            _ => 3,                           // at most one quarter
+        };
+        let power = match state.power_floor {
+            0..=1_000 => 1,
+            1_001..=2_000 => 3,
+            _ => 9,
+        };
+        work.saturating_mul(preference.max(power))
     }
 
     /// Track actual capture work, not idle time, pauses or privacy exclusions.
@@ -185,7 +195,7 @@ impl RecordingDetailController {
                 };
                 state.slow = 0;
             }
-        } else if elapsed < Duration::from_millis(250) && state.text_pending == 0 {
+        } else if elapsed < Duration::from_millis(250) {
             state.slow = 0;
             state.fast += 1;
             if state.fast >= 10 {
@@ -231,19 +241,54 @@ mod tests {
     }
 
     #[test]
-    fn pending_text_prevents_false_fast_capture_recovery() {
-        let c = RecordingDetailController::new(RecordingDetail::Auto);
-        c.observe_text_queue(3, 10);
-        assert_eq!(interval(&c), 5_000);
-        samples(&c, 50, 10);
-        assert_eq!(interval(&c), 5_000);
-        assert_eq!(c.status().text_pending, 3);
-        c.observe_text_queue(0, 0);
-        samples(&c, 10, 10);
-        assert_eq!(interval(&c), 2_000);
-        let fixed = RecordingDetailController::new(RecordingDetail::MoreDetail);
-        fixed.observe_text_queue(100, 100);
-        assert_eq!(interval(&fixed), 1_000);
+    fn text_backlog_does_not_reduce_recording_or_block_capture_recovery() {
+        for mode in [
+            RecordingDetail::Auto,
+            RecordingDetail::LowImpact,
+            RecordingDetail::MoreDetail,
+        ] {
+            let c = RecordingDetailController::new(mode);
+            let original = interval(&c);
+            c.observe_text_queue(10_000, 3_600);
+            assert_eq!(interval(&c), original);
+            assert_eq!(c.status().text_pending, 10_000);
+            if mode == RecordingDetail::Auto {
+                c.observe_failure();
+                assert_eq!(interval(&c), 5_000);
+                samples(&c, 20, 10);
+                assert_eq!(interval(&c), 1_000);
+            }
+            c.observe_text_queue(0, 0);
+            assert_eq!(c.status().text_pending, 0);
+        }
+    }
+
+    #[test]
+    fn text_worker_budget_honors_detail_and_battery_without_changing_cadence() {
+        for (mode, rest_ms) in [
+            (RecordingDetail::Auto, 300),
+            (RecordingDetail::Balanced, 300),
+            (RecordingDetail::MoreDetail, 100),
+            (RecordingDetail::LowImpact, 900),
+        ] {
+            let c = RecordingDetailController::new(mode);
+            let cadence = interval(&c);
+            assert_eq!(
+                c.text_processing_rest(Duration::from_millis(100)),
+                Duration::from_millis(rest_ms)
+            );
+            assert_eq!(interval(&c), cadence);
+            c.set_power_profile(ProfileName::Saver);
+            assert_eq!(
+                c.text_processing_rest(Duration::from_millis(100)),
+                Duration::from_millis(900)
+            );
+            c.set_power_profile(ProfileName::Performance);
+            assert_eq!(
+                c.text_processing_rest(Duration::from_millis(100)),
+                Duration::from_millis(rest_ms)
+            );
+        }
     }
 
     #[test]

@@ -24,11 +24,37 @@ pub(crate) struct OcrOptions {
     pub crop: Option<[f64; 4]>,
 }
 
-/// One worker owns this cache. Reuse requires byte-identical saved pixels and
-/// options; changed scroll content never inherits a preceding frame's OCR.
+/// A single cached OCR input, compared byte for byte after decoding and window
+/// cropping. Changes outside the recorded window do not invalidate its text.
+/// Coordinates remain crop-relative until they are attached to each frame.
 #[derive(Default)]
 pub struct DeferredOcrProcessor {
-    cached: Option<(Vec<u8>, String, String, String)>,
+    cached: Option<CachedOcr>,
+}
+
+struct CachedOcr {
+    image: Arc<image::DynamicImage>,
+    languages: Vec<String>,
+    remove_pii: bool,
+    text: String,
+    json: String,
+}
+
+struct PreparedImage {
+    input: Arc<image::DynamicImage>,
+    crop: Option<TextRegion>,
+    width: u32,
+    height: u32,
+}
+
+impl CachedOcr {
+    fn matches(&self, image: &image::DynamicImage, options: &OcrOptions) -> bool {
+        self.languages == options.languages
+            && self.remove_pii == options.remove_pii
+            && self.image.width() == image.width()
+            && self.image.height() == image.height()
+            && self.image.as_bytes() == image.as_bytes()
+    }
 }
 
 impl DeferredOcrProcessor {
@@ -47,45 +73,70 @@ impl DeferredOcrProcessor {
         }
         let options: OcrOptions = serde_json::from_str(&job.options_json)?;
         let bytes = tokio::fs::read(&job.snapshot_path).await?;
-        let (text, json) = if let Some((pixels, opts, text, json)) = &self.cached {
-            if pixels == &bytes && opts == &job.options_json {
-                (text.clone(), json.clone())
-            } else {
-                Self::recognize(bytes.clone(), &options).await?
+        let prepared = Self::prepare(bytes, options.crop).await?;
+        let (text, crop_json) = match &self.cached {
+            Some(cached) if cached.matches(&prepared.input, &options) => {
+                (cached.text.clone(), cached.json.clone())
             }
-        } else {
-            Self::recognize(bytes.clone(), &options).await?
+            _ => Self::recognize(prepared.input.clone(), &options).await?,
+        };
+        let json = match prepared.crop {
+            Some(crop) => {
+                remap_ocr_json_to_frame(&crop_json, crop, prepared.width, prepared.height)
+            }
+            None => crop_json.clone(),
         };
         let combined = persist_result(db, job, &options, &text, &json).await?;
-        self.cached = Some((bytes, job.options_json.clone(), text, json));
+        self.cached = Some(CachedOcr {
+            image: prepared.input,
+            languages: options.languages,
+            remove_pii: options.remove_pii,
+            text,
+            json: crop_json,
+        });
         Ok(combined)
     }
 
-    async fn recognize(bytes: Vec<u8>, options: &OcrOptions) -> Result<(String, String)> {
-        let image = tokio::task::spawn_blocking(move || image::load_from_memory(&bytes)).await??;
-        let (width, height) = (image.width(), image.height());
-        let crop = options.crop.and_then(|[x, y, w, h]| {
-            if [x, y, w, h]
-                .iter()
-                .any(|v| !v.is_finite() || *v < 0.0 || *v > 1.0)
-            {
-                return None;
-            }
-            let x = (x * width as f64).floor() as u32;
-            let y = (y * height as f64).floor() as u32;
-            let w = ((w * width as f64).ceil() as u32).min(width.saturating_sub(x));
-            let h = ((h * height as f64).ceil() as u32).min(height.saturating_sub(y));
-            (w > 0 && h > 0).then_some(TextRegion {
-                x,
-                y,
-                width: w,
-                height: h,
+    async fn prepare(bytes: Vec<u8>, crop: Option<[f64; 4]>) -> Result<PreparedImage> {
+        tokio::task::spawn_blocking(move || -> Result<_> {
+            let image = image::load_from_memory(&bytes)?;
+            let (width, height) = (image.width(), image.height());
+            let crop = crop.and_then(|[x, y, w, h]| {
+                if [x, y, w, h]
+                    .iter()
+                    .any(|v| !v.is_finite() || *v < 0.0 || *v > 1.0)
+                {
+                    return None;
+                }
+                let x = (x * width as f64).floor() as u32;
+                let y = (y * height as f64).floor() as u32;
+                let w = ((w * width as f64).ceil() as u32).min(width.saturating_sub(x));
+                let h = ((h * height as f64).ceil() as u32).min(height.saturating_sub(y));
+                (w > 0 && h > 0).then_some(TextRegion {
+                    x,
+                    y,
+                    width: w,
+                    height: h,
+                })
+            });
+            let input = match crop {
+                Some(r) => image.crop_imm(r.x, r.y, r.width, r.height),
+                None => image,
+            };
+            Ok(PreparedImage {
+                input: Arc::new(image::DynamicImage::ImageRgb8(input.into_rgb8())),
+                crop,
+                width,
+                height,
             })
-        });
-        let input = match crop {
-            Some(r) => image.crop_imm(r.x, r.y, r.width, r.height),
-            None => image,
-        };
+        })
+        .await?
+    }
+
+    async fn recognize(
+        input: Arc<image::DynamicImage>,
+        options: &OcrOptions,
+    ) -> Result<(String, String)> {
         let languages: Vec<Language> = options
             .languages
             .iter()
@@ -111,10 +162,6 @@ impl DeferredOcrProcessor {
             })
             .await
             .context("native OCR task failed")??
-        };
-        let json = match crop {
-            Some(r) => remap_ocr_json_to_frame(&json, r, width, height),
-            None => json,
         };
         let text = strip_gutter_noise(&text);
         Ok(if options.remove_pii {
@@ -166,4 +213,115 @@ async fn persist_result(
     // A crash before this acknowledgement safely repeats the same frame.
     db.finish_frame_ocr_job(job.frame_id).await?;
     Ok(Some(combined))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{DynamicImage, ImageFormat, Rgb, RgbImage};
+
+    fn encoded(image: RgbImage) -> Vec<u8> {
+        let mut bytes = std::io::Cursor::new(Vec::new());
+        DynamicImage::ImageRgb8(image)
+            .write_to(&mut bytes, ImageFormat::Png)
+            .unwrap();
+        bytes.into_inner()
+    }
+
+    #[tokio::test]
+    async fn cache_reuses_only_identical_window_pixels_and_recognition_options() {
+        let mut image = RgbImage::from_pixel(100, 100, Rgb([255, 255, 255]));
+        image.put_pixel(20, 20, Rgb([0, 0, 0]));
+        let mut options = OcrOptions {
+            languages: vec!["English".into()],
+            remove_pii: false,
+            include_ax: false,
+            crop: Some([0.1, 0.1, 0.5, 0.5]),
+        };
+        let first = DeferredOcrProcessor::prepare(encoded(image.clone()), options.crop)
+            .await
+            .unwrap();
+        let cached = CachedOcr {
+            image: first.input,
+            languages: options.languages.clone(),
+            remove_pii: false,
+            text: "test".into(),
+            json: "[]".into(),
+        };
+        // A changing clock or another window outside the crop must not repeat OCR.
+        image.put_pixel(95, 95, Rgb([0, 0, 0]));
+        let outside = DeferredOcrProcessor::prepare(encoded(image.clone()), options.crop)
+            .await
+            .unwrap();
+        assert!(cached.matches(&outside.input, &options));
+        options.include_ax = true;
+        assert!(cached.matches(&outside.input, &options));
+        options.remove_pii = true;
+        assert!(!cached.matches(&outside.input, &options));
+        options.remove_pii = false;
+        options.languages.push("French".into());
+        assert!(!cached.matches(&outside.input, &options));
+        options.languages.pop();
+        // A single pixel change inside the window is sufficient to repeat OCR.
+        image.put_pixel(21, 20, Rgb([254, 255, 255]));
+        let inside = DeferredOcrProcessor::prepare(encoded(image), options.crop)
+            .await
+            .unwrap();
+        assert!(!cached.matches(&inside.input, &options));
+        let reshaped = DynamicImage::ImageRgb8(
+            RgbImage::from_raw(25, 100, cached.image.as_bytes().to_vec()).unwrap(),
+        );
+        assert!(!cached.matches(&reshaped, &options));
+    }
+
+    #[tokio::test]
+    async fn moved_window_reuses_text_but_remaps_boxes_for_the_current_frame() {
+        let mut image = RgbImage::from_pixel(100, 100, Rgb([0, 0, 0]));
+        for y in 10..30 {
+            for x in 10..30 {
+                image.put_pixel(x, y, Rgb([255, 255, 255]));
+            }
+        }
+        let first = DeferredOcrProcessor::prepare(encoded(image), Some([0.1, 0.1, 0.2, 0.2]))
+            .await
+            .unwrap();
+        let mut moved = RgbImage::from_pixel(200, 100, Rgb([0, 0, 0]));
+        for y in 40..60 {
+            for x in 100..120 {
+                moved.put_pixel(x, y, Rgb([255, 255, 255]));
+            }
+        }
+        let second = DeferredOcrProcessor::prepare(encoded(moved), Some([0.5, 0.4, 0.1, 0.2]))
+            .await
+            .unwrap();
+        assert_eq!(first.input.as_bytes(), second.input.as_bytes());
+        let json = r#"[{"text":"test","left":"0","top":"0","width":"1","height":"1"}]"#;
+        let remapped: serde_json::Value = serde_json::from_str(&remap_ocr_json_to_frame(
+            json,
+            second.crop.unwrap(),
+            second.width,
+            second.height,
+        ))
+        .unwrap();
+        assert_eq!(
+            remapped[0]["left"]
+                .as_str()
+                .unwrap()
+                .parse::<f64>()
+                .unwrap(),
+            0.5
+        );
+        assert_eq!(
+            remapped[0]["top"].as_str().unwrap().parse::<f64>().unwrap(),
+            0.4
+        );
+        assert_eq!(
+            remapped[0]["width"]
+                .as_str()
+                .unwrap()
+                .parse::<f64>()
+                .unwrap(),
+            0.1
+        );
+    }
 }
