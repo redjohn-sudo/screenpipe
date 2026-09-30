@@ -21,7 +21,7 @@ afterEach(async () => {
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
 });
 
-async function harness(options: { steps?: number; enabled?: boolean; failSummary?: boolean; stopOnSummary?: boolean; steerOnSummary?: boolean } = {}) {
+async function harness(options: { steps?: number; enabled?: boolean; failSummary?: boolean; stopOnSummary?: boolean; steerOnSummary?: boolean; invalidSummary?: "empty" | "length" | "aborted" } = {}) {
   const root = await mkdtemp(join(tmpdir(), "screenpipe-compaction-session-"));
   roots.push(root);
   const modelDefinition = { id: "test-32k", name: "test-32k", reasoning: false, input: ["text"],
@@ -96,6 +96,8 @@ async function harness(options: { steps?: number; enabled?: boolean; failSummary
         return stream;
       }
       message.content = [{ type: "text", text: "The user asked to finish the research. Prior lookup results are summarized. Continue with the remaining steps and preserve the user's latest instruction." }];
+      if (options.invalidSummary === "empty") message.content = [{ type: "text", text: "  " }];
+      else if (options.invalidSummary) message.stopReason = options.invalidSummary;
     } else {
       modelCalls++;
       message.content = toolCalls.length < (options.steps ?? 14)
@@ -162,5 +164,35 @@ test("short chats and explicitly disabled auto-compaction do not compact", async
     await h.session.prompt("Finish the research.");
     expect(h.summaries).toBe(0);
     expect(h.toolCalls).toHaveLength(options.steps);
+  }
+}, 20000);
+
+test("summary sees complete bounded tool results including middle and tail evidence", () => {
+  const evidence = "START " + "a".repeat(3150) + " source-middle-82 " + "b".repeat(3150) + " cursor-tail-63";
+  const messages = [{ role: "toolResult", toolCallId: "t1", toolName: "lookup", content: [{ type: "text", text: evidence }], timestamp: Date.now() }];
+  const serialized = sdk.serializeConversation(messages);
+  expect(serialized).toContain(evidence);
+  const bounded = "BEGIN " + "x".repeat(20_000) + " END";
+  const clipped = sdk.serializeConversation([{ ...messages[0], content: [{ type: "text", text: bounded }] }]);
+  expect(clipped).toContain("BEGIN ");
+  expect(clipped).toContain(" END");
+  expect(clipped).toContain("reread a narrower range");
+  expect(clipped.length).toBeLessThanOrEqual(8000 + "[Tool result]: ".length);
+  expect(messages[0].content[0].text).toBe(evidence);
+});
+
+test("empty, truncated and cancelled summaries never replace the original history", async () => {
+  for (const invalidSummary of ["empty", "length", "aborted"] as const) {
+    const h = await harness({ invalidSummary, steps: 6 });
+    await h.session.prompt("Preserve my sources and unfinished work.");
+    expect(h.summaries).toBeGreaterThan(0);
+    expect(h.session.sessionManager.getBranch().filter((entry: any) => entry.type === "compaction")).toHaveLength(0);
+    expect(h.session.messages.filter((message: any) => message.role === "toolResult")).toHaveLength(h.toolCalls.length);
+    expect(h.events.some(event => event.type === "compaction_end" && event.errorMessage)).toBe(true);
+    // Exercise regular history/update summarization as well as the split-turn
+    // path used by the active tool loop above.
+    await expect(sdk.generateSummaryWithUsage(h.session.messages, h.session.model, 2048,
+      "synthetic-key", undefined, undefined, undefined, "An earlier research summary.",
+      "off", h.session.agent.streamFunction)).rejects.toThrow("Summarization incomplete");
   }
 }, 20000);

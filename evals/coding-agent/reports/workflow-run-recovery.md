@@ -33,11 +33,16 @@ custom instructions, enabled state, model, timeout, trigger and custom schedules
 The existing agent-trial fixture accepts the same checkpoint action so a future
 matched baseline/candidate run can exercise it.
 
-No paid live-model trial or installed-app run was performed. A deterministic
+The initial checks did not include a live-model trial or installed-app run. A deterministic
 pass establishes the runtime contracts, not better workflow quality in real use.
 A follow-up matched trial should hold model, source history and run budget fixed
 and compare whether the same authorized investigation completes with valid
 sources, including the no-change and stopped cases above.
+
+The follow-up [GLM compaction evaluation](glm-compaction-live.md) exercises real
+summaries and continuations through the private model transport. It found and
+repairs evidence truncation and acceptance of incomplete summaries. That is a
+component replay, not an end-to-end trial of the four shipped workflow prompts.
 
 ## Visual provenance
 
