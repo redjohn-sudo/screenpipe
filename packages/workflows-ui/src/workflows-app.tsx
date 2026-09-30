@@ -278,7 +278,7 @@ function Pill({ children, tone = "plain" }: { children: React.ReactNode; tone?: 
   return <span className={`${styles.pill} ${styles[`pill_${tone}`]}`}>{children}</span>;
 }
 
-function CommandPalette({ open, commands, close }: { open: boolean; commands: PaletteCommand[]; close: () => void }) {
+export function CommandPalette({ open, commands, close }: { open: boolean; commands: PaletteCommand[]; close: () => void }) {
   const ui = useGT();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -355,7 +355,7 @@ function CommandPalette({ open, commands, close }: { open: boolean; commands: Pa
   );
 }
 
-function AppShell({
+export function AppShell({
   view,
   navigate,
   runtime,
@@ -699,7 +699,7 @@ function OverviewView({
   );
 }
 
-function WorkflowsView({ reviewIds, workflows, knownWorkflowCount, filters, setFilters, openWorkflow, analyze, analyzing, error, stop, updatedAt, checkedThrough, changes, job, subscribe, activityState, analysisUnavailableReason }: { reviewIds?: ReadonlySet<string>; activityState: WorkflowActivityState; analysisUnavailableReason?: string; workflows: WorkflowMap[]; knownWorkflowCount: number; filters: WorkflowFilters; setFilters: (filters: WorkflowFilters) => void; openWorkflow: (index: number) => void; analyze: () => void; analyzing: boolean; error: string; stop?: () => void; updatedAt?: string; checkedThrough?: string; changes?: { created: number; updated: number }; job?: WorkflowAnalysisJob | null; subscribe?: WorkflowsPlatform["subscribeAnalysisActivity"] }) {
+export function WorkflowsView({ refreshControl, emptyState, reviewIds, workflows, knownWorkflowCount, filters, setFilters, openWorkflow, analyze, analyzing, error, stop, updatedAt, checkedThrough, changes, job, subscribe, activityState, analysisUnavailableReason }: { refreshControl?: React.ReactNode; emptyState?: React.ReactNode; reviewIds?: ReadonlySet<string>; activityState: WorkflowActivityState; analysisUnavailableReason?: string; workflows: WorkflowMap[]; knownWorkflowCount: number; filters: WorkflowFilters; setFilters: (filters: WorkflowFilters) => void; openWorkflow: (index: number) => void; analyze: () => void; analyzing: boolean; error: string; stop?: () => void; updatedAt?: string; checkedThrough?: string; changes?: { created: number; updated: number }; job?: WorkflowAnalysisJob | null; subscribe?: WorkflowsPlatform["subscribeAnalysisActivity"] }) {
   const ui = useGT();
   const filtersId = useId();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -710,6 +710,7 @@ function WorkflowsView({ reviewIds, workflows, knownWorkflowCount, filters, setF
     setFilters({ ...filters, [key]: value });
   }
   const clearFilters = () => setFilters({ ...defaultWorkflowFilters, query: filters.query });
+  const filterButton = workflows.length > 0 && <button type="button" className={styles.quietIconButton} aria-label={filterCount ? ui("Filters ({count})", { count: filterCount }) : ui("Filters")} title={ui("Filters")} aria-expanded={filtersOpen} aria-controls={filtersId} onClick={() => setFiltersOpen(open => !open)}><SlidersHorizontal size={16} />{filterCount > 0 && <span className={styles.filterCount}>{filterCount}</span>}</button>;
 
   return (
     <>
@@ -721,10 +722,10 @@ function WorkflowsView({ reviewIds, workflows, knownWorkflowCount, filters, setF
             {(filterCount > 0 || filters.query) && <button className={styles.clearButton} onClick={() => setFilters(defaultWorkflowFilters)}>{ui("Clear filters")}</button>}
           </div>
         </div>
-        <WorkflowRunProgress activityState={activityState} quiet actions={workflows.length > 0 && <button type="button" className={styles.quietIconButton} aria-label={filterCount ? ui("Filters ({count})", { count: filterCount }) : ui("Filters")} title={ui("Filters")} aria-expanded={filtersOpen} aria-controls={filtersId} onClick={() => setFiltersOpen(open => !open)}><SlidersHorizontal size={16} />{filterCount > 0 && <span className={styles.filterCount}>{filterCount}</span>}</button>} disabledReason={analysisUnavailableReason} job={job} active={analyzing} subscribe={subscribe} stop={stop} analyze={analyze} updatedAt={updatedAt} checkedThrough={checkedThrough} changes={changes} />
+        {refreshControl ? <div className={styles.quietHeaderActions}>{filterButton}{refreshControl}</div> : <WorkflowRunProgress activityState={activityState} quiet actions={filterButton} disabledReason={analysisUnavailableReason} job={job} active={analyzing} subscribe={subscribe} stop={stop} analyze={analyze} updatedAt={updatedAt} checkedThrough={checkedThrough} changes={changes} />}
       </div>
       {error && <p role="alert" className={styles.depthNotice}>{error}</p>}
-      {!knownWorkflowCount ? <EmptyWorkMap analyzing={analyzing} analyze={analyze} /> : !workflows.length ? <section className={styles.emptyState}><Clock3 size={23} /><h2>No known workflows were active in this period</h2><p>Your {knownWorkflowCount} known workflows are still in the catalog. Choose “All known” to see them.</p></section> : <>
+      {!knownWorkflowCount ? (emptyState ?? <EmptyWorkMap analyzing={analyzing} analyze={analyze} />) : !workflows.length ? <section className={styles.emptyState}><Clock3 size={23} /><h2>No known workflows were active in this period</h2><p>Your {knownWorkflowCount} known workflows are still in the catalog. Choose “All known” to see them.</p></section> : <>
         {filtersOpen && <section id={filtersId} aria-label={ui("Workflow filters")} className={styles.filterPanel}>
           <label><span>Evidence quality</span><select value={filters.quality} onChange={(event) => updateFilter("quality", event.target.value as WorkflowFilters["quality"])}><option value="all">Any support level</option><option value="good">Good or stronger</option><option value="strong">Strong only</option></select></label>
           <label><span>Time per run</span><select value={filters.duration} onChange={(event) => updateFilter("duration", event.target.value as WorkflowFilters["duration"])}><option value="all">Any duration</option><option value="short">15 minutes or less</option><option value="medium">16–45 minutes</option><option value="long">More than 45 minutes</option></select></label>
@@ -759,7 +760,7 @@ function WorkflowsView({ reviewIds, workflows, knownWorkflowCount, filters, setF
   );
 }
 
-function CatalogPlaceholder({ detail = false, reconnecting = false, retry }: { detail?: boolean; reconnecting?: boolean; retry?: () => void }) {
+export function CatalogPlaceholder({ detail = false, reconnecting = false, retry }: { detail?: boolean; reconnecting?: boolean; retry?: () => void }) {
   const ui = useGT();
   const bar = (width: string, height = 10) => <span className={styles.skeletonBar} style={{ width, height }} />;
   const message = reconnecting ? ui("Connecting to Screenpipe…") : ui("Loading saved workflows…");
@@ -923,7 +924,7 @@ function screenDataNote(text: string): string {
     .replace(/(^|[.!?]\s+)screen data\b/g, "$1Screen data");
 }
 
-function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSaved, workflow, navigate, platform, workProfile, saveCorrection, saveEdits, onShareWorkflow, workflowAgentActions }: { canSaveAnswers: boolean; composerAccessory?: WorkflowsAppProps["composerAccessory"]; active: boolean; onAnswersSaved: (workflow: WorkflowMap) => void; workflow: WorkflowMap | null; navigate: (view: AppView) => void; platform: WorkflowsPlatform; workProfile: WorkProfile | null; saveCorrection?: (note: string) => Promise<void>; saveEdits?: (draft: WorkflowEdit) => Promise<WorkflowMap>; onShareWorkflow?: WorkflowsAppProps["onShareWorkflow"]; workflowAgentActions?: WorkflowsAppProps["workflowAgentActions"] }) {
+export function WorkflowDetail({ sourceLabel, observationsAvailable = true, canSaveAnswers, composerAccessory, active, onAnswersSaved, workflow, navigate, platform, workProfile, saveCorrection, saveEdits, onShareWorkflow, workflowAgentActions }: { sourceLabel?: string; observationsAvailable?: boolean; canSaveAnswers: boolean; composerAccessory?: WorkflowsAppProps["composerAccessory"]; active: boolean; onAnswersSaved: (workflow: WorkflowMap) => void; workflow: WorkflowMap | null; navigate: (view: AppView) => void; platform: WorkflowsPlatform; workProfile: WorkProfile | null; saveCorrection?: (note: string) => Promise<void>; saveEdits?: (draft: WorkflowEdit) => Promise<WorkflowMap>; onShareWorkflow?: WorkflowsAppProps["onShareWorkflow"]; workflowAgentActions?: WorkflowsAppProps["workflowAgentActions"] }) {
   const ui = useGT();
   const [expandedStages, setExpandedStages] = useState<Set<number>>(() => new Set());
   const [guideOpen, setGuideOpen] = useState(false);
@@ -991,7 +992,7 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
     <>
       <button className={styles.backButton} onClick={() => navigate("workflows")}><ArrowLeft size={14} />All workflows</button>
       {saveEdits ? <WorkflowEditor key={workflow.id || workflow.title} workflow={workflow} save={saveEdits} actions={workflowActions} renderSource={stage => <WorkflowStepEvidence workflow={workflow} stage={stage} platform={platform} />} /> : <section className={styles.detailHeader}>
-        <div><Pill>Evidence on {workflow.repetitions} captured day{workflow.repetitions === 1 ? "" : "s"}</Pill><h1>{workflow.title}</h1><p>{workflow.description}</p>{workflowActions}</div>
+        <div><Pill>{sourceLabel ?? <>Evidence on {workflow.repetitions} captured day{workflow.repetitions === 1 ? "" : "s"}</>}</Pill><h1>{workflow.title}</h1><p>{workflow.description}</p>{workflowActions}</div>
         {timing ? <div className={styles.detailTotal}><span>{timing.sampleCount > 1 ? ui("Avg. time / run") : ui("Time for one run")}</span><strong>{formatEstimatedMinutes(timing.averageMinutes)}</strong><small>{ui("{count, plural, one {# run} other {# runs}}", { count: timing.sampleCount })} · estimated elapsed time</small></div> : measuredDuration && <div className={styles.detailTotal}><span>Observed meeting duration</span><strong>{workflowDurationLabel(workflow)}</strong></div>}
       </section>}
       <div className={styles.workflowNotes}>
@@ -1009,7 +1010,7 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
             return <article key={`${stage.name}-${index}`} className={`${actionableStageFriction ? styles.stageBottleneck : ""} ${constraint ? styles.stageConstraint : ""} ${open ? styles.stageOpen : ""}`}>
               <button className={styles.stageSummary} onClick={() => toggleStage(index)} aria-expanded={open}>
                 <div className={styles.stageNumber}>{index + 1}</div>
-                <div className={styles.stageBody}><div><h3>{stage.name}</h3>{actionableStageFriction && <Pill tone="warm"><AlertTriangle size={11} />Actionable friction</Pill>}{!actionableStageFriction && constraint && <Pill><ShieldCheck size={11} />{controlLabel(constraint)}</Pill>}</div><p>{stage.description}</p><span>{stage.apps.join(" · ") || ui("App not clear")} · {ui("{count, plural, one {# observation} other {# observations}}", { count: stage.observedOccurrences })} across {ui("{count, plural, one {# day} other {# days}}", { count: stage.observedDays })}</span></div>
+                <div className={styles.stageBody}><div><h3>{stage.name}</h3>{actionableStageFriction && <Pill tone="warm"><AlertTriangle size={11} />Actionable friction</Pill>}{!actionableStageFriction && constraint && <Pill><ShieldCheck size={11} />{controlLabel(constraint)}</Pill>}</div><p>{stage.description}</p><span>{stage.apps.join(" · ") || ui("App not clear")}{observationsAvailable && <> · {ui("{count, plural, one {# observation} other {# observations}}", { count: stage.observedOccurrences })} across {ui("{count, plural, one {# day} other {# days}}", { count: stage.observedDays })}</>}</span></div>
                 <ChevronDown className={styles.stageChevron} size={15} />
               </button>
               {open && <div className={styles.stageDisclosure}>
@@ -1032,7 +1033,7 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
         </div>
         <div className={styles.flowEndpoint}><span>Ends with</span><strong>{workflow.outcome}</strong></div>
       </section>}
-      <WorkflowQuestions workflow={workflow} active={active} voice={platform.questionnaireVoice} save={canSaveAnswers && platform.saveWorkflowAnswers ? async correction => {
+      {observationsAvailable && <WorkflowQuestions workflow={workflow} active={active} voice={platform.questionnaireVoice} save={canSaveAnswers && platform.saveWorkflowAnswers ? async correction => {
         try {
           const saved = await platform.saveWorkflowAnswers!(workflow, correction);
           onAnswersSaved(saved); return saved;
@@ -1045,7 +1046,7 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
           }
           throw error;
         }
-      } : undefined} />
+      } : undefined} />}
       {!!workflow.variations.length && <section className={styles.panel}><h2>Variations</h2><ul className={styles.plainList}>{workflow.variations.map(item => <li key={item}>{item}</li>)}</ul></section>}
       {!!actionableFriction.length && <section><div className={styles.sectionHeading}><div><h2>Friction you can affect</h2></div></div><BottleneckList items={actionableFriction.map((item) => ({ ...item, workflowTitle: workflow.title, repetitions: workflow.repetitions }))} /></section>}
       {!!constraints.length && <section><div className={styles.sectionHeading}><div><h2>External and required constraints</h2></div></div><BottleneckList items={constraints.map((item) => ({ ...item, workflowTitle: workflow.title, repetitions: workflow.repetitions }))} numbered={false} /></section>}

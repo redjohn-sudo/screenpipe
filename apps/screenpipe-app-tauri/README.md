@@ -40,6 +40,10 @@ The device license alone cannot read cloud data. Employee sign-in without scoped
 workflow access shows an access message; this UI does not expand server permissions.
 
 Cloud mode displays generated SOP workflows and the discovered workflow inventory.
+Both sources render the shared Workflows navigation shell, catalog cards, filters,
+command palette and detail view. Cloud adds a read-only data adapter and processing
+status; it has no local model or analysis controls. Cloud context is unavailable
+until the API exposes it, and missing observation counts remain unknown.
 It disables local workflow schedules, stops active workflow jobs, and checks their
 status before reporting local analysis off. Older workflow schedules are included.
 It retries while the recorder reconnects. Recording, uploads, and unrelated tasks
@@ -54,9 +58,12 @@ CLOUD_WORKFLOWS_URL=http://127.0.0.1:1420 bun apps/screenpipe-workflows-web/scri
 ```
 
 The eval covers source switching, local updates staying off, workflow details,
-search, compact layout, empty results, and denied access. It selects Light through
+search, matching local/cloud sidebar bounds, collapse/reopen, keyboard navigation,
+the host light/dark setting, compact layout, empty results, and denied access. It selects themes through
 the app's Appearance settings. Known Next.js development warnings from that settings
-route are logged; development-tool badges are omitted from captures.
+route are logged; development-tool badges are omitted from captures. The existing
+shared Workflows shell uses its light palette under either host theme; this change
+does not introduce a separate cloud palette.
 
 ## fast browser UI development
 
