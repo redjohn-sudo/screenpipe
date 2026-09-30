@@ -23,7 +23,7 @@ The completion fixture plays a short fictional clip produced by the real native 
 
 - 38 focused UI, plan and adapter tests passed.
 - Four native test functions passed, including actual FFmpeg rendering, caption timing, failures, limits and cancellation. Two paid/fixture evaluation entry points are opt-in and ignored by the regular suite.
-- TypeScript and generated bindings checks passed.
+- TypeScript, generated bindings, and the CI-scoped Knip check passed.
 - Ten visual states were exercised with no browser page errors or horizontal overflow. Playback was started and paused for the completed fixture.
 - Eight private real workflow snapshots produced valid SOP/video plans using the configured model. Four videos completed with live hosted speech. The remaining four were blocked by the shared monthly AI allowance, including one partial narration run. Live calls stopped; the limit was not bypassed.
 - The four completed outputs were decoded successfully as 1280 × 720 H.264/AAC MP4s; caption end times matched their durations within one millisecond. This checks media integrity and timing, not a human listening score. The final text-only slide layout was subsequently verified with the recorded-speech fixture.
@@ -31,4 +31,4 @@ The completion fixture plays a short fictional clip produced by the real native 
 
 Installed-app IPC, the native save dialog, and Windows/Linux playback remain release smoke-test gaps. Keep this PR draft until those checks and hosted CI are reviewed.
 
-Reproduce the component preview from apps/screenpipe-app-tauri with `bun scripts/preview-workflow-video.ts OPTIONAL_SYNTHETIC_MP4`; see docs/workflows/video-sops.md for renderer and evaluation commands.
+Reproduce the component preview from apps/screenpipe-app-tauri with `bun run preview:workflow-video OPTIONAL_SYNTHETIC_MP4`; see docs/workflows/video-sops.md for renderer and evaluation commands.
