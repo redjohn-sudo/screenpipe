@@ -1463,16 +1463,14 @@ mod imp {
                             app.state::<crate::recording::RecordingState>()
                                 .set_capture_intent(true);
                         }
-                        let apply_app = app.clone();
-                        // Own the continuation natively: applying hidden-UI policy
-                        // can destroy the webview before its gate resumes capture.
-                        tauri::async_runtime::spawn(async move {
-                            if crate::enterprise::managed_settings::apply(&apply_app).await.is_ok()
-                                && newly_authorized
-                            {
-                                crate::recording::resume_enterprise_recording(&apply_app).await;
-                            }
-                        });
+                        if newly_authorized {
+                            crate::recording::resume_enterprise_recording(app).await;
+                        } else {
+                            let apply_app = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let _ = crate::enterprise::managed_settings::apply(&apply_app).await;
+                            });
+                        }
                         crate::enterprise_policy::set_enterprise_policy(
                             policy.hidden_sections,
                             policy.enforce_auto_start,
@@ -1586,9 +1584,15 @@ mod imp {
                                 app.state::<crate::recording::RecordingState>()
                                     .set_capture_intent(true);
                             }
-                            crate::enterprise::managed_settings::apply(&app)
-                                .await
-                                .is_ok()
+                            if newly_authorized {
+                                // The recovery owner retries both settings and
+                                // startup without blocking policy revocation.
+                                true
+                            } else {
+                                crate::enterprise::managed_settings::apply(&app)
+                                    .await
+                                    .is_ok()
+                            }
                         } else {
                             false
                         };
