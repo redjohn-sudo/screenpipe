@@ -1791,7 +1791,7 @@ async fn main() {
                 for attempt in 0..3 {
                     let startup_perms = permissions::do_permissions_check(false);
                     screen_ok = startup_perms.screen_recording.permitted();
-                    mic_ok = startup_perms.microphone.permitted();
+                    mic_ok = store.recording.disable_audio || startup_perms.microphone.permitted();
                     if screen_ok && mic_ok {
                         break;
                     }

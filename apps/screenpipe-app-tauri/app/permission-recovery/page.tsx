@@ -10,6 +10,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { commands } from "@/lib/utils/tauri";
 import { requestPermissionWithFlow } from "@/lib/utils/permission-flow";
 import { usePlatform } from "@/lib/hooks/use-platform";
+import { useSettings } from "@/lib/hooks/use-settings";
 import posthog from "posthog-js";
 import { useGT } from "gt-react";
 
@@ -126,6 +127,8 @@ function PermissionRow({
 export default function PermissionRecoveryPage() {
 
   const ui = useGT();
+  const { settings, isSettingsLoaded } = useSettings();
+  const audioDisabled = settings.disableAudio === true;
   const [permissions, setPermissions] = useState<Record<string, string> | null>(null);
   // Keychain: "granted" if enabled or unavailable (no keychain on this OS),
   // "denied" only if the user previously opted in but access is now refused.
@@ -177,10 +180,10 @@ export default function PermissionRecoveryPage() {
 
   // Auto-close and restart when critical permissions are restored
   useEffect(() => {
-    if (!permissions || restartTriggeredRef.current) return;
+    if (!permissions || !isSettingsLoaded || restartTriggeredRef.current) return;
 
     const screenOk = permissions.screenRecording === "granted" || permissions.screenRecording === "notNeeded";
-    const micOk = permissions.microphone === "granted" || permissions.microphone === "notNeeded";
+    const micOk = audioDisabled || permissions.microphone === "granted" || permissions.microphone === "notNeeded";
     const accessibilityOk =
       !isMacOS ||
       permissions.accessibility === "granted" ||
@@ -188,17 +191,21 @@ export default function PermissionRecoveryPage() {
 
     if (screenOk && micOk && accessibilityOk) {
       restartTriggeredRef.current = true;
-      setTimeout(async () => {
+      const timeout = setTimeout(async () => {
         try {
-          await commands.stopScreenpipe();
-          await commands.spawnScreenpipe(null);
+          // Preserve a user pause while retrying capture under native lifecycle control.
+          await commands.retryScreenpipe();
           await commands.closeWindow("PermissionRecovery");
         } catch {
           try { await commands.closeWindow("PermissionRecovery"); } catch {}
         }
       }, 1000);
+      return () => {
+        clearTimeout(timeout);
+        restartTriggeredRef.current = false;
+      };
     }
-  }, [permissions, isMacOS]);
+  }, [permissions, isMacOS, audioDisabled, isSettingsLoaded]);
 
   const handleFix = async (permission: Parameters<typeof commands.requestPermission>[0]) => {
     posthog.capture("permission_recovery_manual_fix", { permission });
@@ -233,12 +240,12 @@ export default function PermissionRecoveryPage() {
     permissions?.screenRecording === "restartRequired";
   const screenStatus: PermissionStatus = permissions?.screenRecording === "granted" || permissions?.screenRecording === "notNeeded"
     ? "granted" : permissions === null ? "checking" : "denied";
-  const micStatus: PermissionStatus = permissions?.microphone === "granted" || permissions?.microphone === "notNeeded"
+  const micStatus: PermissionStatus = audioDisabled || permissions?.microphone === "granted" || permissions?.microphone === "notNeeded"
     ? "granted" : permissions === null ? "checking" : "denied";
   const accessibilityStatus: PermissionStatus = permissions?.accessibility === "granted" || permissions?.accessibility === "notNeeded"
     ? "granted" : permissions === null ? "checking" : "denied";
 
-  const allOk =
+  const allOk = isSettingsLoaded &&
     screenStatus === "granted" &&
     micStatus === "granted" &&
     accessibilityStatus === "granted";
@@ -246,7 +253,7 @@ export default function PermissionRecoveryPage() {
   // Wheel rows in fix order (screen last — regaining it restarts the engine).
   // The keychain row only exists while denied, so it can't hold the wheel up.
   const rows = [
-    {
+    ...(!audioDisabled && isSettingsLoaded ? [{
       id: "microphone",
       icon: <Mic className="w-4 h-4" strokeWidth={1.5} />,
       label: ui("Microphone"),
@@ -254,7 +261,7 @@ export default function PermissionRecoveryPage() {
       status: micStatus,
       onFix: () => handleFix("microphone"),
       testId: "permission-row-microphone",
-    },
+    }] : []),
     ...(isMacOS
       ? [
           {

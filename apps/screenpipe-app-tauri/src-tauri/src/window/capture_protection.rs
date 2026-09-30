@@ -155,6 +155,7 @@ mod tests {
         assert!(settings.hide_app_in_screen_share);
         assert!(!should_protect_window(&settings, "home", false));
         assert!(!should_protect_window(&settings, "settings", false));
+        assert!(!should_protect_window(&settings, "permission-recovery", false));
         assert!(!should_protect_window(&settings, "main", false));
         assert!(!should_protect_window(&settings, "chat", false));
         assert!(!should_protect_window(&settings, "shortcut-reminder", false));
@@ -164,6 +165,7 @@ mod tests {
         settings.hide_overlay_in_screen_recording = true;
         assert!(should_protect_window(&settings, "main-window", false));
         assert!(should_protect_window(&settings, "chat", false));
+        assert!(!should_protect_window(&settings, "permission-recovery", false));
     }
 
     #[test]

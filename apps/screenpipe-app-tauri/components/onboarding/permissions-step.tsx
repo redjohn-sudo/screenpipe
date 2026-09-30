@@ -11,6 +11,7 @@ import { commands } from "@/lib/utils/tauri";
 import { requestPermissionWithFlow } from "@/lib/utils/permission-flow";
 import TrustDisclosure from "./trust-disclosure";
 import { usePlatform } from "@/lib/hooks/use-platform";
+import { useSettings } from "@/lib/hooks/use-settings";
 import { motion } from "framer-motion";
 import posthog from "posthog-js";
 import { onboardingFunnel } from "@/lib/analytics/onboarding-funnel";
@@ -139,6 +140,7 @@ export default function PermissionsStep({
 }: PermissionsStepProps) {
 
   const ui = useGT();
+  const { settings, isSettingsLoaded } = useSettings();
   const { isMac, isLoading: isPlatformLoading } = usePlatform();
   const [statuses, setStatuses] = useState<Record<string, boolean>>({});
   const [requesting, setRequesting] = useState(false);
@@ -204,7 +206,9 @@ export default function PermissionsStep({
   ];
 
   // Filter permissions for this platform
-  const activePermissions = permissions.filter((p) => !p.macOnly || isMac);
+  const activePermissions = permissions.filter((p) =>
+    (!p.macOnly || isMac) && (p.id !== "mic" || (isSettingsLoaded && !settings.disableAudio))
+  );
   const activePermissionsRef = useRef(activePermissions);
   activePermissionsRef.current = activePermissions;
 
@@ -325,7 +329,7 @@ export default function PermissionsStep({
 
   // Auto-advance when all required permissions granted
   useEffect(() => {
-    if (allRequiredGranted && !hasAdvancedRef.current && !isPlatformLoading) {
+    if (allRequiredGranted && isSettingsLoaded && !hasAdvancedRef.current && !isPlatformLoading) {
       hasAdvancedRef.current = true;
       posthog.capture("onboarding_permissions_granted", {
         time_spent_ms: Date.now() - mountTimeRef.current,
@@ -335,7 +339,7 @@ export default function PermissionsStep({
       // Small delay so the user sees the last checkmark animate
       setTimeout(() => handleNextSlide(), 600);
     }
-  }, [allRequiredGranted, isPlatformLoading, handleNextSlide, statuses]);
+  }, [allRequiredGranted, isSettingsLoaded, isPlatformLoading, handleNextSlide, statuses]);
 
   // Handle grant click with immediate refresh
   const handleGrant = async (perm: PermissionDef) => {
