@@ -1873,6 +1873,9 @@ fn ensure_workflow_feedback_extension(project_dir: &str) -> Result<(), String> {
 fn ensure_workflow_video_extension(project_dir: &str) -> Result<(), String> {
     let ext_dir = std::path::Path::new(project_dir).join(".pi").join("extensions");
     std::fs::create_dir_all(&ext_dir).map_err(|e| e.to_string())?;
+    let skill_dir = std::path::Path::new(project_dir).join(".pi/skills/video-sop");
+    std::fs::create_dir_all(&skill_dir).map_err(|e| e.to_string())?;
+    std::fs::write(skill_dir.join("SKILL.md"), include_str!("../../../../packages/workflows-ui/skills/video-sop/SKILL.md")).map_err(|e| e.to_string())?;
     std::fs::write(ext_dir.join("workflow-video.ts"),
         include_str!("../../../../packages/workflows-ui/src/video-tool.ts"))
         .map_err(|e| format!("Failed to install video editing tool: {}", e))

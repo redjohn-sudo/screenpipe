@@ -4500,8 +4500,9 @@ word: string;
  * Optional replacement — if set, the transcribed `word` is replaced with this.
  */
 replace_with?: string | null }
+export type WorkflowVideoFocus = { x: number; y: number; zoom: number }
 export type WorkflowVideoResult = { path: string; captionsPath: string }
-export type WorkflowVideoScene = { title: string; narration: string; image: string | null }
+export type WorkflowVideoScene = { title: string; narration: string; image: string | null; pace?: number; focus: WorkflowVideoFocus | null }
 
 /** tauri-specta globals **/
 

@@ -1,15 +1,15 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
-import { guideImage, guideKey, type WorkflowGuide } from "./guide";
-import { parseVideoDraft, type VideoDraft } from "./video-tool";
+import { guideKey, type WorkflowGuide } from "./guide";
+import { parseVideoDraft, type VideoDraft, type VideoFocus } from "./video-tool";
 import type { AssistantMessage } from "./assistant";
 import type { WorkflowMap } from "./model";
 import { stageScreenshots } from "./screenshots";
 
-export type GuideVideoScene = { title: string; narration: string; image: string | null; imageFrameId?: number };
+export type GuideVideoScene = { title: string; narration: string; image: string | null; imageFrameId?: number; id?: string; requiresImage?: boolean; pace?: number; focus?: VideoFocus | null };
 export type GuideVideoResult = { url: string; path: string; captionsPath: string; captionsUrl?: string };
 export type GuideVideoPlatform = {
-  edit?: (draft: VideoDraft, instruction: string, history: AssistantMessage[], signal: AbortSignal, progress: (message: string) => void) => Promise<{ draft: VideoDraft; render: boolean; message: string; changed: boolean }>;
+  edit?: (draft: VideoDraft, instruction: string, history: AssistantMessage[], signal: AbortSignal, progress: (message: string) => void, scenes?: GuideVideoScene[]) => Promise<{ draft: VideoDraft; render: boolean; message: string; changed: boolean }>;
   generate: (scenes: GuideVideoScene[], signal: AbortSignal, progress: (message: string) => void) => Promise<GuideVideoResult>;
   export: (result: GuideVideoResult, title: string, captions: boolean) => Promise<boolean>;
   release: (result: GuideVideoResult) => Promise<void>;
@@ -29,12 +29,12 @@ function baseGuideVideoScenes(guide: WorkflowGuide, workflow: WorkflowMap): Guid
   add(guide.title, guide.summary || guide.title);
   add("Before you start", guide.prerequisites.filter(Boolean).join("\n"));
   for (const [index, step] of guide.steps.entries()) {
-    const image = step.sourceStage !== null && workflow.stages[step.sourceStage] ? stageScreenshots(workflow.stages[step.sourceStage])[0] : undefined;
-    const reviewed = image && (image.visualVerified || (step.imageReview?.frameId === image.frameId && step.imageReview.timestamp === image.timestamp));
-    const include = step.includeImage && reviewed;
-    const screenshot = include ? guideImage(workflow, step.sourceStage, step.imageReview) : null;
+    const candidates = step.sourceStage !== null && workflow.stages[step.sourceStage] ? stageScreenshots(workflow.stages[step.sourceStage]) : [];
+    const image = candidates.find(image => image.visualVerified || (step.imageReview?.frameId === image.frameId && step.imageReview.timestamp === image.timestamp));
+    const include = step.includeImage && image;
     add(`${index + 1}. ${step.title}`, [step.instruction,
-      step.expectedResult && `Expected result: ${step.expectedResult}`].filter(Boolean).join("\n"), screenshot, include && !screenshot ? image.frameId : undefined);
+      step.expectedResult && `Expected result: ${step.expectedResult}`].filter(Boolean).join("\n"), include ? image.dataUrl || null : null, include ? image.frameId : undefined);
+    scenes[scenes.length - 1].requiresImage = true;
   }
   add("Exceptions", guide.exceptions.filter(Boolean).join("\n"));
   add("Check your result", guide.completion.filter(Boolean).join("\n"));
@@ -68,6 +68,11 @@ export function guideVideoScenes(guide: WorkflowGuide, workflow: WorkflowMap, in
   const base = baseGuideVideoScenes(guide, workflow);
   return guideVideoDraft(guide, workflow).scenes.map(s => {
     const image = includeImages && s.includeImage ? base[Number(s.id.slice(8))] : undefined;
-    return { title: s.title, narration: s.narration, image: image?.image ?? null, ...(image?.imageFrameId ? { imageFrameId: image.imageFrameId } : {}) };
+    return { id: s.id, title: s.title, narration: s.narration, image: image?.image ?? null, requiresImage: base[Number(s.id.slice(8))].requiresImage, pace: s.pace ?? 1, focus: s.focus ?? null, ...(image?.imageFrameId ? { imageFrameId: image.imageFrameId } : {}) };
   });
+}
+
+/** Rendering cannot silently substitute a text card for a procedural screenshot. */
+export function videoScreenshotGaps(scenes: GuideVideoScene[]): string[] {
+  return scenes.filter(s => s.requiresImage && !s.image && !s.imageFrameId).map(s => s.title);
 }

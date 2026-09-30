@@ -15,6 +15,19 @@ pub struct WorkflowVideoScene {
     title: String,
     narration: String,
     image: Option<String>,
+    #[serde(default = "normal_pace")]
+    pace: f64,
+    focus: Option<WorkflowVideoFocus>,
+}
+
+fn normal_pace() -> f64 {
+    1.0
+}
+#[derive(serde::Deserialize, specta::Type)]
+pub struct WorkflowVideoFocus {
+    x: f64,
+    y: f64,
+    zoom: f64,
 }
 
 #[derive(serde::Serialize, specta::Type)]
@@ -101,7 +114,7 @@ pub async fn create_workflow_video(
                 std::fs::write(&path, bytes).map_err(|_| "Could not prepare a screenshot")?;
                 Some(path)
             } else { None };
-            input.push(Scene { title: scene.title, narration: scene.narration, image });
+            input.push(Scene { title: scene.title, narration: scene.narration, image, pace: scene.pace, focus: scene.focus.map(|f| workflow_video::Focus { x: f.x, y: f.y, zoom: f.zoom }) });
         }
         let event = format!("workflow-video-{id}");
         // Announce registration before rendering so cancellation cannot race command startup.
@@ -175,7 +188,36 @@ mod tests {
         assert!(workflow_video::validate(&[Scene {
             title: "Test".into(),
             narration: "a".repeat(18001),
-            image: None
+            image: None,
+            pace: 1.0,
+            focus: None
+        }])
+        .is_err());
+    }
+
+    #[test]
+    fn workflow_video_rejects_invalid_focus_and_pace() {
+        let scene = Scene {
+            title: "Read".into(),
+            narration: "Read the result".into(),
+            image: None,
+            pace: 1.0,
+            focus: None,
+        };
+        for pace in [f64::NAN, 0.0, 0.84, 1.26] {
+            assert!(workflow_video::validate(&[Scene {
+                pace,
+                ..scene.clone()
+            }])
+            .is_err());
+        }
+        assert!(workflow_video::validate(&[Scene {
+            focus: Some(workflow_video::Focus {
+                x: 0.5,
+                y: 0.5,
+                zoom: 1.2
+            }),
+            ..scene
         }])
         .is_err());
     }
@@ -195,6 +237,8 @@ mod tests {
             title: "Reviewer's [brief]: 100% {checked}".into(),
             narration: "Read the instructions and confirm the result.".into(),
             image: None,
+            pace: 1.0,
+            focus: None,
         };
         // A tiny WAV fixture checks muxing/timing, not speech quality (covered by live eval).
         let mut wav = Vec::new();
@@ -215,6 +259,7 @@ mod tests {
             .and(path("/tts"))
             .respond_with(
                 ResponseTemplate::new(200)
+                    .insert_header("x-screenpipe-narration-profile", "sop-openai-marin-v1")
                     .insert_header("content-type", "audio/wav")
                     .set_body_bytes(wav),
             )
@@ -242,6 +287,110 @@ mod tests {
         let captions = std::fs::read_to_string(temporary.path().join("captions.vtt")).unwrap();
         assert!(captions.contains("00:00:00.000 --> 00:00:00.208"));
         assert!(captions.contains(&scene.narration));
+        server.verify().await;
+        server.reset().await;
+        Mock::given(method("POST"))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .insert_header("content-type", "audio/wav")
+                    .set_body_bytes(vec![0u8; 44]),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+        let (_sender, receiver) = watch::channel(false);
+        let error = workflow_video::render(
+            &[scene.clone()],
+            temporary.path(),
+            &binary,
+            &server.uri(),
+            "test",
+            receiver,
+            |_, _, _| {},
+        )
+        .await
+        .unwrap_err();
+        assert!(error
+            .to_string()
+            .contains("narration service needs an update"));
+        server.verify().await;
+        server.reset().await;
+
+        // Exercise the actual focus filter and pace-adjusted caption clock.
+        let screenshot = temporary.path().join("screenshot.png");
+        assert!(std::process::Command::new(&binary)
+            .args([
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-f",
+                "lavfi",
+                "-i",
+                "testsrc2=s=1920x1080",
+                "-frames:v",
+                "1",
+                "-threads",
+                "1",
+                "-y",
+            ])
+            .arg(&screenshot)
+            .status()
+            .unwrap()
+            .success());
+        let mut audio = Vec::new();
+        audio.extend(b"RIFF");
+        audio.extend(128036u32.to_le_bytes());
+        audio.extend(b"WAVEfmt ");
+        audio.extend(16u32.to_le_bytes());
+        audio.extend(1u16.to_le_bytes());
+        audio.extend(1u16.to_le_bytes());
+        audio.extend(16000u32.to_le_bytes());
+        audio.extend(32000u32.to_le_bytes());
+        audio.extend(2u16.to_le_bytes());
+        audio.extend(16u16.to_le_bytes());
+        audio.extend(b"data");
+        audio.extend(128000u32.to_le_bytes());
+        audio.resize(128044, 0);
+        Mock::given(method("POST"))
+            .and(wiremock::matchers::body_partial_json(
+                serde_json::json!({"profile":"sop"}),
+            ))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .insert_header("x-screenpipe-narration-profile", "sop-openai-marin-v1")
+                    .insert_header("content-type", "audio/wav")
+                    .set_body_bytes(audio),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+        // Keep the watch sender alive for the duration of render.
+        let (_sender, receiver) = watch::channel(false);
+        workflow_video::render(
+            &[Scene {
+                image: Some(screenshot),
+                pace: 1.25,
+                focus: Some(workflow_video::Focus {
+                    x: 0.7,
+                    y: 0.4,
+                    zoom: 1.5,
+                }),
+                ..scene.clone()
+            }],
+            temporary.path(),
+            &binary,
+            &server.uri(),
+            "test",
+            receiver,
+            |_, _, _| {},
+        )
+        .await
+        .unwrap();
+        let captions = std::fs::read_to_string(temporary.path().join("captions.vtt")).unwrap();
+        assert!(
+            captions.contains("00:00:03."),
+            "pace must shorten four seconds of audio: {captions}"
+        );
         server.verify().await;
         server.reset().await;
         Mock::given(method("POST"))
@@ -393,6 +542,7 @@ mod tests {
         Mock::given(method("POST"))
             .respond_with(
                 ResponseTemplate::new(200)
+                    .insert_header("x-screenpipe-narration-profile", "sop-openai-marin-v1")
                     .insert_header("content-type", "audio/mpeg")
                     .set_body_bytes(audio),
             )
@@ -405,16 +555,30 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn workflow_video_replay_eval() {
-        use wiremock::{matchers::{method, body_partial_json}, Mock, MockServer, ResponseTemplate};
-        let path = std::env::var("SCREENPIPE_VIDEO_REPLAY_MANIFEST").expect("replay manifest required");
-        let fixtures: Vec<serde_json::Value> = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+        use wiremock::{
+            matchers::{body_partial_json, method},
+            Mock, MockServer, ResponseTemplate,
+        };
+        let path =
+            std::env::var("SCREENPIPE_VIDEO_REPLAY_MANIFEST").expect("replay manifest required");
+        let fixtures: Vec<serde_json::Value> =
+            serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
         let server = MockServer::start().await;
         for fixture in fixtures {
             Mock::given(method("POST"))
-                .and(body_partial_json(serde_json::json!({"text": fixture["text"]})))
-                .respond_with(ResponseTemplate::new(200).insert_header("content-type", "audio/wav")
-                    .set_body_bytes(std::fs::read(fixture["audioPath"].as_str().unwrap()).unwrap()))
-                .mount(&server).await;
+                .and(body_partial_json(
+                    serde_json::json!({"text": fixture["text"]}),
+                ))
+                .respond_with(
+                    ResponseTemplate::new(200)
+                        .insert_header("x-screenpipe-narration-profile", "sop-openai-marin-v1")
+                        .insert_header("content-type", "audio/wav")
+                        .set_body_bytes(
+                            std::fs::read(fixture["audioPath"].as_str().unwrap()).unwrap(),
+                        ),
+                )
+                .mount(&server)
+                .await;
         }
         eval_manifest(&server.uri(), "test", "exact recorded narration replay").await;
     }

@@ -9,7 +9,7 @@ import { commands } from "@/lib/utils/tauri";
 import type { GuideVideoPlatform, GuideVideoResult } from "@screenpipe/workflows-ui";
 import { localFetch } from "@/lib/api";
 
-async function screenshot(frameId: number, signal: AbortSignal): Promise<string> {
+export async function loadVideoScreenshot(frameId: number, signal: AbortSignal): Promise<string> {
   if (!Number.isSafeInteger(frameId) || frameId <= 0) throw new Error("Invalid screenshot reference.");
   const controller = new AbortController();
   const abort = () => controller.abort();
@@ -17,8 +17,8 @@ async function screenshot(frameId: number, signal: AbortSignal): Promise<string>
   if (signal.aborted) abort();
   const timeout = setTimeout(abort, 15000);
   try {
-    const response = await localFetch(`/frames/${frameId}/thumbnail?width=1280&quality=90&fallback=false`, { signal: controller.signal });
-    if (!response.ok) throw new Error("A reviewed screenshot is unavailable. Uncheck ‘Include reviewed screenshots’ to make a text-only video, or try again.");
+    const response = await localFetch(`/frames/${frameId}/thumbnail?width=1920&quality=90&fallback=false`, { signal: controller.signal });
+    if (!response.ok) throw new Error("A reviewed screenshot is unavailable. Restore or replace that screenshot before rendering.");
     const blob = await response.blob();
     if (!/^image\/(png|jpeg|webp)$/.test(blob.type) || !blob.size || blob.size > 12 * 1024 * 1024) throw new Error("A screenshot could not be read.");
     const result = await new Promise<string>((resolve, reject) => {
@@ -51,8 +51,8 @@ export const desktopGuideVideo: GuideVideoPlatform = {
       const prepared = [];
       for (const scene of scenes) {
         signal.throwIfAborted();
-        if (scene.imageFrameId && !images.has(scene.imageFrameId)) images.set(scene.imageFrameId, await screenshot(scene.imageFrameId, signal));
-        prepared.push({ title: scene.title, narration: scene.narration, image: scene.image || images.get(scene.imageFrameId ?? 0) || null });
+        if (scene.imageFrameId && !images.has(scene.imageFrameId)) images.set(scene.imageFrameId, await loadVideoScreenshot(scene.imageFrameId, signal));
+        prepared.push({ title: scene.title, narration: scene.narration, image: images.get(scene.imageFrameId ?? 0) || scene.image || null, pace: scene.pace ?? 1, focus: scene.focus ?? null });
       }
       signal.throwIfAborted();
       posthog.capture("workflow_video_started", { sections: scenes.length, screenshots: prepared.filter(s => s.image).length });

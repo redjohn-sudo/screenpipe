@@ -2,7 +2,7 @@
 // https://screenpipe.com
 "use client";
 import { useContext, useEffect, useRef } from "react";
-import { guideVideoDraft } from "./guide-video";
+import { guideVideoDraft, guideVideoScenes } from "./guide-video";
 import type { WorkflowGuide } from "./guide";
 import type { WorkflowMap } from "./model";
 import type { WorkflowsPlatform } from "./platform";
@@ -53,7 +53,7 @@ export function GuideAssistant(props: {
           };
           if (current.current.videoMode && guide) {
             if (!platform.video?.edit) throw new Error("Video editing is unavailable.");
-            const response = await platform.video.edit(guideVideoDraft(guide, workflow), question, history, runSignal, progress);
+            const response = await platform.video.edit(guideVideoDraft(guide, workflow), question, history, runSignal, progress, guideVideoScenes(guide, workflow));
             runSignal.throwIfAborted();
             if (current.current.guide !== guide) throw new Error("The SOP or video script changed while the assistant was editing. Your edits were kept. Try again.");
             const next = { ...guide, video: response.draft };

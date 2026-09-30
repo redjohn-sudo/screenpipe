@@ -16,7 +16,7 @@ describe("desktop video boundary", () => {
   it("uses native rendering and emits no source content in telemetry", async () => {
     const output = await desktopGuideVideo.generate(scenes, new AbortController().signal, vi.fn());
     expect(output.url).toBe("asset:/local/video.mp4");
-    expect(mocks.create).toHaveBeenCalledWith(expect.any(String), scenes);
+    expect(mocks.create).toHaveBeenCalledWith(expect.any(String), scenes.map(scene => ({...scene, pace: 1, focus: null})));
     expect(JSON.stringify(mocks.capture.mock.calls)).not.toMatch(/Private|local/);
     expect(mocks.unlisten).toHaveBeenCalledOnce();
     await desktopGuideVideo.release(output);
@@ -25,7 +25,7 @@ describe("desktop video boundary", () => {
   it("blocks unavailable screenshots before any speech/render call", async () => {
     mocks.fetch.mockResolvedValue({ok:false,status:410});
     await expect(desktopGuideVideo.generate([{ ...scenes[0], imageFrameId: 123 }], new AbortController().signal, vi.fn())).rejects.toThrow(/screenshot is unavailable/);
-    expect(mocks.fetch.mock.calls[0][0]).toBe("/frames/123/thumbnail?width=1280&quality=90&fallback=false");
+    expect(mocks.fetch.mock.calls[0][0]).toBe("/frames/123/thumbnail?width=1920&quality=90&fallback=false");
     expect(mocks.create).not.toHaveBeenCalled();
     expect(mocks.unlisten).toHaveBeenCalledOnce();
   });

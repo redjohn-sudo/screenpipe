@@ -123,3 +123,29 @@ it("renders the current chat-supplied script through the same preview controller
   expect(screen.getByLabelText("Narrated SOP preview")).toBeTruthy();
   expect(screen.queryByText(/earlier edit/)).toBeNull();
 });
+
+it("blocks procedural screenshot gaps before any rendering or speech",async()=>{
+ const p=platform(); const without=structuredClone(workflow);without.stages[0].screenshot=undefined;
+ render(<GuideVideoPanel guide={guide} workflow={without} platform={p} save={async()=>{}} />);
+ fireEvent.click(screen.getByRole("button",{name:"Video SOP"}));
+ expect(screen.getByText(/These steps need a screenshot/)).toBeTruthy();
+ expect(screen.getByRole("button",{name:"Create video"})).toBeDisabled();
+ expect(p.generate).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByRole("checkbox",{name:/Allow text-only/}));
+ fireEvent.click(screen.getByRole("button",{name:"Create video"}));
+ await screen.findByLabelText("Narrated SOP preview");
+});
+it("selects a verified screenshot even if the first capture is unreviewed",()=>{
+ const w=structuredClone(workflow);w.stages[0].screenshots=[{...w.stages[0].screenshot!,frameId:7,visualVerified:false},{...w.stages[0].screenshot!,frameId:8,visualVerified:true}];
+ expect(guideVideoScenes(guide,w)[2].imageFrameId).toBe(8);
+});
+
+it("retains earlier successful renders and releases only the oldest beyond three versions",async()=>{
+ const p=platform();let number=0;vi.mocked(p.generate).mockImplementation(async()=>({...result,path:`/preview-${++number}.mp4`,url:`asset:/preview-${number}.mp4`}));
+ const view=render(<GuideVideoPanel guide={guide} workflow={workflow} platform={p} save={async()=>{}} />);
+ fireEvent.click(screen.getByRole("button",{name:"Video SOP"}));
+ for(let i=1;i<=4;i++) { fireEvent.click(screen.getByRole("button",{name:i===1?"Create video":"Create new video"}));await waitFor(()=>expect(screen.getByLabelText("Narrated SOP preview")).toHaveAttribute("src",`asset:/preview-${i}.mp4`)); }
+ expect(p.release).toHaveBeenCalledTimes(1);expect(vi.mocked(p.release).mock.calls[0][0].path).toBe("/preview-1.mp4");
+ fireEvent.click(screen.getByText("Video revisions · 3"));fireEvent.click(screen.getByRole("button",{name:"Version 2"}));
+ expect(screen.getByLabelText("Narrated SOP preview")).toHaveAttribute("src","asset:/preview-2.mp4");view.unmount();expect(p.release).toHaveBeenCalledTimes(4);
+});

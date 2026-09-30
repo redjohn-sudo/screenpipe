@@ -10,7 +10,7 @@ import { advanceMeetingChatStream, emptyStreamState } from "@/components/meeting
 import { INTERNAL_TITLE_PREFIX } from "@/lib/utils/internal-session";
 import type { WorkflowsAssistantPlatform } from "@screenpipe/workflows-ui";
 
-export async function runWorkflowAgent({ name, prompt, config, signal, onProgress, onEvent, allowEmpty = false, timeoutMs = 180000 }: {
+export async function runWorkflowAgent({ name, prompt, config, signal, onProgress, onEvent, allowEmpty = false, timeoutMs = 180000, projectPath }: {
   name: "assistant" | "context" | "guide";
   prompt: string;
   config: PiProviderConfig;
@@ -19,6 +19,7 @@ export async function runWorkflowAgent({ name, prompt, config, signal, onProgres
   onEvent?: (event: AgentInnerEvent) => void;
   allowEmpty?: boolean;
   timeoutMs?: number;
+  projectPath?: string;
 }) {
     const sessionId = `${INTERNAL_TITLE_PREFIX}workflow-${name}-${crypto.randomUUID()}`;
     let stream = emptyStreamState();
@@ -67,7 +68,7 @@ export async function runWorkflowAgent({ name, prompt, config, signal, onProgres
       unregister.push(onEvicted((event) => { if (event.sessionId === sessionId) fail(new Error("The conversation was interrupted. Try again.")); }));
       const choice = await workflowModelPreference.load(); assertActive();
       config = { ...config, provider: "screenpipe-cloud", model: WORKFLOW_MODELS[choice].model, url: "", apiKey: null, acpAgent: null, backend: null, maxContextChars: null };
-      const started = await commands.piStart(sessionId, `${base.data}/pi-workflows-${name}`, userToken, config);
+      const started = await commands.piStart(sessionId, projectPath ?? `${base.data}/pi-workflows-${name}`, userToken, config);
       assertActive();
       if (started.status === "error" || !started.data.running) throw new Error(started.status === "error" ? started.error : "Couldn’t start the assistant.");
       const prompted = await commands.piPrompt(sessionId, prompt, null, null);

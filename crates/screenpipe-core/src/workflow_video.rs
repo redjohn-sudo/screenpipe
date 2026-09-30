@@ -12,10 +12,23 @@ use std::{
 use tokio::{fs, io::AsyncWriteExt, process::Command, sync::watch};
 
 #[derive(Clone, serde::Deserialize)]
+pub struct Focus {
+    pub x: f64,
+    pub y: f64,
+    pub zoom: f64,
+}
+fn normal_pace() -> f64 {
+    1.0
+}
+#[derive(Clone, serde::Deserialize)]
 pub struct Scene {
     pub title: String,
     pub narration: String,
     pub image: Option<PathBuf>,
+    #[serde(default = "normal_pace")]
+    pub pace: f64,
+    #[serde(default)]
+    pub focus: Option<Focus>,
 }
 
 pub fn segments(text: &str) -> Vec<String> {
@@ -47,6 +60,19 @@ pub fn validate(scenes: &[Scene]) -> Result<()> {
         bail!("Use between 1 and 50 video sections.");
     }
     if scenes.iter().any(|s| {
+        !s.pace.is_finite()
+            || !(0.85..=1.25).contains(&s.pace)
+            || s.focus.as_ref().is_some_and(|f| {
+                ![f.x, f.y, f.zoom].iter().all(|v| v.is_finite())
+                    || !(0.0..=1.0).contains(&f.x)
+                    || !(0.0..=1.0).contains(&f.y)
+                    || !(1.0..=1.6).contains(&f.zoom)
+                    || s.image.is_none()
+            })
+    }) {
+        bail!("Invalid video pace or screenshot focus.");
+    }
+    if scenes.iter().any(|s| {
         s.title.trim().is_empty() || s.title.chars().count() > 140 || s.narration.trim().is_empty()
     }) {
         bail!("Each section needs a title (up to 140 characters) and narration.");
@@ -65,6 +91,40 @@ pub fn validate(scenes: &[Scene]) -> Result<()> {
         bail!("This SOP is too long for one video. Split it into separate SOPs.");
     }
     Ok(())
+}
+
+/// Native pixels bound zoom. Titles/captions never move with the screenshot.
+fn screenshot_filter(
+    focus: Option<&Focus>,
+    width: f64,
+    height: f64,
+    duration: f64,
+    first: bool,
+    last: bool,
+) -> String {
+    let normal = "scale=1184:456:force_original_aspect_ratio=decrease,pad=1184:456:(ow-iw)/2:(oh-ih)/2:color=0xf7f7f3";
+    let Some(f) = focus else {
+        return normal.into();
+    };
+    let max_zoom = (width / 1184.0).max(height / 456.0).clamp(1.0, 1.6);
+    let zoom = f.zoom.min(max_zoom);
+    if zoom <= 1.0 || duration < 2.0 {
+        return normal.into();
+    }
+    let fit = (1184.0 / width).min(456.0 / height);
+    let x = ((1184.0 - width * fit) / 2.0 + f.x * width * fit) / 1184.0;
+    let y = ((456.0 - height * fit) / 2.0 + f.y * height * fit) / 456.0;
+    let enter = if first {
+        "min(max((on/24-0.8)/0.3,0),1)"
+    } else {
+        "1"
+    };
+    let exit = if last {
+        format!("min(max(({}-on/24)/0.3,0),1)", duration - 0.5)
+    } else {
+        "1".into()
+    };
+    format!("scale=1894:730:force_original_aspect_ratio=decrease,pad=1894:730:(ow-iw)/2:(oh-ih)/2:color=0xf7f7f3,zoompan=z='1+{}*{enter}*{exit}':x='max(0,min(iw-iw/zoom,iw*{x}-iw/zoom/2))':y='max(0,min(ih-ih/zoom,ih*{y}-ih/zoom/2))':d=1:s=1184x456:fps=24", zoom - 1.0)
 }
 
 async fn run(mut command: Command) -> Result<Vec<u8>> {
@@ -141,7 +201,7 @@ async fn speech(
     let mut response = client
         .post(format!("{}/tts", gateway.trim_end_matches('/')))
         .bearer_auth(token)
-        .json(&serde_json::json!({"text": text}))
+        .json(&serde_json::json!({"text": text, "profile": "sop"}))
         .send()
         .await
         .context("Could not reach speech generation. Try again when connected.")?;
@@ -155,6 +215,14 @@ async fn speech(
             }
         }
         bail!(speech_failure(status, &String::from_utf8_lossy(&body)));
+    }
+    if response
+        .headers()
+        .get("x-screenpipe-narration-profile")
+        .and_then(|h| h.to_str().ok())
+        != Some("sop-openai-marin-v1")
+    {
+        bail!("The SOP narration service needs an update. Your SOP is unchanged. Try again later.");
     }
     if !response
         .headers()
@@ -254,7 +322,7 @@ async fn render_inner(
                     "-frames:v",
                     "1",
                     "-vf",
-                    "scale=1184:456:force_original_aspect_ratio=decrease",
+                    "scale=w='min(iw,1894)':h='min(ih,730)':force_original_aspect_ratio=decrease",
                     "-threads",
                     "1",
                 ])
@@ -275,9 +343,10 @@ async fn render_inner(
     let mut soundtrack = fs::File::create(directory.join("soundtrack.pcm")).await?;
     for (i, scene) in scenes.iter().enumerate() {
         fs::write(directory.join("title.txt"), wrapped(&scene.title, 75)).await?;
-        for narration in segments(&scene.narration) {
+        let parts = segments(&scene.narration);
+        for (section_part, narration) in parts.iter().enumerate() {
             progress(part + 1, total, "Narrating");
-            let audio = speech(&client, gateway, token, &narration).await?;
+            let audio = speech(&client, gateway, token, narration).await?;
             fs::write(directory.join("speech.mp3"), audio).await?;
             let mut decode = ffmpeg(binary, directory);
             decode.args([
@@ -286,6 +355,8 @@ async fn render_inner(
                 "-t",
                 "61",
                 "-vn",
+                "-af",
+                &format!("atempo={}", scene.pace),
                 "-f",
                 "s16le",
                 "-ac",
@@ -332,7 +403,22 @@ async fn render_inner(
                 encode
                     .args(["-loop", "1", "-framerate", "24", "-i"])
                     .arg(format!("image-{i}.png"));
-                image_filter = format!("pad=1280:720:(ow-iw)/2:104:color=0xf7f7f3,{text_filters}");
+                let header = fs::read(directory.join(format!("image-{i}.png"))).await?;
+                if header.len() < 24 {
+                    bail!("Screenshot could not be decoded.");
+                }
+                let width = u32::from_be_bytes(header[16..20].try_into().unwrap()) as f64;
+                let height = u32::from_be_bytes(header[20..24].try_into().unwrap()) as f64;
+                let picture = screenshot_filter(
+                    scene.focus.as_ref(),
+                    width,
+                    height,
+                    frames as f64 / 24.0,
+                    section_part == 0,
+                    section_part + 1 == parts.len(),
+                );
+                image_filter =
+                    format!("{picture},pad=1280:720:48:104:color=0xf7f7f3,{text_filters}");
             } else {
                 encode.args(["-f", "lavfi", "-i", "color=c=0xf7f7f3:s=1280x720:r=24"]);
                 image_filter = "drawtext=textfile=title.txt:expansion=none:fontsize=28:fontcolor=0x171714:x=48:y=28,drawtext=text='Text walkthrough':fontsize=18:fontcolor=0x77776f:x=48:y=112,drawtext=textfile=caption.txt:expansion=none:fontsize=32:fontcolor=0x171714:x=48:y=230:line_spacing=12".to_owned();
