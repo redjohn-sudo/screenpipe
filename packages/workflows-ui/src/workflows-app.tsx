@@ -66,13 +66,11 @@ import {
   X,
   Workflow,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, useId } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type AppView, isPrimaryAppView } from "./navigation";
 import {
-  activeFilterCount,
   defaultWorkflowFilters,
   filterWorkflows,
-  type WorkflowFilters,
 } from "./filters";
 import {
   activityPeriodLabel,
@@ -699,17 +697,9 @@ function OverviewView({
   );
 }
 
-function WorkflowsView({ reviewIds, workflows, knownWorkflowCount, filters, setFilters, openWorkflow, analyze, analyzing, error, stop, updatedAt, checkedThrough, changes, job, subscribe, activityState, analysisUnavailableReason }: { reviewIds?: ReadonlySet<string>; activityState: WorkflowActivityState; analysisUnavailableReason?: string; workflows: WorkflowMap[]; knownWorkflowCount: number; filters: WorkflowFilters; setFilters: (filters: WorkflowFilters) => void; openWorkflow: (index: number) => void; analyze: () => void; analyzing: boolean; error: string; stop?: () => void; updatedAt?: string; checkedThrough?: string; changes?: { created: number; updated: number }; job?: WorkflowAnalysisJob | null; subscribe?: WorkflowsPlatform["subscribeAnalysisActivity"] }) {
+function WorkflowsView({ reviewIds, workflows, knownWorkflowCount, query, setQuery, openWorkflow, analyze, analyzing, error, stop, updatedAt, checkedThrough, changes, job, subscribe, activityState, analysisUnavailableReason }: { reviewIds?: ReadonlySet<string>; activityState: WorkflowActivityState; analysisUnavailableReason?: string; workflows: WorkflowMap[]; knownWorkflowCount: number; query: string; setQuery: (query: string) => void; openWorkflow: (index: number) => void; analyze: () => void; analyzing: boolean; error: string; stop?: () => void; updatedAt?: string; checkedThrough?: string; changes?: { created: number; updated: number }; job?: WorkflowAnalysisJob | null; subscribe?: WorkflowsPlatform["subscribeAnalysisActivity"] }) {
   const ui = useGT();
-  const filtersId = useId();
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const visible = useMemo(() => filterWorkflows(workflows, filters), [filters, workflows]);
-  const availableApps = useMemo(() => [...new Set(workflows.flatMap((workflow) => workflow.apps))].sort((a, b) => a.localeCompare(b)), [workflows]);
-  const filterCount = activeFilterCount(filters);
-  function updateFilter<K extends keyof WorkflowFilters>(key: K, value: WorkflowFilters[K]) {
-    setFilters({ ...filters, [key]: value });
-  }
-  const clearFilters = () => setFilters({ ...defaultWorkflowFilters, query: filters.query });
+  const visible = useMemo(() => filterWorkflows(workflows, { ...defaultWorkflowFilters, query }), [query, workflows]);
 
   return (
     <>
@@ -717,23 +707,14 @@ function WorkflowsView({ reviewIds, workflows, knownWorkflowCount, filters, setF
         <div className={styles.catalogHeading}>
           <h1>Your workflows</h1>
           <div className={styles.catalogCount}>
-            <span>{filterCount || filters.query ? ui("{visible} of {total} shown", { visible: visible.length, total: workflows.length }) : ui("{count, plural, one {# workflow} other {# workflows}}", { count: workflows.length })}</span>
-            {(filterCount > 0 || filters.query) && <button className={styles.clearButton} onClick={() => setFilters(defaultWorkflowFilters)}>{ui("Clear filters")}</button>}
+            <span>{query ? ui("{visible} of {total} shown", { visible: visible.length, total: workflows.length }) : ui("{count, plural, one {# workflow} other {# workflows}}", { count: workflows.length })}</span>
+            {query && <button className={styles.clearButton} onClick={() => setQuery("")}>{ui("Clear search")}</button>}
           </div>
         </div>
-        <WorkflowRunProgress activityState={activityState} quiet actions={workflows.length > 0 && <button type="button" className={styles.quietIconButton} aria-label={filterCount ? ui("Filters ({count})", { count: filterCount }) : ui("Filters")} title={ui("Filters")} aria-expanded={filtersOpen} aria-controls={filtersId} onClick={() => setFiltersOpen(open => !open)}><SlidersHorizontal size={16} />{filterCount > 0 && <span className={styles.filterCount}>{filterCount}</span>}</button>} disabledReason={analysisUnavailableReason} job={job} active={analyzing} subscribe={subscribe} stop={stop} analyze={analyze} updatedAt={updatedAt} checkedThrough={checkedThrough} changes={changes} />
+        <WorkflowRunProgress activityState={activityState} quiet disabledReason={analysisUnavailableReason} job={job} active={analyzing} subscribe={subscribe} stop={stop} analyze={analyze} updatedAt={updatedAt} checkedThrough={checkedThrough} changes={changes} />
       </div>
       {error && <p role="alert" className={styles.depthNotice}>{error}</p>}
       {!knownWorkflowCount ? <EmptyWorkMap analyzing={analyzing} analyze={analyze} /> : !workflows.length ? <section className={styles.emptyState}><Clock3 size={23} /><h2>No known workflows were active in this period</h2><p>Your {knownWorkflowCount} known workflows are still in the catalog. Choose “All known” to see them.</p></section> : <>
-        {filtersOpen && <section id={filtersId} aria-label={ui("Workflow filters")} className={styles.filterPanel}>
-          <label><span>Evidence quality</span><select value={filters.quality} onChange={(event) => updateFilter("quality", event.target.value as WorkflowFilters["quality"])}><option value="all">Any support level</option><option value="good">Good or stronger</option><option value="strong">Strong only</option></select></label>
-          <label><span>Time per run</span><select value={filters.duration} onChange={(event) => updateFilter("duration", event.target.value as WorkflowFilters["duration"])}><option value="all">Any duration</option><option value="short">15 minutes or less</option><option value="medium">16–45 minutes</option><option value="long">More than 45 minutes</option></select></label>
-          <label><span>Friction type</span><select value={filters.friction} onChange={(event) => updateFilter("friction", event.target.value as WorkflowFilters["friction"])}><option value="all">Any friction</option><option value="waiting">Waiting</option><option value="switching">Switching</option><option value="rework">Rework</option><option value="handoff">Handoff</option><option value="unclear">Unclear</option></select></label>
-          <label><span>Who can affect it</span><select value={filters.control} onChange={(event) => updateFilter("control", event.target.value as WorkflowFilters["control"])}><option value="all">Any control level</option><option value="direct">Within your control</option><option value="influence">You can influence</option><option value="external">External dependency</option><option value="required">Required safeguard</option></select></label>
-          <label><span>App involved</span><select value={filters.app} onChange={(event) => updateFilter("app", event.target.value)}><option value="all">Any app</option>{availableApps.map((app) => <option key={app} value={app}>{app}</option>)}</select></label>
-          <label><span>Stage screenshots</span><select value={filters.screenshots} onChange={(event) => updateFilter("screenshots", event.target.value as WorkflowFilters["screenshots"])}><option value="all">Any coverage</option><option value="complete">Every stage matched</option><option value="partial">Some stages matched</option><option value="none">No screenshots matched</option></select></label>
-          <button onClick={clearFilters} disabled={!filterCount}>Reset filters</button>
-        </section>}
         {visible.length ? <div className={styles.workflowGrid}>{visible.map((workflow) => {
           const originalIndex = workflows.indexOf(workflow);
           const timing = workflowTiming(workflow.timing);
@@ -753,7 +734,7 @@ function WorkflowsView({ reviewIds, workflows, knownWorkflowCount, filters, setF
               </div>
             </article>
           );
-        })}</div> : <section className={styles.emptyState}><Search size={23} /><h2>No workflows match these filters</h2><p>Broaden the filters or clear the search to see the rest of your mapped work.</p><button className={styles.primaryButton} onClick={() => setFilters(defaultWorkflowFilters)}>Clear filters</button></section>}
+        })}</div> : <section className={styles.emptyState}><Search size={23} /><h2>No workflows match your search</h2><p>Try another search or clear it to see all your workflows.</p><button className={styles.primaryButton} onClick={() => setQuery("")}>Clear search</button></section>}
       </>}
     </>
   );
@@ -766,7 +747,7 @@ function CatalogPlaceholder({ detail = false, reconnecting = false, retry }: { d
   return <section aria-busy="true" aria-label={ui("Loading workflows")}>
     {detail ? <div className={`${styles.pageHeader} ${styles.catalogHeader}`}><h1>{ui("Workflow")}</h1><span role="status" className={styles.catalogLoadStatus}>{message}</span></div> : <div className={`${styles.catalogHeader} ${styles.quietCatalogHeader}`}>
       <div className={styles.catalogHeading}><h1>{ui("Your workflows")}</h1><div className={styles.catalogCount} aria-hidden="true">{bar("150px", 12)}</div></div>
-      <div className={styles.quietHeaderActions} aria-hidden="true">{bar("36px", 36)}{bar("36px", 36)}</div>
+      <div className={styles.quietHeaderActions} aria-hidden="true">{bar("36px", 36)}</div>
       <div className={styles.quietRefreshControls}><span role="status" className={`${styles.runProgress} ${styles.catalogLoadStatus}`}>{message}</span></div>
     </div>}
     {reconnecting && <div className={styles.catalogRefreshNotice}><span>We’ll load your workflows automatically when the connection returns.</span><button onClick={retry}>Retry loading</button></div>}
@@ -1307,7 +1288,7 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
   const [reviewIds, setReviewIds] = useState<ReadonlySet<string>>(new Set());
   const [reviewError, setReviewError] = useState("");
   const activityPeriod: WorkflowActivityPeriod = 0;
-  const [filters, setFilters] = useState<WorkflowFilters>(defaultWorkflowFilters);
+  const [query, setQuery] = useState("");
   const [view, setView] = useState<AppView>("workflows");
   const [timeLens, setTimeLens] = useState<TimeLens>("categories");
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
@@ -1347,7 +1328,7 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
     handledReview.current = reviewRequest.key;
     setReviewError("");
     setReviewIds(new Set(reviewRequest.workflowIds ?? []));
-    setFilters(defaultWorkflowFilters);
+    setQuery("");
     const index = reviewRequest.workflowId ? workflows.findIndex(w => w.id === reviewRequest.workflowId) : -1;
     if (index >= 0) openWorkflow(index);
     else {
@@ -1565,7 +1546,6 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
       keywords: `${workflow.apps.join(" ")} ${workflow.outcome}`,
       action: () => openWorkflow(index),
     }));
-    const filtersActive = activeFilterCount(filters) > 0;
     return [
       ...navigationCommands,
       ...(!embedded ? [{
@@ -1598,19 +1578,19 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
         action: () => void analyze(),
       },
       {
-        id: "action-clear-filters",
-        label: ui("Clear workflow filters"),
-        detail: "Reset search, app, duration, and confidence filters",
+        id: "action-clear-search",
+        label: ui("Clear workflow search"),
+        detail: "Show all workflows",
         group: "Actions",
         icon: X,
         keywords: "reset search",
-        disabled: !filtersActive,
-        action: () => setFilters(defaultWorkflowFilters),
+        disabled: !query,
+        action: () => setQuery(""),
       },
       ...scopeCommands,
       ...workflowCommands,
     ];
-  }, [activeScope?.id, activityPeriod, analyze, analyzing, embedded, filters, focusWorkflowSearch, navigate, openWorkflow, platform.assistant, runtime?.dataBoundary?.workspaceVisibility, scopes, selectScope, workflows, shortcuts.left.aria, shortcuts.right.aria, uiLanguage]);
+  }, [activeScope?.id, activityPeriod, analyze, analyzing, embedded, query, focusWorkflowSearch, navigate, openWorkflow, platform.assistant, runtime?.dataBoundary?.workspaceVisibility, scopes, selectScope, workflows, shortcuts.left.aria, shortcuts.right.aria, uiLanguage]);
 
   useEffect(() => {
     if (!active) return;
@@ -1656,7 +1636,7 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
   switch (view) {
     case "overview": content = <OverviewView analysis={analysis ? { ...analysis, analysis: { workflows } } : null} analyzing={analyzing} error={analysisError} analyze={() => void analyze()} openWorkflow={openWorkflow} navigate={navigate} knownWorkflowCount={knownWorkflows.length} activityPeriod={activityPeriod} runtime={runtime} workProfile={workProfile} refreshRuntime={refreshRuntime} openAccount={platform.openAccount} />; break;
     case "time": content = <TimeView analysis={analysis} analyze={() => void analyze()} analyzing={analyzing} workProfile={workProfile} lens={timeLens} setLens={setTimeLens} />; break;
-    case "workflows": content = <WorkflowsView reviewIds={reviewIds} activityState={runActivity} analysisUnavailableReason={onAnalysisUnavailable ? undefined : analysisUnavailableReason} workflows={workflows} knownWorkflowCount={knownWorkflows.length} filters={filters} setFilters={setFilters} openWorkflow={openWorkflow} analyze={() => void analyze()} analyzing={analyzing} error={analysisError || reviewError} stop={platform.cancelAnalysisJob ? () => { void platform.cancelAnalysisJob!().catch(error => setAnalysisError(String(error))); } : undefined} updatedAt={analysis?.analyzedAt} checkedThrough={analysis?.checkedThrough} changes={analysis?.changes} job={analysisJob} subscribe={platform.subscribeAnalysisActivity} />; break;
+    case "workflows": content = <WorkflowsView reviewIds={reviewIds} activityState={runActivity} analysisUnavailableReason={onAnalysisUnavailable ? undefined : analysisUnavailableReason} workflows={workflows} knownWorkflowCount={knownWorkflows.length} query={query} setQuery={setQuery} openWorkflow={openWorkflow} analyze={() => void analyze()} analyzing={analyzing} error={analysisError || reviewError} stop={platform.cancelAnalysisJob ? () => { void platform.cancelAnalysisJob!().catch(error => setAnalysisError(String(error))); } : undefined} updatedAt={analysis?.analyzedAt} checkedThrough={analysis?.checkedThrough} changes={analysis?.changes} job={analysisJob} subscribe={platform.subscribeAnalysisActivity} />; break;
     case "workflow": content = <WorkflowDetail canSaveAnswers={catalogReady && (!activeScope || activeScope.kind === "personal")} composerAccessory={composerAccessory} active={active} onAnswersSaved={saved => setAnalysis(current => current ? { ...current, analysis: { ...current.analysis, workflows: current.analysis.workflows.map(w => (w.id ?? w.title) === (saved.id ?? saved.title) && (saved.revision ?? 0) >= (w.revision ?? 0) ? saved : w) } } : current)} key={activeWorkflow?.id || activeWorkflow?.title} onShareWorkflow={onShareWorkflow} workflowAgentActions={workflowAgentActions} workflow={activeWorkflow} navigate={navigate} platform={platform} workProfile={workProfile} saveEdits={catalogReady && platform.saveWorkflowEdits && (!activeScope || activeScope.kind === "personal") ? async (draft) => {
       let saved: WorkflowMap;
       try { saved = await platform.saveWorkflowEdits!(draft); }
@@ -1694,7 +1674,7 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
   }
 
   return <>
-    <AppShell toolbarAccessory={toolbarAccessory} modelControl={platform.modelPreference ? <WorkflowModelControl preference={platform.modelPreference} /> : undefined} composerAccessory={composerAccessory} active={active} fullscreen={fullscreen} navigationFooter={navigationFooter} navigationBrand={navigationBrand} recordingStatus={recordingStatus} view={view} navigate={navigate} runtime={runtime} workflowCount={knownWorkflows.length} query={filters.query} setQuery={(query) => setFilters((current) => ({ ...current, query }))} activeScope={activeScope} scopes={scopes} setScope={selectScope} embedded={embedded} startWindowDrag={platform.startWindowDrag} openCommandPalette={() => setCommandPaletteOpen(true)} assistant={platform.assistant ? { platform: platform.assistant, context: view === "workflow" && activeWorkflow ? { key: `workflow:${activeWorkflow.title}`, title: activeWorkflow.title, workflow: activeWorkflow } : view === "profile" ? { key: "profile", title: ui("Context"), profile: workProfile } : { key: "workflows", title: ui("Your workflows"), catalog: workflows.map(({ title, description }) => ({ title, description })) } } : undefined}>{statusNotice}
+    <AppShell toolbarAccessory={toolbarAccessory} modelControl={platform.modelPreference ? <WorkflowModelControl preference={platform.modelPreference} /> : undefined} composerAccessory={composerAccessory} active={active} fullscreen={fullscreen} navigationFooter={navigationFooter} navigationBrand={navigationBrand} recordingStatus={recordingStatus} view={view} navigate={navigate} runtime={runtime} workflowCount={knownWorkflows.length} query={query} setQuery={setQuery} activeScope={activeScope} scopes={scopes} setScope={selectScope} embedded={embedded} startWindowDrag={platform.startWindowDrag} openCommandPalette={() => setCommandPaletteOpen(true)} assistant={platform.assistant ? { platform: platform.assistant, context: view === "workflow" && activeWorkflow ? { key: `workflow:${activeWorkflow.title}`, title: activeWorkflow.title, workflow: activeWorkflow } : view === "profile" ? { key: "profile", title: ui("Context"), profile: workProfile } : { key: "workflows", title: ui("Your workflows"), catalog: workflows.map(({ title, description }) => ({ title, description })) } } : undefined}>{statusNotice}
       {/* Keep drafts, imports and the active fill alive when navigating away.
           A different scope must tear down the old request before accepting fields. */}
       <div key={`${activeScope?.kind ?? "personal"}:${activeScope?.id ?? ""}`} hidden={view !== "profile"}>
