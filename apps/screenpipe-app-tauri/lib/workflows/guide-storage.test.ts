@@ -87,3 +87,12 @@ it("keeps screenshot review through disk validation and backup recovery", async 
   files.set("workflows/guides.json", "broken");
   expect(await loadGuideFromDisk("research")).toEqual(reviewed);
 });
+
+it("persists video edits alongside the SOP through reload", async () => {
+  const video = { version: 1 as const, sourceHash: "abc", scenes: [{ id: "section-0", title: "Video title", narration: "Shorter narration.", includeImage: false }] };
+  await saveGuideToDisk({ ...guide, video });
+  resetWorkflowDiskStorageForTests();
+  const loaded = await loadGuideFromDisk(guide.workflowKey);
+  expect(loaded?.video).toEqual(video);
+  expect(loaded?.steps).toEqual(guide.steps);
+});

@@ -28,3 +28,5 @@ export * from "./confidential-verification";
 export * from "./workflow-edits";
 
 export * from "./questionnaire-voice";
+
+export { applyVideoEdit, parseVideoEdit, parseVideoDraft, type VideoDraft, type VideoEdit } from "./video-tool";

@@ -1,10 +1,12 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
+import { parseVideoDraft, type VideoDraft } from "./video-tool";
 import { stageScreenshots } from "./screenshots";
 import type { WorkflowMap } from "./model";
 
 export type WorkflowGuide = {
   version: 1;
+  video?: VideoDraft;
   workflowKey: string;
   sourceRevision: number;
   title: string;
@@ -82,6 +84,7 @@ export function parseGuide(
   }
   return {
     version: 1,
+    ...(!workflow && g.video ? { video: parseVideoDraft(g.video) } : {}),
     workflowKey: g.workflowKey,
     sourceRevision: g.sourceRevision,
     title: g.title,

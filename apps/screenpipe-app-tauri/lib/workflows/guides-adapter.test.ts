@@ -126,3 +126,11 @@ it.each([403,429,503])("does not start generation when access fails (%s)",async(
  await expect(desktopGuides.generate(workflow,new AbortController().signal,()=>{})).rejects.toThrow("Access unavailable");
  expect(mocks.run).not.toHaveBeenCalled();
 });
+
+it("preserves separate video edits when the written SOP is edited", async () => {
+  const video = { version: 1 as const, sourceHash: "abc", scenes: [{ id: "section-0", title: "Video title", narration: "Keep this video edit.", includeImage: false }] };
+  mocks.run.mockResolvedValue(JSON.stringify({ ...guide, title: "New SOP title" }));
+  const edited = await desktopGuides.edit!({ ...guide, video } as any, workflow, "Rename the SOP", new AbortController().signal, () => {});
+  expect(edited.title).toBe("New SOP title");
+  expect(edited.video).toEqual(video);
+});

@@ -30,7 +30,7 @@ import { WorkflowRichText } from "./rich-text";
 import { InlineText } from "./inline-text";
 import { SopDocument } from "./sop-document";
 import { GuideAssistant } from "./guide-assistant";
-import { GuideVideoPanel } from "./guide-video-panel";
+import { GuideVideoPanel, type GuideVideoHandle } from "./guide-video-panel";
 import styles from "./workflow-guide.module.css";
 import { useGT } from "gt-react";
 
@@ -48,6 +48,8 @@ export function WorkflowGuide({
     id: string;
     text: string;
   }>();
+  const [videoMode, setVideoMode] = useState(false);
+  const videoHandle = useRef<GuideVideoHandle>(null);
   const [draft, setDraft] = useState<Guide | null>(null);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
@@ -240,7 +242,10 @@ export function WorkflowGuide({
           )}
           {draft && (
             <>
-              {platform.video && <GuideVideoPanel guide={draft} workflow={workflow} platform={platform.video} save={persist} />}
+              {platform.video && <GuideVideoPanel ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} save={persist} onVideoMode={setVideoMode} onReset={async () => {
+                const { video: _video, ...next } = draft;
+                await persist(next); latest.current = next; setDraft(next);
+              }} />}
               {platform.openWeb && (
                 <button
                   className={styles.actionButton}
@@ -274,13 +279,20 @@ export function WorkflowGuide({
       </header>
       {!busy && !error && (
         <GuideAssistant
+          videoMode={videoMode}
+          renderVideo={(guide, signal, progress) => {
+            if (!videoHandle.current) throw new Error("Open an SOP before creating its video.");
+            return videoHandle.current.generate(guide, signal, progress);
+          }}
           guide={draft}
           workflow={workflow}
           platform={platform}
           promptRequest={promptRequest}
           update={async (next) => {
+            const original = latest.current;
             await persist(next);
             if (!mounted.current) return;
+            if (latest.current !== original) throw new Error("The SOP changed while the assistant was saving. Your newer edit was kept.");
             stepKeys.current = next.steps.map(() => crypto.randomUUID());
             latest.current = next;
             setDraft(next);

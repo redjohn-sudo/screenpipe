@@ -1870,6 +1870,14 @@ fn ensure_workflow_feedback_extension(project_dir: &str) -> Result<(), String> {
         .map_err(|e| format!("Failed to install feedback tool: {}", e))
 }
 
+fn ensure_workflow_video_extension(project_dir: &str) -> Result<(), String> {
+    let ext_dir = std::path::Path::new(project_dir).join(".pi").join("extensions");
+    std::fs::create_dir_all(&ext_dir).map_err(|e| e.to_string())?;
+    std::fs::write(ext_dir.join("workflow-video.ts"),
+        include_str!("../../../../packages/workflows-ui/src/video-tool.ts"))
+        .map_err(|e| format!("Failed to install video editing tool: {}", e))
+}
+
 fn ensure_work_context_extension(project_dir: &str) -> Result<(), String> {
     let ext_dir = std::path::Path::new(project_dir).join(".pi").join("extensions");
     std::fs::create_dir_all(&ext_dir).map_err(|e| e.to_string())?;
@@ -2981,6 +2989,10 @@ pub async fn pi_start_inner(
         if provider_config.as_ref().and_then(|config| config.allowed_tools.as_ref())
             .is_some_and(|tools| tools.iter().any(|tool| tool == "refine_workflow")) {
             ensure_workflow_feedback_extension(&project_dir)?;
+        }
+        if provider_config.as_ref().and_then(|config| config.allowed_tools.as_ref())
+            .is_some_and(|tools| tools.iter().any(|tool| tool == "edit_video_sop")) {
+            ensure_workflow_video_extension(&project_dir)?;
         }
         // The form tool has a receiver only in explicitly scoped Context runs.
         if provider_config.as_ref().and_then(|config| config.allowed_tools.as_ref())

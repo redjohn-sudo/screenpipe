@@ -401,6 +401,24 @@ mod tests {
         eval_manifest(&server.uri(), "test", "recorded fixture").await;
     }
 
+    /// Replay exact previously generated narration by text, without a provider request.
+    #[tokio::test]
+    #[ignore]
+    async fn workflow_video_replay_eval() {
+        use wiremock::{matchers::{method, body_partial_json}, Mock, MockServer, ResponseTemplate};
+        let path = std::env::var("SCREENPIPE_VIDEO_REPLAY_MANIFEST").expect("replay manifest required");
+        let fixtures: Vec<serde_json::Value> = serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+        let server = MockServer::start().await;
+        for fixture in fixtures {
+            Mock::given(method("POST"))
+                .and(body_partial_json(serde_json::json!({"text": fixture["text"]})))
+                .respond_with(ResponseTemplate::new(200).insert_header("content-type", "audio/wav")
+                    .set_body_bytes(std::fs::read(fixture["audioPath"].as_str().unwrap()).unwrap()))
+                .mount(&server).await;
+        }
+        eval_manifest(&server.uri(), "test", "exact recorded narration replay").await;
+    }
+
     async fn eval_manifest(gateway: &str, token: &str, speech: &str) {
         #[derive(serde::Deserialize)]
         struct Case {

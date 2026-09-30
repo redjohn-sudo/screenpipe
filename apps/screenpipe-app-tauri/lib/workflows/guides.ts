@@ -1,6 +1,7 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
 import { trackWorkflowOutcome } from "./notification";
+import { editGuideVideo } from "./guide-video-edit";
 import { desktopGuideVideo } from "./guide-video";
 import {
   guideKey,
@@ -42,7 +43,7 @@ async function requireSopGenerationAccess(signal: AbortSignal) {
 }
 
 export const desktopGuides: NonNullable<WorkflowsPlatform["guides"]> = {
-  video: desktopGuideVideo,
+  video: { ...desktopGuideVideo, edit: editGuideVideo },
   async openWeb(guide) {
     const token = await commands.getCloudToken();
     if (!token)
@@ -136,7 +137,7 @@ desktopGuides.edit = async (guide, workflow, instruction, signal, progress) => {
     onProgress: () => progress("Editing your SOP"),
   });
   if (signal.aborted) throw new DOMException("Stopped", "AbortError");
-  return parseGuide(
+  const edited = parseGuide(
     JSON.parse(
       text
         .trim()
@@ -145,4 +146,5 @@ desktopGuides.edit = async (guide, workflow, instruction, signal, progress) => {
     ),
     workflow,
   );
+  return { ...edited, ...(guide.video ? { video: guide.video } : {}) };
 };

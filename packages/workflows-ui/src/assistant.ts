@@ -4,7 +4,7 @@
 import type { WorkProfile, WorkflowMap } from "./model";
 
 export type AssistantContext = {
-  purpose?: "feedback" | "sop";
+  purpose?: "feedback" | "sop" | "video";
   key: string;
   title: string;
   workflow?: WorkflowMap;

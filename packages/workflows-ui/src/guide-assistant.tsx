@@ -2,6 +2,7 @@
 // https://screenpipe.com
 "use client";
 import { useContext, useEffect, useRef } from "react";
+import { guideVideoDraft } from "./guide-video";
 import type { WorkflowGuide } from "./guide";
 import type { WorkflowMap } from "./model";
 import type { WorkflowsPlatform } from "./platform";
@@ -11,6 +12,8 @@ import { useGT } from "gt-react";
 /** Routes SOP edits through the shell's chat, including history, dictation and stop. */
 export function GuideAssistant(props: {
   guide: WorkflowGuide | null;
+  videoMode?: boolean;
+  renderVideo?: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void>;
   promptRequest?: { id: string; text: string };
   workflow: WorkflowMap;
   platform: NonNullable<WorkflowsPlatform["guides"]>;
@@ -26,16 +29,16 @@ export function GuideAssistant(props: {
     const lifetime = new AbortController();
     register({
       context: {
-        key: `sop:${props.workflow.id || props.workflow.title}`,
-        title: ui("SOP: {value1}", {
+        key: `${props.videoMode ? "video" : "sop"}:${props.workflow.id || props.workflow.title}`,
+        title: ui(props.videoMode ? "Video: {value1}" : "SOP: {value1}", {
           value1: props.guide?.title ?? props.workflow.title,
         }),
-        purpose: "sop",
+        purpose: props.videoMode ? "video" : "sop",
       },
       promptRequest: props.promptRequest,
-      ask: async ({ question, signal, onProgress }) => {
+      ask: async ({ question, signal, onProgress, history }) => {
         const { guide, workflow, platform, update } = current.current;
-        if (guide && !platform.edit)
+        if (guide && !current.current.videoMode && !platform.edit)
           throw new Error("SOP editing is unavailable.");
         const run = new AbortController();
         const abort = () => run.abort();
@@ -48,6 +51,21 @@ export function GuideAssistant(props: {
           const progress = (text: string) => {
             if (!runSignal.aborted) onProgress({ text, activity: "writing" });
           };
+          if (current.current.videoMode && guide) {
+            if (!platform.video?.edit) throw new Error("Video editing is unavailable.");
+            const response = await platform.video.edit(guideVideoDraft(guide, workflow), question, history, runSignal, progress);
+            runSignal.throwIfAborted();
+            if (current.current.guide !== guide) throw new Error("The SOP or video script changed while the assistant was editing. Your edits were kept. Try again.");
+            const next = { ...guide, video: response.draft };
+            if (response.changed || response.render) await update(next);
+            runSignal.throwIfAborted();
+            if (response.render) {
+              if (!current.current.renderVideo) throw new Error("Video rendering is unavailable.");
+              await current.current.renderVideo(next, runSignal, progress);
+              return "Created the updated video. Review it in the Video SOP preview.";
+            }
+            return response.changed ? "Saved the video script. Ask me to create the video when you are ready, or choose Create video in the preview." : response.message || "The video script is unchanged.";
+          }
           const next = guide
             ? await platform.edit!(
                 guide,
@@ -80,6 +98,6 @@ export function GuideAssistant(props: {
       lifetime.abort();
       register(null);
     };
-  }, [register, props.workflow.id, props.workflow.title]);
+  }, [register, props.workflow.id, props.workflow.title, props.videoMode]);
   return null;
 }

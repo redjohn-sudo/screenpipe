@@ -4,7 +4,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { GTProvider, initializeGT } from "gt-react";
-import { WorkflowsApp, type GuideVideoPlatform } from "@screenpipe/workflows-ui";
+import { WorkflowsApp, applyVideoEdit, type GuideVideoPlatform } from "@screenpipe/workflows-ui";
 import { createFixtureWorkflowsPlatform, fixtureWorkflowAnalysis } from "@screenpipe/workflows-ui/fixture";
 initializeGT({ defaultLocale: "en", locales: ["en"], loadTranslations: async () => ({}), runtimeUrl: null, _disableDevHotReload: true });
 const params = new URLSearchParams(location.search);
@@ -19,6 +19,11 @@ platform.guides!.load = async workflow => {
 };
 let releaseCount = 0;
 const video: GuideVideoPlatform = {
+  edit: async (draft, instruction) => {
+    const render = instruction.toLowerCase().includes("create");
+    const next = render ? draft : applyVideoEdit(draft, { changes: [{ id: draft.scenes[0].id, narration: "Collect sources, compare their claims, and share a reviewed brief." }], render: false });
+    return { draft: next, changed: !render, render, message: "" };
+  },
   generate: async (_scenes, signal, progress) => {
     progress("Narrating 2 of 8");
     if (params.get("state") === "progress" || params.get("state") === "cancel")

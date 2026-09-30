@@ -111,3 +111,15 @@ describe("video SOP review", () => {
     expect(screen.queryByLabelText("Narrated SOP preview")).toBeNull();
   });
 });
+
+it("renders the current chat-supplied script through the same preview controller", async () => {
+  const p = platform(); const ref = React.createRef<import("../../../../packages/workflows-ui/src/guide-video-panel").GuideVideoHandle>();
+  const { guideVideoDraft } = await import("../../../../packages/workflows-ui/src/guide-video");
+  const video = guideVideoDraft(guide, workflow); video.scenes[0].narration = "Chat-edited narration.";
+  const edited = { ...guide, video };
+  render(<GuideVideoPanel ref={ref} guide={edited} workflow={workflow} platform={p} save={async()=>{}} />);
+  await act(async()=>{await ref.current!.generate(edited,new AbortController().signal,()=>{});});
+  expect(vi.mocked(p.generate).mock.calls[0][0][0].narration).toBe("Chat-edited narration.");
+  expect(screen.getByLabelText("Narrated SOP preview")).toBeTruthy();
+  expect(screen.queryByText(/earlier edit/)).toBeNull();
+});

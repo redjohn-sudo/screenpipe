@@ -591,6 +591,7 @@
 .videoHeading { justify-content: space-between; }
 .videoPanel h2 { font-size: 20px; margin: 0; }
 .videoPanel p { font-size: 14px; line-height: 1.6; margin: 14px 0; white-space: pre-wrap; }
+.videoPanel > label { display: block; margin: 14px 0; font-size: 14px; }
 .videoPanel video { width: 100%; border-radius: 8px; background: #171714; }
 .videoScript { border-block: 1px solid #deded8; padding: 16px 0; margin: 16px 0; }
 .videoScript summary { cursor: pointer; font-size: 14px; }
