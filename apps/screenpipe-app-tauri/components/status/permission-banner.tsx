@@ -12,6 +12,7 @@ import { commands } from "@/lib/utils/tauri";
 import { openPermissionSettingsWithFlow, requestPermissionWithFlow } from "@/lib/utils/permission-flow";
 import { usePlatform } from "@/lib/hooks/use-platform";
 import { useSettings } from "@/lib/hooks/use-settings";
+import { isMicrophoneRequired } from "@/lib/utils/permission-requirements";
 import { useTauriEvent } from "@/lib/hooks/use-tauri-event";
 import { useGT } from "gt-react";
 
@@ -31,7 +32,7 @@ export function PermissionBanner() {
 
   const ui = useGT();
   const { settings, isSettingsLoaded } = useSettings();
-  const audioDisabled = settings.disableAudio === true;
+  const audioDisabled = !isMicrophoneRequired(settings);
   const [permissions, setPermissions] = useState<PermissionState | null>(null);
 
   const { isMac } = usePlatform();

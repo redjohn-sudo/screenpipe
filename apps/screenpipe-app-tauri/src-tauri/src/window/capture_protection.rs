@@ -150,6 +150,23 @@ mod tests {
     use crate::store::SettingsStore;
 
     #[test]
+    fn recovery_is_capturable_for_every_saved_privacy_preference() {
+        for legacy_hidden in [false, true] {
+            for overlay_hidden in [false, true] {
+                for e2e in [false, true] {
+                    let settings = SettingsStore {
+                        hide_app_in_screen_share: legacy_hidden,
+                        hide_overlay_in_screen_recording: overlay_hidden,
+                        ..Default::default()
+                    };
+                    assert!(!should_protect_window(&settings, "permission-recovery", e2e));
+                    assert_eq!(should_protect_window(&settings, "main", e2e), overlay_hidden && !e2e);
+                }
+            }
+        }
+    }
+
+    #[test]
     fn capture_protection_is_limited_to_overlays() {
         let settings = SettingsStore::default();
         assert!(settings.hide_app_in_screen_share);

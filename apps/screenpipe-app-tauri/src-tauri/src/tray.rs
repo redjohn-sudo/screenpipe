@@ -129,7 +129,7 @@ fn prefetch_tray_menu_data(app: &AppHandle) -> TrayMenuData {
         {
             let perms = crate::permissions::do_permissions_check(false);
             !perms.screen_recording.permitted()
-                || (!settings.recording.disable_audio && !perms.microphone.permitted())
+                || (crate::permissions::microphone_required(&settings.recording) && !perms.microphone.permitted())
         }
         #[cfg(not(target_os = "macos"))]
         {

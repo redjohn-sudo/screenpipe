@@ -29,7 +29,7 @@ pub(super) fn handle(app: &AppHandle, name: &str, data: &Value) {
     let audio_disabled = crate::store::SettingsStore::get(app)
         .ok()
         .flatten()
-        .map(|settings| settings.recording.disable_audio)
+        .map(|settings| !crate::permissions::microphone_required(&settings.recording))
         .unwrap_or(false);
     if kind == "microphone" && audio_disabled {
         debug!("microphone permission event ignored while audio capture is disabled");
