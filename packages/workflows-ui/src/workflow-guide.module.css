@@ -596,5 +596,6 @@
 .videoScript { border-block: 1px solid #deded8; padding: 16px 0; margin: 16px 0; }
 .videoScript summary { cursor: pointer; font-size: 14px; }
 .videoScript h3 { font-size: 15px; margin: 20px 0 0; }
+.videoScript img { display: block; width: 100%; height: auto; margin-top: 12px; border: 1px solid var(--line, #deded8); border-radius: 4px; }
 .videoScript small, .videoActions span { font-size: 13px; color: #77776f; }
 .videoActions button { border: 1px solid #deded8; border-radius: 6px; padding: 8px 12px; }

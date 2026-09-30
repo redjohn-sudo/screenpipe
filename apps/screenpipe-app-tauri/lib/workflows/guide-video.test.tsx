@@ -178,3 +178,15 @@ it("shows repeated capture coverage instead of claiming each step has its own sc
   expect(screen.getByText("Some steps reuse the same screenshot")).toBeTruthy();
   expect(screen.queryByText("Each step has its own reviewed screenshot.")).toBeNull();
 });
+
+it("shows selected captures alongside narration without claiming semantic review", () => {
+  const w = structuredClone(workflow);
+  w.stages[0].screenshot!.dataUrl = "data:image/png;base64,YQ==";
+  render(<GuideVideoPanel guide={guide} workflow={w} platform={platform()} save={async () => {}} />);
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  fireEvent.click(screen.getByText(/Review narration/));
+  expect(screen.getByRole("img", { name: "Screenshot for 1. Review sources" })).toHaveAttribute("src", w.stages[0].screenshot!.dataUrl);
+  expect(screen.getByText("Captured screenshot")).toBeTruthy();
+  expect(screen.queryByText("Reviewed screenshot")).toBeNull();
+  expect(screen.queryByText("Each step has its own reviewed screenshot.")).toBeNull();
+});

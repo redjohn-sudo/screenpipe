@@ -23,7 +23,8 @@ import type { WorkflowsPlatform } from "./platform";
 import {
   guideHtml,
   guideImage,
-  guideSourceImage,
+  guideSourceImages,
+  isGuideImage,
   type WorkflowGuide as Guide,
 } from "./guide";
 import { WorkflowRichText } from "./rich-text";
@@ -416,9 +417,9 @@ export function WorkflowGuide({
                   !stale && step.includeImage
                     ? guideImage(workflow, step.sourceStage, step.imageReview)
                     : null;
-                const source = !stale
-                  ? guideSourceImage(workflow, step.sourceStage)
-                  : null;
+                const sources = !stale
+                  ? guideSourceImages(workflow, step.sourceStage).filter(source => isGuideImage(source.dataUrl))
+                  : [];
                 return (
                   <section
                     className={`${styles.step} ${dragOver === i ? styles.drop : ""}`}
@@ -584,12 +585,15 @@ export function WorkflowGuide({
                             Remove screenshot
                           </button>
                         </figure>
-                      ) : source ? (
+                      ) : null}
+                      {sources.length > 0 && (!image || sources.length > 1) ? (
                         <ScreenshotReview
-                          key={`${step.sourceStage}:${source.dataUrl}`}
-                          source={source}
+                          key={`${step.sourceStage}:${step.imageReview?.frameId}:${step.imageReview?.timestamp}:${sources.map(source => `${source.frameId}:${source.timestamp}`).join(",")}`}
+                          sources={sources}
+                          selected={step.imageReview}
+                          replacing={!!image}
                           title={step.title}
-                          include={() => {
+                          include={(source) => {
                             update({
                               ...draft,
                               steps: draft.steps.map((s, j) =>
@@ -607,7 +611,7 @@ export function WorkflowGuide({
                             });
                           }}
                         />
-                      ) : (
+                      ) : !image ? (
                         <p className={styles.muted}>
                           {stale
                             ? ui(
@@ -615,7 +619,7 @@ export function WorkflowGuide({
                               )
                             : ui("No captured screenshot for this step.")}
                         </p>
-                      )}
+                      ) : null}
                       <div className={styles.result}>
                         <span>Expected result</span>
                         <InlineText
@@ -740,29 +744,48 @@ export function WorkflowGuide({
 }
 
 function ScreenshotReview({
-  source,
+  sources,
+  selected,
+  replacing,
   title,
   include,
 }: {
-  source: NonNullable<ReturnType<typeof guideSourceImage>>;
+  sources: ReturnType<typeof guideSourceImages>;
+  selected?: Guide["steps"][number]["imageReview"];
+  replacing: boolean;
   title: string;
-  include: () => void;
+  include: (source: ReturnType<typeof guideSourceImages>[number]) => void;
 }) {
   const ui = useGT();
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [index, setIndex] = useState(() => Math.max(0, sources.findIndex(source => selected
+    ? source.frameId === selected.frameId && source.timestamp === selected.timestamp
+    : source.visualVerified)));
+  const source = sources[index];
+  function choose(next: number) {
+    setLoaded(false);
+    setFailed(false);
+    setIndex(next);
+  }
   return (
     <div className={styles.imageReview}>
       <div className={styles.imageReviewHeader}>
-        <span>Saved screenshot available</span>
+        <span>{sources.length > 1 ? ui("{value1} saved screenshots", { value1: sources.length }) : ui("Saved screenshot available")}</span>
         <button aria-expanded={open} onClick={() => setOpen(!open)}>
-          {open ? ui("Hide screenshot") : ui("Review screenshot")}
+          {open ? ui("Hide screenshot") : replacing ? ui("Change screenshot") : ui("Review screenshot")}
         </button>
       </div>
       {open && (
         <>
+          {sources.length > 1 && <div className={styles.imageReviewHeader}>
+            <button aria-label={ui("Previous screenshot")} disabled={index === 0} onClick={() => choose(index - 1)}>Previous</button>
+            <span>{ui("Screenshot {value1} of {value2}", { value1: index + 1, value2: sources.length })}</span>
+            <button aria-label={ui("Next screenshot")} disabled={index === sources.length - 1} onClick={() => choose(index + 1)}>Next</button>
+          </div>}
           <img
+            key={`${source.frameId}:${source.timestamp}`}
             src={source.dataUrl}
             alt={ui("Review source for {value1}", { value1: title })}
             draggable={false}
@@ -781,7 +804,7 @@ function ScreenshotReview({
                 ? ui("This screenshot could not be loaded.")
                 : ui("Does this image show the step clearly?")}
             </span>
-            <button disabled={!loaded || failed} onClick={include}>
+            <button disabled={!loaded || failed} onClick={() => { include(source); setOpen(false); }}>
               Include screenshot
             </button>
           </div>

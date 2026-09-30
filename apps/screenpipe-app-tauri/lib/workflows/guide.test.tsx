@@ -15,6 +15,7 @@ import {
   parseGuide,
   type WorkflowGuide as Guide,
 } from "../../../../packages/workflows-ui/src/guide";
+import { guideVideoScenes } from "../../../../packages/workflows-ui/src/guide-video";
 import { WorkflowGuide } from "../../../../packages/workflows-ui/src/workflow-guide";
 import { fixtureWorkflowAnalysis } from "../../../../packages/workflows-ui/src/fixture-platform";
 import { sanitizeWorkflowAnalysis } from "../../../../packages/workflows-ui/src/catalog";
@@ -337,6 +338,38 @@ describe("guide editor", () => {
         false,
       ),
     );
+  });
+  it("selects another capture, persists it, and uses it in the SOP, export and video", async () => {
+    const w = structuredClone(workflow);
+    const first = w.stages[0].screenshot!;
+    const second = { ...first, frameId: 2, visualVerified: false, dataUrl: "data:image/png;base64,Yg==" };
+    w.stages[0].screenshots = [first, second];
+    const platform = host();
+    const view = render(<WorkflowGuide workflow={w} platform={platform} close={() => {}} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Change screenshot" }));
+    const preview = () => screen.getByRole("img", { name: "Review source for Collect sources" });
+    fireEvent.load(preview());
+    expect(screen.getByRole("button", { name: "Include screenshot" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Next screenshot" }));
+    expect(screen.getByRole("button", { name: "Include screenshot" })).toBeDisabled();
+    expect(preview()).toHaveAttribute("src", second.dataUrl);
+    fireEvent.error(preview());
+    expect(screen.getByRole("button", { name: "Include screenshot" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Previous screenshot" }));
+    fireEvent.click(screen.getByRole("button", { name: "Next screenshot" }));
+    fireEvent.load(preview());
+    fireEvent.click(screen.getByRole("button", { name: "Include screenshot" }));
+    await waitFor(() => expect(platform.save).toHaveBeenCalled());
+    const saved = parseGuide(JSON.parse(JSON.stringify(platform.save.mock.calls.at(-1)![0])));
+    expect(saved.steps[0].imageReview?.frameId).toBe(2);
+    expect(guideHtml(saved, w, true)).toContain(`src="${second.dataUrl}"`);
+    expect(guideVideoScenes(saved, w)[0]).toMatchObject({ image: second.dataUrl, imageFrameId: 2 });
+    view.unmount();
+    render(<WorkflowGuide workflow={w} platform={{ ...platform, load: async () => saved }} close={() => {}} />);
+    expect(await screen.findByRole("img", { name: "Source for Collect sources" })).toHaveAttribute("src", second.dataUrl);
+    w.stages[0].screenshots = [first];
+    expect(guideHtml(saved, w, true)).not.toContain("<img ");
+    expect(guideVideoScenes(saved, w)[0].imageFrameId).toBeUndefined();
   });
   it("does not include a screenshot that fails to load", async () => {
     const w = structuredClone(workflow);

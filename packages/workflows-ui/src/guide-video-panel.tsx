@@ -3,7 +3,7 @@
 "use client";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Download, Film, Loader2, MessageCircle, X } from "lucide-react";
-import type { WorkflowGuide } from "./guide";
+import { isGuideImage, type WorkflowGuide } from "./guide";
 import type { WorkflowMap } from "./model";
 import { guideVideoScenes, videoScreenshotGaps, repeatedVideoScreenshots, type GuideVideoPlatform, type GuideVideoResult } from "./guide-video";
 import styles from "./workflow-guide.module.css";
@@ -116,7 +116,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     </button>
     {open && <section ref={panel} id="sop-video-panel" aria-label="Video SOP" className={styles.videoPanel}>
       <div className={styles.videoHeading}><h2>Create a narrated walkthrough</h2><button aria-label="Close video panel" onClick={() => { setOpen(false); trigger.current?.focus(); }}><X size={16} /></button></div>
-      <p>Use this SOP’s instructions and reviewed screenshots. Narration is sent to Screenpipe’s speech service. Rendering stays on this device. When you ask chat for visual edits, it can inspect the relevant screenshots through your selected AI service.</p>
+      <p>Use this SOP’s instructions and selected screenshots. Narration is sent to Screenpipe’s speech service. Rendering stays on this device. When you ask chat for visual edits, it can inspect the relevant screenshots through your selected AI service.</p>
       {platform.edit && <div className={styles.videoActions}>
         <button disabled={busy || !!planError} onClick={() => { onVideoMode?.(true); setOpen(false); window.dispatchEvent(new CustomEvent("workflows:open-assistant")); }}><MessageCircle size={16} /> Edit video in chat</button>
         <button onClick={() => { onVideoMode?.(false); setOpen(false); }}>Edit SOP instead</button>
@@ -127,7 +127,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
         <p>Check that these captures show the actions you want to teach. Choose a different screenshot in the SOP when needed.</p>
         {repeated.map((titles, index) => <p key={index}>{titles.join(" · ")}</p>)}
       </details>}
-      {!planError && gaps.length === 0 && repeated.length === 0 && <p>Each step has its own reviewed screenshot.</p>}
+      {!planError && scenes.some(scene => scene.requiresImage) && gaps.length === 0 && repeated.length === 0 && <p>Each step has a different captured screenshot. Review the images below to check that they show the instructions.</p>}
       {result && <>
         {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}
         <video key={result.url} controls preload="metadata" src={result.url} aria-label="Narrated SOP preview">
@@ -143,7 +143,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
       {scenes.length > 0 && <details className={styles.videoScript}>
         <summary>Review narration · {scenes.length} sections</summary>
         {guide.video && <button disabled={busy} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
-        {scenes.map((scene, i) => <div key={i}><h3>{scene.title}</h3><p>{scene.narration}</p><small>{scene.image || scene.imageFrameId ? "Reviewed screenshot" : "Text slide · no screenshot"}</small></div>)}
+        {scenes.map((scene, i) => <div key={i}><h3>{scene.title}</h3>{scene.image && isGuideImage(scene.image) && <img loading="lazy" src={scene.image} alt={`Screenshot for ${scene.title}`} />}<p>{scene.narration}</p><small>{scene.image || scene.imageFrameId ? "Captured screenshot" : "Text slide · no screenshot"}</small></div>)}
       </details>}
       {planError && guide.video && <button disabled={busy} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
       {(error || planError) && <p role="alert">{error || planError}</p>}

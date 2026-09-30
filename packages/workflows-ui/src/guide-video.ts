@@ -1,10 +1,9 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
-import { guideKey, type WorkflowGuide } from "./guide";
+import { guideKey, guideScreenshot, type WorkflowGuide } from "./guide";
 import { parseVideoDraft, type VideoDraft, type VideoFocus } from "./video-tool";
 import type { AssistantMessage } from "./assistant";
 import type { WorkflowMap } from "./model";
-import { stageScreenshots } from "./screenshots";
 
 export type GuideVideoScene = { title: string; narration: string; image: string | null; imageFrameId?: number; id?: string; requiresImage?: boolean; pace?: number; focus?: VideoFocus | null };
 export type GuideVideoResult = { url: string; path: string; captionsPath: string; captionsUrl?: string };
@@ -29,12 +28,7 @@ function baseGuideVideoScenes(guide: WorkflowGuide, workflow: WorkflowMap): Guid
   add(guide.title, guide.summary || guide.title);
   add("Before you start", guide.prerequisites.filter(Boolean).join("\n"));
   for (const [index, step] of guide.steps.entries()) {
-    const candidates = step.sourceStage !== null && workflow.stages[step.sourceStage] ? stageScreenshots(workflow.stages[step.sourceStage]) : [];
-    // An explicit selection belongs to this step. Never replace it with a different
-    // verified capture, including when that selection has expired.
-    const image = step.imageReview
-      ? candidates.find(image => step.imageReview!.frameId === image.frameId && step.imageReview!.timestamp === image.timestamp)
-      : candidates.find(image => image.visualVerified);
+    const image = guideScreenshot(workflow, step.sourceStage, step.imageReview);
     const include = step.includeImage && image;
     add(`${index + 1}. ${step.title}`, [step.instruction,
       step.expectedResult && `Expected result: ${step.expectedResult}`].filter(Boolean).join("\n"), include ? image.dataUrl || null : null, include ? image.frameId : undefined);

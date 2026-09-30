@@ -130,17 +130,26 @@ Attached workflow evidence:
 ${evidence}`;
 }
 
-/** Existing local imagery is available for review even without legacy verification metadata. */
-export function guideSourceImage(
+/** Saved captures can be reviewed without legacy verification metadata. */
+export function guideSourceImages(workflow: WorkflowMap, sourceStage: number | null) {
+  const stage = sourceStage === null ? undefined : workflow.stages[sourceStage];
+  return stage ? stageScreenshots(stage) : [];
+}
+
+/** Preserve an explicit choice even when it is no longer available. */
+export function guideScreenshot(
   workflow: WorkflowMap,
   sourceStage: number | null,
+  review?: WorkflowGuide["steps"][number]["imageReview"],
 ) {
-  const image =
-    sourceStage === null ? null : workflow.stages[sourceStage] ? stageScreenshots(workflow.stages[sourceStage])[0] : null;
-  return image &&
-    /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(image.dataUrl)
-    ? image
-    : null;
+  const images = guideSourceImages(workflow, sourceStage);
+  return (review
+    ? images.find(image => image.frameId === review.frameId && image.timestamp === review.timestamp)
+    : images.find(image => image.visualVerified)) ?? null;
+}
+
+export function isGuideImage(url: string): boolean {
+  return /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(url);
 }
 
 export function guideImage(
@@ -148,13 +157,8 @@ export function guideImage(
   sourceStage: number | null,
   review?: WorkflowGuide["steps"][number]["imageReview"],
 ): string | null {
-  const image = guideSourceImage(workflow, sourceStage);
-  const reviewed =
-    image &&
-    review &&
-    review.frameId === image.frameId &&
-    review.timestamp === image.timestamp;
-  return image && (image.visualVerified || reviewed) ? image.dataUrl : null;
+  const image = guideScreenshot(workflow, sourceStage, review);
+  return image && isGuideImage(image.dataUrl) ? image.dataUrl : null;
 }
 const escape = (text: string) =>
   text.replace(

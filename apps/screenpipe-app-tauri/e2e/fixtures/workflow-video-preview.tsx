@@ -13,6 +13,9 @@ const load = platform.guides!.load;
 platform.guides!.load = async workflow => {
   await load(workflow); // rasterize the existing fictional screenshots
   if (params.get("state") === "missing") { workflow.stages[0].screenshot = null; workflow.stages[0].screenshots = []; }
+  if (params.get("state") === "selection") {
+    workflow.stages[0].screenshots = [workflow.stages[0].screenshot!, workflow.stages[1].screenshot!];
+  }
   if (params.get("state") === "repeated") {
     for (const stage of workflow.stages) { stage.screenshot = workflow.stages[0].screenshot; stage.screenshots = []; }
   }

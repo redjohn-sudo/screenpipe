@@ -82,6 +82,8 @@ export type WorkflowEvidence = {
 };
 
 export type WorkflowScreenshot = {
+  // Legacy name: the recorder matched this frame to a source. This does not
+  // establish that its visible contents demonstrate the procedural step.
   visualVerified?: boolean;
   frameId: number;
   timestamp: string;
