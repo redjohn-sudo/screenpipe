@@ -4,7 +4,7 @@ import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { GuideVideoPanel } from "../../../../packages/workflows-ui/src/guide-video-panel";
-import { guideVideoScenes, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
+import { guideVideoScenes, guideVideoDraft, repeatedVideoScreenshots, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
 import type { WorkflowGuide } from "../../../../packages/workflows-ui/src/guide";
 import { fixtureWorkflowAnalysis } from "../../../../packages/workflows-ui/src/fixture-platform";
 
@@ -18,32 +18,34 @@ const result = { url: "asset://example/video.mp4", path: "/example/video.mp4", c
 function platform(): GuideVideoPlatform { return { generate: vi.fn().mockResolvedValue(result), release: vi.fn().mockResolvedValue(undefined), export: vi.fn().mockResolvedValue(true) }; }
 afterEach(cleanup);
 describe("video SOP plans", () => {
-  it("preserves all SOP sections and resolves reviewed reference-only screenshots", () => {
+  it("starts new videos with procedural steps and leaves review notes in the SOP", () => {
     const scenes = guideVideoScenes(guide, workflow);
-    expect(scenes).toHaveLength(6);
-    expect(scenes[2]).toMatchObject({ image: null, imageFrameId: 5, narration: "Check each claim.\nExpected result: Each claim has a source." });
-    for (const text of [...guide.prerequisites, ...guide.exceptions, ...guide.completion, ...guide.questions]) expect(scenes.some(s => s.narration.includes(text))).toBe(true);
+    expect(scenes).toHaveLength(1);
+    expect(scenes[0]).toMatchObject({ image: null, imageFrameId: 5, narration: "Check each claim.\nExpected result: Each claim has a source." });
+    for (const text of [...guide.prerequisites, ...guide.exceptions, ...guide.completion, ...guide.questions]) expect(scenes.some(s => s.narration.includes(text))).toBe(false);
+    expect(guide.prerequisites).toEqual(["Collect the source documents."]);
+    expect(guide.steps[0].expectedResult).toBe("Each claim has a source.");
   });
   it("never uses unreviewed images or stale source revisions", () => {
     const unreviewed = structuredClone(workflow);
     unreviewed.stages[0].screenshot!.visualVerified = false;
-    expect(guideVideoScenes(guide, unreviewed)[2].imageFrameId).toBeUndefined();
+    expect(guideVideoScenes(guide, unreviewed)[0].imageFrameId).toBeUndefined();
     const reviewed = structuredClone(guide);
     reviewed.steps[0].imageReview = { frameId: 5, timestamp: "2026-09-01T10:00:00Z" };
-    expect(guideVideoScenes(reviewed, unreviewed)[2].imageFrameId).toBe(5);
+    expect(guideVideoScenes(reviewed, unreviewed)[0].imageFrameId).toBe(5);
     reviewed.steps[0].imageReview.timestamp = "2026-09-02T10:00:00Z";
-    expect(guideVideoScenes(reviewed, unreviewed)[2].imageFrameId).toBeUndefined();
+    expect(guideVideoScenes(reviewed, unreviewed)[0].imageFrameId).toBeUndefined();
     expect(() => guideVideoScenes({ ...guide, sourceRevision: 1 }, workflow)).toThrow(/updated workflow/);
   });
   it("supports explicit text-only export and rejects oversized plans without truncating", () => {
     expect(guideVideoScenes(guide, workflow, false).every(s => !s.image && !s.imageFrameId)).toBe(true);
     expect(() => guideVideoScenes({ ...guide, summary: "a".repeat(18001) }, workflow)).toThrow(/too long/);
-    const unicode = { ...guide, summary: "界😀".repeat(200) };
-    expect(guideVideoScenes(unicode, workflow)[0].narration).toBe(unicode.summary);
+    const unicode = { ...guide, steps: [{ ...guide.steps[0], instruction: "界😀".repeat(200) }] };
+    expect(guideVideoScenes(unicode, workflow)[0].narration).toContain(unicode.steps[0].instruction);
     const edited = structuredClone(guide);
     edited.steps[0].narration = "Outdated narration from an earlier version";
-    expect(guideVideoScenes(edited, workflow)[2].narration).toContain(edited.steps[0].instruction);
-    expect(guideVideoScenes(edited, workflow)[2].narration).not.toContain("Outdated");
+    expect(guideVideoScenes(edited, workflow)[0].narration).toContain(edited.steps[0].instruction);
+    expect(guideVideoScenes(edited, workflow)[0].narration).not.toContain("Outdated");
     expect(() => guideVideoScenes({ ...guide, workflowKey: "another" }, workflow)).toThrow(/this workflow/);
     edited.steps[0].instruction = " ";
     expect(() => guideVideoScenes(edited, workflow)).toThrow(/every SOP step/);
@@ -137,7 +139,7 @@ it("blocks procedural screenshot gaps before any rendering or speech",async()=>{
 });
 it("selects a verified screenshot even if the first capture is unreviewed",()=>{
  const w=structuredClone(workflow);w.stages[0].screenshots=[{...w.stages[0].screenshot!,frameId:7,visualVerified:false},{...w.stages[0].screenshot!,frameId:8,visualVerified:true}];
- expect(guideVideoScenes(guide,w)[2].imageFrameId).toBe(8);
+ expect(guideVideoScenes(guide,w)[0].imageFrameId).toBe(8);
 });
 
 it("retains earlier successful renders and releases only the oldest beyond three versions",async()=>{
@@ -148,4 +150,31 @@ it("retains earlier successful renders and releases only the oldest beyond three
  expect(p.release).toHaveBeenCalledTimes(1);expect(vi.mocked(p.release).mock.calls[0][0].path).toBe("/preview-1.mp4");
  fireEvent.click(screen.getByText("Video revisions · 3"));fireEvent.click(screen.getByRole("button",{name:"Version 2"}));
  expect(screen.getByLabelText("Narrated SOP preview")).toHaveAttribute("src","asset:/preview-2.mp4");view.unmount();expect(p.release).toHaveBeenCalledTimes(4);
+});
+
+
+it("uses the step's explicit screenshot and never substitutes another when it expires", () => {
+  const w = structuredClone(workflow);
+  w.stages[0].screenshots = [{ ...w.stages[0].screenshot!, frameId: 8 }];
+  const g = { ...guide, steps: [{ ...guide.steps[0], imageReview: { frameId: 5, timestamp: w.stages[0].screenshot!.timestamp } }] };
+  expect(guideVideoScenes(g, w)[0].imageFrameId).toBe(5);
+  w.stages[0].screenshot = undefined;
+  expect(guideVideoScenes(g, w)[0].imageFrameId).toBeUndefined();
+});
+it("keeps an existing edited video's supporting sections until an explicit reset", () => {
+  const video = guideVideoDraft(guide, workflow);
+  video.scenes.unshift({ id: "section-0", title: guide.title, narration: "My custom introduction.", includeImage: false });
+  expect(guideVideoScenes({ ...guide, video }, workflow)[0].narration).toBe("My custom introduction.");
+  expect(guideVideoScenes(guide, workflow)).toHaveLength(1);
+});
+it("flags repeated captures without confusing a focus edit with new visual evidence", () => {
+  const step = guideVideoScenes(guide, workflow)[0];
+  expect(repeatedVideoScreenshots([step, { ...step, title: "Check", focus: { x: 0.2, y: 0.4, zoom: 1.3 } }])).toEqual([[step.title, "Check"]]);
+  expect(repeatedVideoScreenshots([step, { ...step, imageFrameId: 6 }])).toEqual([]);
+});
+it("shows repeated capture coverage instead of claiming each step has its own screenshot", () => {
+  render(<GuideVideoPanel guide={{ ...guide, steps: [...guide.steps, { ...guide.steps[0], title: "Check the result" }] }} workflow={workflow} platform={platform()} save={async () => {}} />);
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  expect(screen.getByText("Some steps reuse the same screenshot")).toBeTruthy();
+  expect(screen.queryByText("Each step has its own reviewed screenshot.")).toBeNull();
 });

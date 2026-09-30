@@ -393,6 +393,97 @@ mod tests {
         );
         server.verify().await;
         server.reset().await;
+
+        // Wide glyphs and long tokens previously ran off the right/bottom edges.
+        // Decode the real encoded frame and check its safe margins, not filter strings.
+        let plain = temporary.path().join("plain.png");
+        assert!(std::process::Command::new(&binary)
+            .args([
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-f",
+                "lavfi",
+                "-i",
+                "color=white:s=1280x624",
+                "-frames:v",
+                "1",
+                "-threads",
+                "1",
+                "-y"
+            ])
+            .arg(&plain)
+            .status()
+            .unwrap()
+            .success());
+        let fixture = std::fs::read(temporary.path().join("speech.mp3")).unwrap();
+        Mock::given(method("POST"))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .insert_header("x-screenpipe-narration-profile", "sop-openai-marin-v1")
+                    .insert_header("content-type", "audio/wav")
+                    .set_body_bytes(fixture),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+        let (_sender, receiver) = watch::channel(false);
+        workflow_video::render(
+            &[Scene {
+                title: "W".repeat(140),
+                narration: "W".repeat(240),
+                image: Some(plain),
+                pace: 1.0,
+                focus: None,
+            }],
+            temporary.path(),
+            &binary,
+            &server.uri(),
+            "test",
+            receiver,
+            |_, _, _| {},
+        )
+        .await
+        .unwrap();
+        let decoded = std::process::Command::new(&binary)
+            .args(["-hide_banner", "-loglevel", "error", "-i"])
+            .arg(temporary.path().join("video.mp4"))
+            .args([
+                "-frames:v",
+                "1",
+                "-f",
+                "rawvideo",
+                "-pix_fmt",
+                "rgb24",
+                "pipe:1",
+            ])
+            .output()
+            .unwrap();
+        assert!(decoded.status.success());
+        assert_eq!(decoded.stdout.len(), 1280 * 720 * 3);
+        for y in 0..720 {
+            for x in 0..1280 {
+                if x < 8 || x >= 1272 || y >= 712 {
+                    let pixel = &decoded.stdout[(y * 1280 + x) * 3..][..3];
+                    assert!(pixel.iter().all(|v| *v > 220), "text clipped at {x},{y}");
+                }
+            }
+        }
+        let subtitles = std::process::Command::new(&binary)
+            .args(["-hide_banner", "-loglevel", "error", "-i"])
+            .arg(temporary.path().join("video.mp4"))
+            .args(["-map", "0:s:0", "-f", "srt", "pipe:1"])
+            .output()
+            .unwrap();
+        assert!(
+            subtitles.status.success(),
+            "MP4 must retain selectable narration captions"
+        );
+        assert!(String::from_utf8(subtitles.stdout)
+            .unwrap()
+            .contains(&"W".repeat(240)));
+        server.verify().await;
+        server.reset().await;
         Mock::given(method("POST"))
             .respond_with(ResponseTemplate::new(503).set_body_string("private upstream detail"))
             .expect(1)

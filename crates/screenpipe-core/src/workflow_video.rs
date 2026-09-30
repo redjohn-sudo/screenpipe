@@ -102,18 +102,18 @@ fn screenshot_filter(
     first: bool,
     last: bool,
 ) -> String {
-    let normal = "scale=1184:456:force_original_aspect_ratio=decrease,pad=1184:456:(ow-iw)/2:(oh-ih)/2:color=0xf7f7f3";
+    let normal = "scale=1280:624:force_original_aspect_ratio=decrease,pad=1280:624:(ow-iw)/2:(oh-ih)/2:color=0xf7f7f3";
     let Some(f) = focus else {
         return normal.into();
     };
-    let max_zoom = (width / 1184.0).max(height / 456.0).clamp(1.0, 1.6);
+    let max_zoom = (width / 1280.0).max(height / 624.0).clamp(1.0, 1.6);
     let zoom = f.zoom.min(max_zoom);
     if zoom <= 1.0 || duration < 2.0 {
         return normal.into();
     }
-    let fit = (1184.0 / width).min(456.0 / height);
-    let x = ((1184.0 - width * fit) / 2.0 + f.x * width * fit) / 1184.0;
-    let y = ((456.0 - height * fit) / 2.0 + f.y * height * fit) / 456.0;
+    let fit = (1280.0 / width).min(624.0 / height);
+    let x = ((1280.0 - width * fit) / 2.0 + f.x * width * fit) / 1280.0;
+    let y = ((624.0 - height * fit) / 2.0 + f.y * height * fit) / 624.0;
     let enter = if first {
         "min(max((on/24-0.8)/0.3,0),1)"
     } else {
@@ -124,7 +124,7 @@ fn screenshot_filter(
     } else {
         "1".into()
     };
-    format!("scale=1894:730:force_original_aspect_ratio=decrease,pad=1894:730:(ow-iw)/2:(oh-ih)/2:color=0xf7f7f3,zoompan=z='1+{}*{enter}*{exit}':x='max(0,min(iw-iw/zoom,iw*{x}-iw/zoom/2))':y='max(0,min(ih-ih/zoom,ih*{y}-ih/zoom/2))':d=1:s=1184x456:fps=24", zoom - 1.0)
+    format!("scale=2048:998:force_original_aspect_ratio=decrease,pad=2048:998:(ow-iw)/2:(oh-ih)/2:color=0xf7f7f3,zoompan=z='1+{}*{enter}*{exit}':x='max(0,min(iw-iw/zoom,iw*{x}-iw/zoom/2))':y='max(0,min(ih-ih/zoom,ih*{y}-ih/zoom/2))':d=1:s=1280x624:fps=24", zoom - 1.0)
 }
 
 async fn run(mut command: Command) -> Result<Vec<u8>> {
@@ -293,15 +293,31 @@ async fn render_inner(
     // Exercise the exact filters and codec before any billable request.
     fs::write(directory.join("title.txt"), "Screenpipe").await?;
     fs::write(directory.join("caption.txt"), "Reviewed SOP").await?;
-    let text_filters = "drawtext=textfile=title.txt:expansion=none:fontsize=28:fontcolor=0x171714:x=48:y=28,drawtext=textfile=caption.txt:expansion=none:fontsize=25:fontcolor=0x171714:x=48:y=574:line_spacing=8";
+    fs::write(
+        directory.join("preflight.vtt"),
+        "WEBVTT\n\n00:00:00.000 --> 00:00:00.042\nReviewed SOP\n",
+    )
+    .await?;
+    // Keep the captured screen unobscured. Narration is an optional MP4 subtitle
+    // track and a WebVTT sidecar, never a paragraph burned over the user's work.
+    let title_filter = "drawtext=textfile=title.txt:expansion=none:fontsize=20:fontcolor=0x171714:x=32:y=12:line_spacing=4";
+    let text_filters = format!("{title_filter},drawtext=text='Text walkthrough':fontsize=18:fontcolor=0x77776f:x=48:y=112,drawtext=textfile=caption.txt:expansion=none:fontsize=24:fontcolor=0x171714:x=48:y=(h-text_h)/2:line_spacing=8");
     let mut check = ffmpeg(binary, directory);
     check.args([
         "-f",
         "lavfi",
         "-i",
         "color=c=0xf7f7f3:s=1280x720:r=24",
+        "-i",
+        "preflight.vtt",
+        "-map",
+        "0:v:0",
+        "-map",
+        "1:s:0",
+        "-c:s",
+        "mov_text",
         "-vf",
-        text_filters,
+        &text_filters,
         "-frames:v",
         "1",
         "-c:v",
@@ -322,7 +338,7 @@ async fn render_inner(
                     "-frames:v",
                     "1",
                     "-vf",
-                    "scale=w='min(iw,1894)':h='min(ih,730)':force_original_aspect_ratio=decrease",
+                    "scale=w='min(iw,2048)':h='min(ih,998)':force_original_aspect_ratio=decrease",
                     "-threads",
                     "1",
                 ])
@@ -342,7 +358,7 @@ async fn render_inner(
     let mut concat = String::new();
     let mut soundtrack = fs::File::create(directory.join("soundtrack.pcm")).await?;
     for (i, scene) in scenes.iter().enumerate() {
-        fs::write(directory.join("title.txt"), wrapped(&scene.title, 75)).await?;
+        fs::write(directory.join("title.txt"), wrapped(&scene.title, 50)).await?;
         let parts = segments(&scene.narration);
         for (section_part, narration) in parts.iter().enumerate() {
             progress(part + 1, total, "Narrating");
@@ -377,11 +393,7 @@ async fn render_inner(
             let mut pcm = pcm;
             pcm.resize(padded_samples * 2, 0);
             soundtrack.write_all(&pcm).await?;
-            fs::write(
-                directory.join("caption.txt"),
-                wrapped(&narration, if scene.image.is_some() { 80 } else { 60 }),
-            )
-            .await?;
+            fs::write(directory.join("caption.txt"), wrapped(&narration, 46)).await?;
             let caption = narration
                 .replace('&', "&amp;")
                 .replace('<', "&lt;")
@@ -417,11 +429,10 @@ async fn render_inner(
                     section_part == 0,
                     section_part + 1 == parts.len(),
                 );
-                image_filter =
-                    format!("{picture},pad=1280:720:48:104:color=0xf7f7f3,{text_filters}");
+                image_filter = format!("{picture},pad=1280:720:0:96:color=0xf7f7f3,{title_filter}");
             } else {
                 encode.args(["-f", "lavfi", "-i", "color=c=0xf7f7f3:s=1280x720:r=24"]);
-                image_filter = "drawtext=textfile=title.txt:expansion=none:fontsize=28:fontcolor=0x171714:x=48:y=28,drawtext=text='Text walkthrough':fontsize=18:fontcolor=0x77776f:x=48:y=112,drawtext=textfile=caption.txt:expansion=none:fontsize=32:fontcolor=0x171714:x=48:y=230:line_spacing=12".to_owned();
+                image_filter = text_filters.clone();
             }
             encode
                 .args([
@@ -453,6 +464,7 @@ async fn render_inner(
     soundtrack.flush().await?;
     drop(soundtrack);
     fs::write(directory.join("parts.txt"), concat).await?;
+    fs::write(directory.join("captions.vtt"), captions).await?;
     let mut join = ffmpeg(binary, directory);
     // Encode audio once, avoiding AAC priming gaps between sections.
     join.args([
@@ -470,10 +482,20 @@ async fn render_inner(
         "1",
         "-i",
         "soundtrack.pcm",
+        "-i",
+        "captions.vtt",
         "-map",
         "0:v:0",
         "-map",
         "1:a:0",
+        "-map",
+        "2:s:0",
+        "-c:s",
+        "mov_text",
+        "-disposition:s:0",
+        "0",
+        "-metadata:s:s:0",
+        "title=Narration",
         "-c:v",
         "copy",
         "-c:a",
@@ -494,6 +516,5 @@ async fn render_inner(
     if fs::metadata(directory.join("video.mp4")).await?.len() > 300 * 1024 * 1024 {
         bail!("The generated video exceeds the file size limit.");
     }
-    fs::write(directory.join("captions.vtt"), captions).await?;
     Ok(())
 }

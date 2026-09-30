@@ -30,7 +30,11 @@ function baseGuideVideoScenes(guide: WorkflowGuide, workflow: WorkflowMap): Guid
   add("Before you start", guide.prerequisites.filter(Boolean).join("\n"));
   for (const [index, step] of guide.steps.entries()) {
     const candidates = step.sourceStage !== null && workflow.stages[step.sourceStage] ? stageScreenshots(workflow.stages[step.sourceStage]) : [];
-    const image = candidates.find(image => image.visualVerified || (step.imageReview?.frameId === image.frameId && step.imageReview.timestamp === image.timestamp));
+    // An explicit selection belongs to this step. Never replace it with a different
+    // verified capture, including when that selection has expired.
+    const image = step.imageReview
+      ? candidates.find(image => step.imageReview!.frameId === image.frameId && step.imageReview!.timestamp === image.timestamp)
+      : candidates.find(image => image.visualVerified);
     const include = step.includeImage && image;
     add(`${index + 1}. ${step.title}`, [step.instruction,
       step.expectedResult && `Expected result: ${step.expectedResult}`].filter(Boolean).join("\n"), include ? image.dataUrl || null : null, include ? image.frameId : undefined);
@@ -62,7 +66,7 @@ export function guideVideoDraft(guide: WorkflowGuide, workflow: WorkflowMap): Vi
       throw new Error("The SOP changed after this video script was edited. Reset the video script to use the current SOP.");
     return draft;
   }
-  return { version: 1, sourceHash: hash, scenes: base.map((s, i) => ({ id: `section-${i}`, title: s.title, narration: s.narration, includeImage: !!s.image || !!s.imageFrameId })) };
+  return { version: 1, sourceHash: hash, scenes: base.flatMap((s, i) => s.requiresImage ? [{ id: `section-${i}`, title: s.title, narration: s.narration, includeImage: !!s.image || !!s.imageFrameId }] : []) };
 }
 export function guideVideoScenes(guide: WorkflowGuide, workflow: WorkflowMap, includeImages = true): GuideVideoScene[] {
   const base = baseGuideVideoScenes(guide, workflow);
@@ -75,4 +79,16 @@ export function guideVideoScenes(guide: WorkflowGuide, workflow: WorkflowMap, in
 /** Rendering cannot silently substitute a text card for a procedural screenshot. */
 export function videoScreenshotGaps(scenes: GuideVideoScene[]): string[] {
   return scenes.filter(s => s.requiresImage && !s.image && !s.imageFrameId).map(s => s.title);
+}
+
+/** Repeated references are useful context, not proof of a distinct action in each step. */
+export function repeatedVideoScreenshots(scenes: GuideVideoScene[]): string[][] {
+  const groups = new Map<string, string[]>();
+  for (const scene of scenes) {
+    if (!scene.requiresImage) continue;
+    const key = scene.imageFrameId ? `frame:${scene.imageFrameId}` : scene.image;
+    if (!key) continue;
+    groups.set(key, [...(groups.get(key) ?? []), scene.title]);
+  }
+  return [...groups.values()].filter(titles => titles.length > 1);
 }

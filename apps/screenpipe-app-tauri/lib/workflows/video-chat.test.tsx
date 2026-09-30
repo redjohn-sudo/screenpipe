@@ -15,6 +15,8 @@ afterEach(cleanup);
 describe("video script patches", () => {
  it("edits and reorders video text independently, round-trips through SOP storage validation", () => {
   const initial = guideVideoDraft(guide, workflow);
+  // A previously edited project can retain its custom introduction.
+  initial.scenes.unshift({id:"section-0",title:guide.title,narration:guide.summary,includeImage:false});
   const video = applyVideoEdit(initial, {changes:[{id:"section-1",narration:"Review each claim."}],order:["section-1","section-0"],render:false});
   const saved = parseGuide(JSON.parse(JSON.stringify({...guide,video})));
   expect(saved.steps).toEqual(guide.steps);
@@ -30,8 +32,8 @@ describe("video script patches", () => {
  });
  it("never permits a patch to invent screenshot approval", () => {
   const video=applyVideoEdit(guideVideoDraft(guide,workflow),{changes:[{id:"section-1",includeImage:true}],render:false});
-  expect(guideVideoScenes({...guide,video},workflow)[1].image).toBeNull();
-  expect(guideVideoScenes({...guide,video},workflow)[1].imageFrameId).toBeUndefined();
+  expect(guideVideoScenes({...guide,video},workflow)[0].image).toBeNull();
+  expect(guideVideoScenes({...guide,video},workflow)[0].imageFrameId).toBeUndefined();
  });
 });
 function setup(edit: any, update=vi.fn(async()=>{}), renderVideo=vi.fn(async()=>{})) {

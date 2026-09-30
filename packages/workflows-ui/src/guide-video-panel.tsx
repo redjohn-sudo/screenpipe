@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import { Download, Film, Loader2, MessageCircle, X } from "lucide-react";
 import type { WorkflowGuide } from "./guide";
 import type { WorkflowMap } from "./model";
-import { guideVideoScenes, videoScreenshotGaps, type GuideVideoPlatform, type GuideVideoResult } from "./guide-video";
+import { guideVideoScenes, videoScreenshotGaps, repeatedVideoScreenshots, type GuideVideoPlatform, type GuideVideoResult } from "./guide-video";
 import styles from "./workflow-guide.module.css";
 
 export type GuideVideoHandle = { generate: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void> };
@@ -35,6 +35,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   let planError = "";
   try { scenes = guideVideoScenes(guide, workflow); } catch (cause) { planError = (cause as Error).message; }
   const gaps = videoScreenshotGaps(scenes);
+  const repeated = repeatedVideoScreenshots(scenes);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -122,7 +123,11 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
       </div>}
       {gaps.length > 0 && <div role="status"><p>These steps need a screenshot before rendering:</p><ul>{gaps.map(title => <li key={title}>{title}</li>)}</ul>
         <label><input type="checkbox" checked={!requireScreenshots} disabled={busy} onChange={event => setRequireScreenshots(!event.target.checked)} /> Allow text-only steps for this video</label></div>}
-      {gaps.length === 0 && <p>Every step has a reviewed screenshot.</p>}
+      {!planError && repeated.length > 0 && <details><summary>Some steps reuse the same screenshot</summary>
+        <p>Check that these captures show the actions you want to teach. Choose a different screenshot in the SOP when needed.</p>
+        {repeated.map((titles, index) => <p key={index}>{titles.join(" · ")}</p>)}
+      </details>}
+      {!planError && gaps.length === 0 && repeated.length === 0 && <p>Each step has its own reviewed screenshot.</p>}
       {result && <>
         {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}
         <video key={result.url} controls preload="metadata" src={result.url} aria-label="Narrated SOP preview">

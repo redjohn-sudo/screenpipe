@@ -13,6 +13,9 @@ const load = platform.guides!.load;
 platform.guides!.load = async workflow => {
   await load(workflow); // rasterize the existing fictional screenshots
   if (params.get("state") === "missing") { workflow.stages[0].screenshot = null; workflow.stages[0].screenshots = []; }
+  if (params.get("state") === "repeated") {
+    for (const stage of workflow.stages) { stage.screenshot = workflow.stages[0].screenshot; stage.screenshots = []; }
+  }
   return { version: 1, workflowKey: workflow.id || workflow.title, sourceRevision: (workflow.revision ?? 0) + (params.get("state") === "stale" ? 1 : 0), title: "Create a research brief",
     summary: "Gather reliable sources and turn them into a brief your team can review.", prerequisites: ["A research question and access to the source documents."],
     steps: workflow.stages.map((stage,i) => ({ title: stage.name, instruction: stage.description, expectedResult: "The source and its supporting claim are linked.", sourceStage: i, includeImage: true })),
