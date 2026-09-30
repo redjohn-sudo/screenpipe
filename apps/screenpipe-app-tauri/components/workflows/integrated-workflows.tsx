@@ -120,8 +120,8 @@ export function IntegratedWorkflows(props: Parameters<typeof DeviceWorkflows>[0]
     catch { setError("Could not save the workflow source. Try again."); }
     finally { setSaving(false); }
   }
-  const sourceControl = <label className="flex flex-col gap-2 text-xs">Workflow source
-    <select aria-label="Workflow source" className="w-full rounded-md border bg-transparent px-2 py-1.5 text-sm" value={source} disabled={saving} onChange={event => void change(event.target.value as "device" | "cloud")}>
+  const sourceControl = <label className="flex flex-col gap-2 text-xs"><span className="sr-only">Workflow source</span>
+    <select aria-label="Workflow source" className="w-full rounded-md border border-transparent bg-transparent px-2 py-1.5 text-sm text-muted-foreground hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" value={source} disabled={saving} onChange={event => void change(event.target.value as "device" | "cloud")}>
       <option value="cloud">Cloud workspace</option><option value="device">This device</option>
     </select>
     {error && <span role="alert">{error}</span>}

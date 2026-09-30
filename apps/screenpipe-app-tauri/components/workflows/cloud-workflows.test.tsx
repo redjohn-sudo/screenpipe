@@ -14,6 +14,7 @@ it("renders cloud detail and search without any local analysis controls", async 
   render(<CloudWorkflows {...props} api={api()} />);
   fireEvent.click(await screen.findByRole('button', { name: /Review a draft/ }));
   expect(await screen.findByRole('heading', { name: 'Open sources' })).toBeVisible();
+  fireEvent.click(screen.getByText('Processing details'));
   expect(screen.getByText('Local workflow analysis is off')).toBeVisible();
   expect(screen.queryByRole('switch', { name: 'Automatic updates' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'All workflows' }));
@@ -24,6 +25,7 @@ it("does not claim off until stopping succeeds; retries partial failure", async 
   const service = api(); vi.mocked(service.stopLocal).mockRejectedValueOnce(new Error('offline'));
   render(<CloudWorkflows {...props} api={service} />);
   fireEvent.click(await screen.findByRole('button', { name: 'Retry stopping local analysis' }));
+  fireEvent.click(screen.getByText('Processing details'));
   expect(await screen.findByText('Local workflow analysis is off')).toBeVisible();
   expect(service.stopLocal).toHaveBeenCalledTimes(2);
 });
