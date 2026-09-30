@@ -1852,7 +1852,7 @@ mod capture_trigger_kind_tests {
             &[UrlRule::Legacy("de.wikipedia.org".into())],
             &[],
         );
-        let mut event = evt(UiEventType::Click);
+        let mut event = evt(UiEventType::WindowFocus);
         event.app_name = Some("Microsoft Edge".into());
         event.window_title = Some("Berlin - Wikipedia".into());
         assert!(ui_event_is_ignored(&event, &[], &policy));
