@@ -386,7 +386,7 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
               {!busy && message.id === lastAnswer?.id && !message.status && lastUser && <button aria-label={ui("Retry answer")} title={ui("Retry answer")} onClick={() => void send(lastUser.text, true)}><RotateCcw size={14} /></button>}
             </div>}
           </article>)}
-          {busy && <div className={styles.activity} role="status"><i />{activity}</div>}
+          {busy && <div className={styles.activity} role="status"><i aria-hidden="true" />{activity}</div>}
           {!busy && (error || lastAnswer?.status === "error" || lastAnswer?.status === "stopped") && <div className={styles.error} role="status"><span>{error || (lastAnswer?.status === "error" ? ui("This answer didn’t finish.") : "")}</span>{lastUser && <button onClick={() => void send(lastUser.text, true)}>Try again</button>}</div>}
         </>}
       </div>
