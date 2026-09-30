@@ -34,6 +34,9 @@ async function visit(extra='') {
 }
 await page.getByRole('heading',{name:'Your workflows',exact:true}).waitFor();
 assert(await page.getByRole('combobox',{name:'Workflow source'}).evaluate(el=>Boolean(el.closest('header'))));
+const searchBounds=await page.getByRole('textbox',{name:'Search workflows'}).boundingBox();
+const sourceBounds=await page.getByRole('combobox',{name:'Workflow source'}).boundingBox();
+assert(sourceBounds.x>searchBounds.x+searchBounds.width, 'Workflow source belongs to the right of search');
 await page.getByRole('button',{name:'Processing details',exact:true}).click();
 await page.getByText('Local workflow analysis is off',{exact:true}).waitFor();
 await page.keyboard.press('Escape');

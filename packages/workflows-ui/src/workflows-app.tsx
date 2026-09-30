@@ -496,8 +496,8 @@ export function AppShell({
       <section className={styles.workspace} data-workflows-scroll-region>
         <header className={`${styles.topbar} ${sourceControl ? styles.sourceTopbar : ""}`} data-tauri-drag-region>
           {!nativeMacWindow && navigationToggle}
-          {sourceControl}
           <div className={styles.search}><Search size={15} /><input data-workflows-search value={query} onChange={(event) => setQuery(event.target.value)} onFocus={() => navigate("workflows")} placeholder={ui("Search workflows")} aria-label={ui("Search workflows")} />{query ? <button type="button" onClick={() => setQuery("")} aria-label={ui("Clear search")}><X size={12} /></button> : <button type="button" className={styles.commandTrigger} onMouseDown={(event) => event.preventDefault()} onClick={openCommandPalette} aria-label={ui("Open command palette")}><CommandIcon size={12} /><kbd>⌘ K</kbd></button>}</div>
+          {sourceControl && <div className={styles.sourceControl}>{sourceControl}</div>}
           {scopes.length > 1 && <label className={styles.scopeControl}>
             {activeScope?.kind === "organization" ? <Building2 size={13} /> : <Users size={13} />}
             <select value={activeScope?.id ?? ""} onChange={(event) => setScope(event.target.value)} aria-label={ui("Workflows scope")}>
