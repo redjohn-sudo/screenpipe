@@ -15,14 +15,14 @@ const artifact = z.object({
     recurring_workflows: z.array(z.object({ name: z.string(), trigger: z.string().optional(), outcome: z.string().optional(), frequency: z.string().optional(), steps: z.array(step) })).optional(),
   }),
 });
-const catalog = z.object({ license_id: z.string(), scope: z.enum(["member", "workspace"]).optional(), artifacts: z.array(artifact) });
+const catalog = z.object({ license_id: z.string(), scope: z.enum(["member", "workspace"]).optional(), member_access_enabled: z.boolean().optional(), artifacts: z.array(artifact) });
 export type CloudWorkflow = { id: string; title: string; summary: string; trigger?: string; outcome?: string; frequency?: string; steps: z.infer<typeof step>[]; updatedAt: string; version: number };
-export type CloudWorkflowCatalog = { licenseId: string; scope?: "member" | "workspace"; workflows: CloudWorkflow[] };
+export type CloudWorkflowCatalog = { licenseId: string; scope?: "member" | "workspace"; memberAccessEnabled?: boolean; workflows: CloudWorkflow[] };
 
 export function parseCloudCatalog(value: unknown): CloudWorkflowCatalog {
   const parsed = catalog.parse(value);
   if (parsed.artifacts.some(item => item.org_id !== parsed.license_id)) throw new Error("Cloud workflow workspace did not match.");
-  return { licenseId: parsed.license_id, scope: parsed.scope, workflows: parsed.artifacts
+  return { licenseId: parsed.license_id, scope: parsed.scope, memberAccessEnabled: parsed.member_access_enabled, workflows: parsed.artifacts
     .filter(item => item.status !== "archived" && !item.tags?.includes("studio-chat-draft"))
     .flatMap(item => (item.body.recurring_workflows?.length ? item.body.recurring_workflows : [{ name: item.title, steps: item.body.steps ?? [] }]).map((workflow, index) => ({
       id: `${item.artifact_id}:${index}`, title: workflow.name, summary: item.body.summary ?? "",
@@ -66,7 +66,7 @@ export async function loadCloudCatalog(userToken?: string, signal?: AbortSignal)
     path = "/api/enterprise/member-workflows";
   } else {
     const teamToken = await commands.getEnterpriseTeamApiToken();
-    if (!teamToken) throw new Error("Sign in to your workspace to see workflows approved for you.");
+    if (!teamToken) throw new Error("Sign in to your workspace to see your workflows.");
     headers.Authorization = `Bearer ${teamToken}`;
     path = "/api/enterprise/v1/workflows/generated";
   }

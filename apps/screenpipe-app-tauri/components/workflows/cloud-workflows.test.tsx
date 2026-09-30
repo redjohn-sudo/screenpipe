@@ -123,10 +123,10 @@ it("does not invent captured observations for cloud procedures", async () => {
   expect(screen.queryByText(/Evidence on 0 captured/)).not.toBeInTheDocument();
   expect(screen.queryByText(/0 observations/)).not.toBeInTheDocument();
 });
-it("explains explicit approval to a member with no workflows", async () => {
+it("explains automatic personal workflows to a member with no results", async () => {
   const service = api(); vi.mocked(service.load).mockResolvedValue({ licenseId: 'org-a', scope: 'member', workflows: [] });
   render(<CloudWorkflows {...props} api={service} />);
-  expect(await screen.findByText(/Only workflows approved for you appear here/)).toBeVisible();
+  expect(await screen.findByText(/Your workflows will appear here as your workspace processes activity/)).toBeVisible();
 });
 it("clears the prior account's catalog before a new account finishes loading", async () => {
   const service = api(); const view = render(<CloudWorkflows {...props} token="first-account" api={service} />);
@@ -134,4 +134,10 @@ it("clears the prior account's catalog before a new account finishes loading", a
   vi.mocked(service.load).mockImplementation(() => new Promise(() => {}));
   view.rerender(<CloudWorkflows {...props} token="second-account" api={service} />);
   expect(screen.queryByRole('heading', { name: 'Review a draft' })).not.toBeInTheDocument();
+});
+
+it("points to the workspace-wide setting when member access is off", async () => {
+  const service = api(); vi.mocked(service.load).mockResolvedValue({ licenseId: 'org-a', scope: 'member', memberAccessEnabled: false, workflows: [] });
+  render(<CloudWorkflows {...props} api={service} />);
+  expect(await screen.findByText(/Let members see their own workflows/)).toBeVisible();
 });

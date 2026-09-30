@@ -128,10 +128,10 @@ export function CloudWorkflows({ active, token, onModeChange, recordingStatus, n
         : error ? <section role="alert"><h1 className="text-2xl font-semibold">Cloud workflows unavailable</h1><p className="mt-3 text-sm opacity-70">{error}</p><Button variant="outline" className="mt-4" onClick={refresh}>Refresh</Button></section>
         : loading && !data ? <WorkflowCatalogPlaceholder />
         : view === "workflow" && selected ? <WorkflowDetails workflow={selected} platform={readOnlyPlatform} active={active} navigate={navigate} workProfile={null}
-            workflowAgentActions={() => refreshControl} sourceLabel={`${data?.scope === "member" ? "Approved for you" : "Cloud workflow"} · Version ${selected.revision}`} observationsAvailable={false} canSaveAnswers={false} onAnswersSaved={() => {}} />
+            workflowAgentActions={() => refreshControl} sourceLabel={`${data?.scope === "member" ? "Your cloud workflow" : "Cloud workflow"} · Version ${selected.revision}`} observationsAvailable={false} canSaveAnswers={false} onAnswersSaved={() => {}} />
         : <WorkflowCatalog workflows={workflows} knownWorkflowCount={workflows.length} filters={filters} setFilters={setFilters} openWorkflow={openWorkflow}
             analyze={refresh} analyzing={loading} error="" activityState={{ cycleId: "", items: [], unavailable: false }} refreshControl={refreshControl}
-            emptyState={<section className="py-12"><h2 className="text-lg font-medium">No cloud workflows yet</h2><p className="mt-2 text-sm opacity-70">{data?.scope === "member" ? "Ask your workspace admin to open a workflow’s Share menu and allow you to view it. Only workflows approved for you appear here." : "Workflows will appear here after your workspace analyzes uploaded activity."}</p></section>} />}
+            emptyState={<section className="py-12"><h2 className="text-lg font-medium">No cloud workflows yet</h2><p className="mt-2 text-sm opacity-70">{data?.scope === "member" ? (data.memberAccessEnabled === false ? "Your workspace hasn’t enabled member workflow access. Ask your admin to turn on “Let members see their own workflows” in the enterprise dashboard." : "Your workflows will appear here as your workspace processes activity from your signed-in devices.") : "Workflows will appear here after your workspace analyzes uploaded activity."}</p></section>} />}
     </WorkflowsShell>
     <WorkflowCommandPalette open={active && shortcuts} commands={commands} close={() => setShortcuts(false)} />
   </>;
