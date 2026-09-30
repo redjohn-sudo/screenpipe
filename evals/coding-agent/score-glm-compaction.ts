@@ -1,6 +1,7 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
 
+import { regressions } from "./glm-compaction-regressions";
 import { cases, grade } from "./glm-compaction-cases";
 
 // Versioned supplemental grading. The original strict verdicts and raw outputs
@@ -27,7 +28,7 @@ if (import.meta.main) {
     const original = await Bun.file(path).json();
     const records: any[] = [];
     for (const row of original.runs) {
-      const expected = cases.find(c => c.id === row.case)!.expected;
+      const expected = [...cases, ...regressions].find(c => c.id === row.case)!.expected;
       if (row.fullContext) records.push({ case: row.case, phase: "full-context", ...assess(row.fullContext.text, expected) });
       for (const trial of row.trials) for (const stage of trial.stages) records.push({ case: row.case, phase: "compacted", repeat: trial.repeat, cycle: stage.cycle, ...assess(stage.text, expected) });
     }

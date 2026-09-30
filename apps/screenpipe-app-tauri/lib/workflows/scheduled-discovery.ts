@@ -123,6 +123,7 @@ function job(execution: any): WorkflowAnalysisJob {
       : String(`${execution.error_type || ""} ${execution.error_message || ""}`).includes("workflow_usage_unavailable") ? "Could not check AI allowance. Reconnect and try again."
       : String(`${execution.error_type || ""} ${execution.error_message || ""}`).includes("workflow_sign_in_required") ? "Sign in again to resume workflow updates."
       : String(`${execution.error_type || ""} ${execution.error_message || ""}`).includes("workflow_rollout_disabled") ? "Workflows access was not confirmed. Try Update now to reconnect."
+      : execution.error_type === "context_compaction" ? "The update could not prepare its next step. Any saved progress is kept. Try again to continue."
       : execution.error_type === "missing_output" ? "The update could not be saved. Your previous workflows are still available. Try again."
       : execution.error_type === "timeout" || execution.status === "timed_out" || /(?:execution|request|connection) timed out/i.test(execution.error_message || "") ? "The update ran out of time. Saved workflows and research are kept. Try again to continue."
       : /context_length_exceeded|conversation is too long|context size has been exceeded/i.test(execution.error_message || "") ? "The update reached the AI context limit. Saved workflows and research are kept. Try again to continue."

@@ -142,6 +142,7 @@ describe("workflow agent workspace adapter",()=>{
     expect(await getWorkflowJob("saved:41")).toMatchObject({ status: "incomplete" });
   });
   it.each([
+    ["context_compaction", "Auto-compaction failed: 502", "could not prepare its next step"],
     ["timeout", "execution timed out after 900s", "ran out of time"],
     ["agent_error", "Request timed out.", "ran out of time"],
     ["agent_error", "413 Your conversation is too long for the model's context window", "AI context limit"],

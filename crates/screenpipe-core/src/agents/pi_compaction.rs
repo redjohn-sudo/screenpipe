@@ -15,6 +15,10 @@ const EVIDENCE_PATCH: &str = include_str!("../../assets/pi-summary-evidence.patc
 const EVIDENCE_MARKER: &str = "// screenpipe-summary-evidence-v1\n";
 const VALIDATION_PATCH: &str = include_str!("../../assets/pi-summary-validation.patch");
 const VALIDATION_MARKER: &str = "// screenpipe-summary-validation-v1\n";
+const CONTRACT_PATCH: &str = include_str!("../../assets/pi-summary-contract.patch");
+const CONTRACT_MARKER: &str = "// screenpipe-summary-contract-v1\n";
+const FAILURE_PATCH: &str = include_str!("../../assets/pi-compaction-failure.patch");
+const FAILURE_MARKER: &str = "// screenpipe-compaction-failure-v1\n";
 static PATCH_LOCK: Mutex<()> = Mutex::new(());
 
 pub fn ensure_for_entrypoint(entrypoint: &Path) -> Result<()> {
@@ -53,18 +57,32 @@ pub fn ensure(install_dir: &Path) -> Result<()> {
     // Preflight all pinned files before writing any. Each replacement is
     // atomic; an interrupted install is completed idempotently on next launch.
     let mut updates = Vec::new();
-    for (file, patch, marker) in [
-        ("agent-session.js", PATCH, MARKER),
-        ("compaction/utils.js", EVIDENCE_PATCH, EVIDENCE_MARKER),
+    for (file, patches) in [
+        (
+            "agent-session.js",
+            &[(PATCH, MARKER), (FAILURE_PATCH, FAILURE_MARKER)][..],
+        ),
+        (
+            "compaction/utils.js",
+            &[
+                (EVIDENCE_PATCH, EVIDENCE_MARKER),
+                (CONTRACT_PATCH, CONTRACT_MARKER),
+            ][..],
+        ),
         (
             "compaction/compaction.js",
-            VALIDATION_PATCH,
-            VALIDATION_MARKER,
+            &[(VALIDATION_PATCH, VALIDATION_MARKER)][..],
         ),
     ] {
         let runtime = core.join(file);
         let source = std::fs::read_to_string(&runtime).context("cannot read managed Pi runtime")?;
-        if let Some(patched) = patched_source_with_marker(&source, patch, marker)? {
+        let mut patched = source.clone();
+        for (patch, marker) in patches {
+            if let Some(next) = patched_source_with_marker(&patched, patch, marker)? {
+                patched = next;
+            }
+        }
+        if patched != source {
             updates.push((runtime, patched));
         }
     }
@@ -90,7 +108,13 @@ mod tests {
 
     #[test]
     fn bundled_patch_parses_with_lf_and_crlf() {
-        for asset in [PATCH, EVIDENCE_PATCH, VALIDATION_PATCH] {
+        for asset in [
+            PATCH,
+            EVIDENCE_PATCH,
+            VALIDATION_PATCH,
+            CONTRACT_PATCH,
+            FAILURE_PATCH,
+        ] {
             let lf = asset.replace("\r\n", "\n");
             for patch in [&lf, &lf.replace('\n', "\r\n")] {
                 // An unknown runtime must fail application, not parsing. Windows
@@ -117,18 +141,37 @@ mod tests {
     }
 
     #[test]
+    fn prior_markers_do_not_skip_follow_up_patches() {
+        assert!(
+            patched_source_with_marker(EVIDENCE_MARKER, CONTRACT_PATCH, CONTRACT_MARKER).is_err()
+        );
+        assert!(patched_source_with_marker(MARKER, FAILURE_PATCH, FAILURE_MARKER).is_err());
+        assert!(
+            patched_source_with_marker(CONTRACT_MARKER, CONTRACT_PATCH, CONTRACT_MARKER)
+                .unwrap()
+                .is_none()
+        );
+        assert!(
+            patched_source_with_marker(FAILURE_MARKER, FAILURE_PATCH, FAILURE_MARKER)
+                .unwrap()
+                .is_none()
+        );
+    }
+
+    #[test]
     fn unknown_serializer_is_rejected_even_after_session_patch() {
         let dir = tempfile::tempdir().unwrap();
         let core = dir
             .path()
             .join("node_modules/@earendil-works/pi-coding-agent/dist/core");
         std::fs::create_dir_all(core.join("compaction")).unwrap();
-        std::fs::write(core.join("agent-session.js"), MARKER).unwrap();
+        let session = format!("{MARKER}{FAILURE_MARKER}");
+        std::fs::write(core.join("agent-session.js"), &session).unwrap();
         std::fs::write(core.join("compaction/utils.js"), "unknown serializer").unwrap();
         assert!(ensure(dir.path()).is_err());
         assert_eq!(
             std::fs::read_to_string(core.join("agent-session.js")).unwrap(),
-            MARKER
+            session
         );
         assert_eq!(
             std::fs::read_to_string(core.join("compaction/utils.js")).unwrap(),

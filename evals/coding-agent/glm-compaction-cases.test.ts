@@ -2,11 +2,12 @@
 // https://screenpipe.com
 
 import { expect, test } from "bun:test";
+import { regressions } from "./glm-compaction-regressions";
 import { cases, grade } from "./glm-compaction-cases";
 import { assess } from "./score-glm-compaction";
 
 test("scorer rejects missing, fabricated and altered fields in every case", () => {
-  for (const c of cases) {
+  for (const c of [...cases, ...regressions]) {
     expect(grade(JSON.stringify(c.expected), c.expected).passed).toBe(true);
     for (const key of Object.keys(c.expected)) {
       const missing = { ...c.expected }; delete missing[key];

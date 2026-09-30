@@ -10,6 +10,7 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
+import { regressions } from "../../../evals/coding-agent/glm-compaction-regressions";
 import { cases, grade } from "../../../evals/coding-agent/glm-compaction-cases";
 import { createGlmEncryptedFetch, workflowRequestOptions } from "../../../crates/screenpipe-core/assets/extensions/lib/tinfoil-transport";
 import { compactGlmToolResultText } from "../../../crates/screenpipe-core/assets/extensions/lib/glm-protocol";
@@ -61,6 +62,7 @@ const result: any = { model: { id: model.id, contextWindow: model.contextWindow,
   compactionHash: hash(await readFile(join(pkg, "dist/core/compaction/compaction.js"), "utf8")),
   serializerHash: hash(await readFile(join(pkg, "dist/core/compaction/utils.js"), "utf8")),
   fixtureHash: hash(await readFile(resolve(import.meta.dir, "../../../evals/coding-agent/glm-compaction-cases.ts"), "utf8")),
+  regressionHash: hash(await readFile(resolve(import.meta.dir, "../../../evals/coding-agent/glm-compaction-regressions.ts"), "utf8")),
   startedAt: new Date().toISOString(), runs: [] };
 async function save() { result.calls = calls; result.requests = requests; result.receipts = receipts; await writeFile(join(output!, "results.json"), JSON.stringify(result, null, 2)); }
 async function answer(messages: any[]) {
@@ -68,8 +70,13 @@ async function answer(messages: any[]) {
   if (response.stopReason !== "stop") throw new Error(`Continuation failed: ${response.stopReason}: ${response.errorMessage || ""}`);
   return { text: text(response), usage: response.usage };
 }
-const selected = process.argv.includes("--split-only") ? [] : cases.filter(c => !process.env.SCREENPIPE_EVAL_CASES || process.env.SCREENPIPE_EVAL_CASES.split(",").includes(c.id));
-const repeats = Math.min(3, Math.max(1, Number(process.env.SCREENPIPE_EVAL_REPEATS || 2)));
+const suite = process.argv.includes("--regressions") ? regressions : process.env.SCREENPIPE_EVAL_CASES ? [...cases, ...regressions] : cases;
+const selected = process.argv.includes("--split-only") ? [] : suite.filter(c => !process.env.SCREENPIPE_EVAL_CASES || process.env.SCREENPIPE_EVAL_CASES.split(",").includes(c.id));
+const repeats = Number(process.env.SCREENPIPE_EVAL_REPEATS || 2);
+if (!Number.isInteger(repeats) || repeats < 1 || repeats > 3) throw new Error("SCREENPIPE_EVAL_REPEATS must be 1, 2 or 3.");
+const plannedCalls = selected.reduce((n, c) => n + 1 + repeats * (c.chain ? 4 : 2), 0);
+if (plannedCalls > 60) throw new Error("Selected cases exceed the 60-call budget; split the suite into separate runs.");
+if (!selected.length && !process.argv.includes("--split-only")) throw new Error("No evaluation cases matched.");
 for (const c of selected) {
   const history = [user(c.task), assistant([{ type: "toolCall", id: "lookup-1", name: "lookup", arguments: { query: c.id } }], "toolUse"),
     { role: "toolResult", toolCallId: "lookup-1", toolName: "lookup", content: [{ type: "text", text: compactGlmToolResultText(c.result) }], isError: false, timestamp: Date.now() },
