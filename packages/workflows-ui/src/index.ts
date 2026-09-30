@@ -19,6 +19,7 @@ export * from "./context-tool";
 export { WorkflowRunProgress } from "./workflow-run-progress";
 
 export * from "./guide";
+export * from "./guide-video";
 
 export { guideMarkdown } from "./guide";
 

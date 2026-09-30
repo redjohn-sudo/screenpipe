@@ -1,6 +1,7 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
 import { trackWorkflowOutcome } from "./notification";
+import { desktopGuideVideo } from "./guide-video";
 import {
   guideKey,
   guideMarkdown,
@@ -41,6 +42,7 @@ async function requireSopGenerationAccess(signal: AbortSignal) {
 }
 
 export const desktopGuides: NonNullable<WorkflowsPlatform["guides"]> = {
+  video: desktopGuideVideo,
   async openWeb(guide) {
     const token = await commands.getCloudToken();
     if (!token)

@@ -1,0 +1,442 @@
+// screenpipe — AI that knows everything you've seen, said, or heard
+// https://screenpipe.com
+use base64::Engine;
+use once_cell::sync::Lazy;
+use screenpipe_core::workflow_video::{self, Scene};
+use std::{collections::HashSet, sync::Mutex};
+use tauri::{Emitter, Manager};
+use tokio::sync::watch;
+
+static ACTIVE: Lazy<Mutex<Option<(String, watch::Sender<bool>)>>> = Lazy::new(|| Mutex::new(None));
+static PREVIEWS: Lazy<Mutex<HashSet<String>>> = Lazy::new(|| Mutex::new(HashSet::new()));
+
+#[derive(serde::Deserialize, specta::Type)]
+pub struct WorkflowVideoScene {
+    title: String,
+    narration: String,
+    image: Option<String>,
+}
+
+#[derive(serde::Serialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
+pub struct WorkflowVideoResult {
+    path: String,
+    captions_path: String,
+}
+
+struct ActiveJob;
+impl Drop for ActiveJob {
+    fn drop(&mut self) {
+        *ACTIVE.lock().unwrap_or_else(|e| e.into_inner()) = None;
+    }
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn cancel_workflow_video(id: String) -> Result<(), String> {
+    if let Some((active, cancel)) = ACTIVE
+        .lock()
+        .map_err(|_| "Video state unavailable")?
+        .as_ref()
+    {
+        if *active == id {
+            let _ = cancel.send(true);
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn create_workflow_video(
+    app: tauri::AppHandle,
+    id: String,
+    scenes: Vec<WorkflowVideoScene>,
+) -> Result<WorkflowVideoResult, String> {
+    uuid::Uuid::parse_str(&id).map_err(|_| "Invalid video request")?;
+    let (cancel, receiver) = watch::channel(false);
+    {
+        let mut active = ACTIVE.lock().map_err(|_| "Video state unavailable")?;
+        if active.is_some() {
+            return Err(
+                "Another video is being created. Wait for it to finish or stop it first.".into(),
+            );
+        }
+        *active = Some((id.clone(), cancel));
+    }
+    let _active = ActiveJob;
+    let result = async {
+        let token = crate::commands::get_cloud_token().ok_or("Sign in to Screenpipe to create a video.")?;
+        let gateway = crate::config::screenpipe_ai_gateway_url()?;
+        let binary = screenpipe_core::ffmpeg::find_ffmpeg_path().ok_or("Screenpipe's video tools are unavailable. Restart the app and try again.")?;
+        let root = app.path().app_data_dir().map_err(|_| "Could not find local app storage")?.join("workflow-videos");
+        std::fs::create_dir_all(&root).map_err(|_| "Could not create local video storage")?;
+        // Crash leftovers are owned by this feature. Keep current previews; prune abandoned
+        // outputs after a day and bound the cache before spending on speech.
+        let mut cached_bytes = 0;
+        for entry in std::fs::read_dir(&root).map_err(|_| "Could not read video storage")?.flatten() {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            if name.starts_with(".render-") { let _ = std::fs::remove_dir_all(entry.path()); }
+            else if uuid::Uuid::parse_str(&name).is_ok() {
+                let abandoned = !PREVIEWS.lock().map_err(|_| "Video state unavailable")?.contains(&name)
+                    && entry.metadata().ok().and_then(|m| m.modified().ok()).and_then(|t| t.elapsed().ok()).is_some_and(|age| age.as_secs() > 86400);
+                if abandoned { let _ = std::fs::remove_dir_all(entry.path()); }
+                cached_bytes += std::fs::metadata(entry.path().join("video.mp4")).map(|m| m.len()).unwrap_or(0);
+            }
+        }
+        if cached_bytes > 700 * 1024 * 1024 { return Err("Video preview storage is full. Download and close other video previews before creating another.".into()); }
+        let temporary = tempfile::Builder::new().prefix(".render-").tempdir_in(&root).map_err(|_| "Could not prepare video storage")?;
+        let mut input = Vec::new();
+        let mut image_bytes = 0;
+        if scenes.len() > 50 { return Err("This SOP has too many sections for one video.".to_owned()); }
+        for (i, scene) in scenes.into_iter().enumerate() {
+            let image = if let Some(data) = scene.image {
+                if data.len() > 16 * 1024 * 1024 { return Err("A screenshot is too large for video export.".into()); }
+                let (prefix, encoded) = data.split_once(',').ok_or("A screenshot could not be read.")?;
+                if !["data:image/png;base64", "data:image/jpeg;base64", "data:image/webp;base64"].contains(&prefix) { return Err("Unsupported screenshot format.".into()); }
+                let bytes = base64::engine::general_purpose::STANDARD.decode(encoded).map_err(|_| "A screenshot could not be read.")?;
+                image_bytes += bytes.len();
+                if image_bytes > 80 * 1024 * 1024 { return Err("The screenshots exceed the video export limit.".into()); }
+                let path = temporary.path().join(format!("source-{i}.image"));
+                std::fs::write(&path, bytes).map_err(|_| "Could not prepare a screenshot")?;
+                Some(path)
+            } else { None };
+            input.push(Scene { title: scene.title, narration: scene.narration, image });
+        }
+        let event = format!("workflow-video-{id}");
+        // Announce registration before rendering so cancellation cannot race command startup.
+        let _ = app.emit(&event, "Preparing video");
+        workflow_video::render(&input, temporary.path(), &binary, &gateway, &token, receiver, |index, total, phase| {
+            let _ = app.emit(&event, format!("{phase} {index} of {total}"));
+        }).await.map_err(|e| e.to_string())?;
+        let destination = root.join(&id);
+        std::fs::create_dir(&destination).map_err(|_| "Could not save the video")?;
+        for file in ["video.mp4", "captions.vtt"] {
+            if std::fs::rename(temporary.path().join(file), destination.join(file)).is_err() {
+                let _ = std::fs::remove_dir_all(&destination);
+                return Err("Could not save the video. Check available disk space.".into());
+            }
+        }
+        PREVIEWS.lock().map_err(|_| "Video state unavailable")?.insert(id);
+        Ok(WorkflowVideoResult { path: destination.join("video.mp4").to_string_lossy().into_owned(), captions_path: destination.join("captions.vtt").to_string_lossy().into_owned() })
+    }.await;
+    result
+}
+
+/// Outputs remain available while reviewing. Explicit discard bounds permanent local storage.
+#[tauri::command]
+#[specta::specta]
+pub async fn discard_workflow_video(app: tauri::AppHandle, id: String) -> Result<(), String> {
+    let id = uuid::Uuid::parse_str(&id)
+        .map_err(|_| "Invalid video")?
+        .to_string();
+    let root = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| "Could not find video storage")?
+        .join("workflow-videos")
+        .join(&id);
+    if root.exists() {
+        std::fs::remove_dir_all(root).map_err(|_| "Could not remove the video")?;
+    }
+    PREVIEWS
+        .lock()
+        .map_err(|_| "Video state unavailable")?
+        .remove(&id);
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn workflow_video_unicode_segments_preserve_content_and_limits() {
+        for text in [
+            "你好😀".repeat(300),
+            "word ".repeat(300),
+            "a".repeat(801),
+            "Before\n\nafter\tdecision".into(),
+        ] {
+            let parts = workflow_video::segments(&text);
+            assert!(parts
+                .iter()
+                .all(|p| !p.is_empty() && p.chars().count() <= 240));
+            assert_eq!(
+                parts.concat().split_whitespace().collect::<String>(),
+                text.split_whitespace().collect::<String>()
+            );
+        }
+    }
+
+    #[test]
+    fn workflow_video_rejects_oversized_and_empty_plans() {
+        assert!(workflow_video::validate(&[]).is_err());
+        assert!(workflow_video::validate(&[Scene {
+            title: "Test".into(),
+            narration: "a".repeat(18001),
+            image: None
+        }])
+        .is_err());
+    }
+
+    #[tokio::test]
+    async fn workflow_video_renderer_success_failure_and_cancel() {
+        use wiremock::{
+            matchers::{method, path},
+            Mock, MockServer, ResponseTemplate,
+        };
+        let Some(binary) = screenpipe_core::ffmpeg::find_ffmpeg_path() else {
+            panic!("Run video tests through test:tauri, which provisions the bundled renderer");
+        };
+        let server = MockServer::start().await;
+        let temporary = tempfile::tempdir().unwrap();
+        let scene = Scene {
+            title: "Reviewer's [brief]: 100% {checked}".into(),
+            narration: "Read the instructions and confirm the result.".into(),
+            image: None,
+        };
+        // A tiny WAV fixture checks muxing/timing, not speech quality (covered by live eval).
+        let mut wav = Vec::new();
+        wav.extend(b"RIFF");
+        wav.extend(6436u32.to_le_bytes());
+        wav.extend(b"WAVEfmt ");
+        wav.extend(16u32.to_le_bytes());
+        wav.extend(1u16.to_le_bytes());
+        wav.extend(1u16.to_le_bytes());
+        wav.extend(16000u32.to_le_bytes());
+        wav.extend(32000u32.to_le_bytes());
+        wav.extend(2u16.to_le_bytes());
+        wav.extend(16u16.to_le_bytes());
+        wav.extend(b"data");
+        wav.extend(6400u32.to_le_bytes());
+        wav.resize(6444, 0);
+        Mock::given(method("POST"))
+            .and(path("/tts"))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .insert_header("content-type", "audio/wav")
+                    .set_body_bytes(wav),
+            )
+            .expect(1)
+            .mount(&server)
+            .await;
+        let (_sender, receiver) = watch::channel(false);
+        workflow_video::render(
+            &[scene.clone()],
+            temporary.path(),
+            &binary,
+            &server.uri(),
+            "test",
+            receiver,
+            |_, _, _| {},
+        )
+        .await
+        .unwrap();
+        assert!(
+            std::fs::metadata(temporary.path().join("video.mp4"))
+                .unwrap()
+                .len()
+                > 1000
+        );
+        let captions = std::fs::read_to_string(temporary.path().join("captions.vtt")).unwrap();
+        assert!(captions.contains("00:00:00.000 --> 00:00:00.208"));
+        assert!(captions.contains(&scene.narration));
+        server.verify().await;
+        server.reset().await;
+        Mock::given(method("POST"))
+            .respond_with(ResponseTemplate::new(503).set_body_string("private upstream detail"))
+            .expect(1)
+            .mount(&server)
+            .await;
+        let (_sender, receiver) = watch::channel(false);
+        let error = workflow_video::render(
+            &[scene.clone()],
+            temporary.path(),
+            &binary,
+            &server.uri(),
+            "test",
+            receiver,
+            |_, _, _| {},
+        )
+        .await
+        .unwrap_err();
+        assert!(error
+            .to_string()
+            .contains("Speech generation is unavailable"));
+        assert!(!error.to_string().contains("private upstream"));
+        server.verify().await; // No automatic billable retry.
+        server.reset().await;
+        for (body, expected) in [
+            (
+                r#"{"error":"{\"error\":\"monthly_cost_limit_exceeded\"}"}"#,
+                "monthly AI allowance",
+            ),
+            ("rate limit exceeded", "busy"),
+        ] {
+            Mock::given(method("POST"))
+                .respond_with(ResponseTemplate::new(429).set_body_string(body))
+                .expect(1)
+                .mount(&server)
+                .await;
+            let (_sender, receiver) = watch::channel(false);
+            let error = workflow_video::render(
+                &[scene.clone()],
+                temporary.path(),
+                &binary,
+                &server.uri(),
+                "test",
+                receiver,
+                |_, _, _| {},
+            )
+            .await
+            .unwrap_err();
+            assert!(error.to_string().contains(expected));
+            server.verify().await;
+            server.reset().await;
+        }
+        let broken = temporary.path().join("broken.png");
+        std::fs::write(&broken, "invalid").unwrap();
+        let (_sender, receiver) = watch::channel(false);
+        assert!(workflow_video::render(
+            &[Scene {
+                image: Some(broken),
+                ..scene.clone()
+            }],
+            temporary.path(),
+            &binary,
+            &server.uri(),
+            "test",
+            receiver,
+            |_, _, _| {}
+        )
+        .await
+        .is_err());
+        assert!(server.received_requests().await.unwrap().is_empty());
+        let (sender, receiver) = watch::channel(false);
+        sender.send(true).unwrap();
+        assert!(workflow_video::render(
+            &[scene.clone()],
+            temporary.path(),
+            &binary,
+            &server.uri(),
+            "test",
+            receiver,
+            |_, _, _| {}
+        )
+        .await
+        .unwrap_err()
+        .to_string()
+        .contains("stopped"));
+        let (sender, receiver) = watch::channel(false);
+        let start = std::time::Instant::now();
+        let error = workflow_video::render(
+            &[scene],
+            temporary.path(),
+            &binary,
+            &server.uri(),
+            "test",
+            receiver,
+            |_, _, phase| {
+                if phase == "Narrating" {
+                    sender.send(true).unwrap();
+                }
+            },
+        )
+        .await
+        .unwrap_err();
+        assert!(error.to_string().contains("stopped"));
+        assert!(start.elapsed().as_secs() < 10);
+    }
+
+    #[tokio::test]
+    async fn workflow_video_cancel_does_not_stop_another_job() {
+        let (sender, receiver) = watch::channel(false);
+        *ACTIVE.lock().unwrap() = Some(("owned-job".into(), sender));
+        cancel_workflow_video("other-job".into()).await.unwrap();
+        assert!(!*receiver.borrow());
+        cancel_workflow_video("owned-job".into()).await.unwrap();
+        assert!(*receiver.borrow());
+        *ACTIVE.lock().unwrap() = None;
+    }
+
+    /// Explicit opt-in live speech + real renderer, private input/output paths only.
+    /// Run through test:tauri with SCREENPIPE_VIDEO_EVAL_MANIFEST and AUTH_FILE.
+    #[tokio::test]
+    #[ignore]
+    async fn workflow_video_live_eval() {
+        let auth: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(
+                std::env::var("SCREENPIPE_VIDEO_AUTH_FILE").expect("auth file required"),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        eval_manifest(
+            "https://api.screenpipe.com/v1",
+            auth["screenpipe"]["key"].as_str().unwrap(),
+            "live",
+        )
+        .await;
+    }
+
+    /// Recorded, synthetic narration for visual/renderer checks without paid provider calls.
+    #[tokio::test]
+    #[ignore]
+    async fn workflow_video_recorded_speech_eval() {
+        use wiremock::{matchers::method, Mock, MockServer, ResponseTemplate};
+        let audio = std::fs::read(
+            std::env::var("SCREENPIPE_VIDEO_SPEECH_FIXTURE").expect("speech fixture required"),
+        )
+        .unwrap();
+        let server = MockServer::start().await;
+        Mock::given(method("POST"))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .insert_header("content-type", "audio/mpeg")
+                    .set_body_bytes(audio),
+            )
+            .mount(&server)
+            .await;
+        eval_manifest(&server.uri(), "test", "recorded fixture").await;
+    }
+
+    async fn eval_manifest(gateway: &str, token: &str, speech: &str) {
+        #[derive(serde::Deserialize)]
+        struct Case {
+            directory: std::path::PathBuf,
+            scenes: Vec<Scene>,
+        }
+        let manifest =
+            std::env::var("SCREENPIPE_VIDEO_EVAL_MANIFEST").expect("private manifest required");
+        let cases: Vec<Case> = serde_json::from_slice(&std::fs::read(manifest).unwrap()).unwrap();
+        assert!(cases.len() <= 12);
+        let binary = screenpipe_core::ffmpeg::find_ffmpeg_path().unwrap();
+        let mut results = Vec::new();
+        for (index, case) in cases.iter().enumerate() {
+            std::fs::create_dir_all(&case.directory).unwrap();
+            let (_sender, receiver) = watch::channel(false);
+            let start = std::time::Instant::now();
+            let result = workflow_video::render(
+                &case.scenes,
+                &case.directory,
+                &binary,
+                gateway,
+                token,
+                receiver,
+                |part, total, phase| {
+                    println!("case {}: {phase} {part}/{total}", index + 1);
+                },
+            )
+            .await;
+            results.push(serde_json::json!({"case":index + 1,"passed":result.is_ok(),"speech":speech,"seconds":start.elapsed().as_secs(),"error":result.err().map(|e|e.to_string())}));
+            std::fs::write(
+                case.directory.join("result.json"),
+                serde_json::to_vec_pretty(results.last().unwrap()).unwrap(),
+            )
+            .unwrap();
+        }
+        println!("{}", serde_json::to_string_pretty(&results).unwrap());
+        assert!(results.iter().all(|r| r["passed"] == true));
+    }
+}

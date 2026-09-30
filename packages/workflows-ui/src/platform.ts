@@ -97,6 +97,7 @@ export type WorkflowsPlatform = {
     scope?: WorkflowScope,
   ) => Promise<WorkProfile>;
   guides?: {
+    video?: import("./guide-video").GuideVideoPlatform;
     generate: (
       workflow: WorkflowMap,
       signal: AbortSignal,

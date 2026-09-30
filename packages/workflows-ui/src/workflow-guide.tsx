@@ -30,6 +30,7 @@ import { WorkflowRichText } from "./rich-text";
 import { InlineText } from "./inline-text";
 import { SopDocument } from "./sop-document";
 import { GuideAssistant } from "./guide-assistant";
+import { GuideVideoPanel } from "./guide-video-panel";
 import styles from "./workflow-guide.module.css";
 import { useGT } from "gt-react";
 
@@ -239,6 +240,7 @@ export function WorkflowGuide({
           )}
           {draft && (
             <>
+              {platform.video && <GuideVideoPanel guide={draft} workflow={workflow} platform={platform.video} save={persist} />}
               {platform.openWeb && (
                 <button
                   className={styles.actionButton}

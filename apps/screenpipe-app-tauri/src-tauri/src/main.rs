@@ -102,6 +102,7 @@ mod livetext;
 mod livetext_ffi;
 mod enterprise_persistence;
 mod meeting_export;
+mod workflow_video;
 mod meeting_live_notes;
 mod meeting_stall_notifications;
 mod oauth;
