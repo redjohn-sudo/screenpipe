@@ -2146,7 +2146,10 @@ mod spawn_lifecycle_lock_tests {
             .find(fn_needle)
             .expect("spawn_screenpipe renamed — repoint this guard at it");
         let body = &source[start..];
-        let end = body.find("\n}\n").expect("unterminated function body");
+        let end = body
+            .find("\n}\n")
+            .or_else(|| body.find("\r\n}\r\n"))
+            .expect("unterminated function body");
         let body = &body[..end];
 
         assert!(

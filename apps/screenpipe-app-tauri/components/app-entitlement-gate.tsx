@@ -405,15 +405,18 @@ export function AppEntitlementGate({
     // "checking access" shell, but that transient state must never stop the
     // recorder. Otherwise opening the overlay can tear down the local API just
     // before the consumer/enterprise result arrives.
-    if (!isSettingsLoaded || !isManagedDeploymentResolved) return;
+    if (
+      !isSettingsLoaded ||
+      !isManagedDeploymentResolved ||
+      isManagedDeployment
+    )
+      return;
     if (!shouldGate) {
       stoppedForGateRef.current = false;
       return;
     }
-    // Enterprise credentials are restored asynchronously in every webview.
-    // `checking` means "verification in progress", not "access denied". The
-    // old behavior stopped the recorder here, then failed to resume because an
-    // already-entitled enterprise account never flips `isEntitled` false→true.
+    // Consumer credentials are restored asynchronously in every webview.
+    // `checking` means "verification in progress", not "access denied".
     if (enterpriseAuthenticationPending) return;
     // Only the primary content window owns recorder lifecycle. Search, overlay,
     // notification, and settings webviews still render the gate but must never
@@ -620,7 +623,6 @@ export function AppEntitlementGate({
     const previouslyAuthenticated = prevEnterpriseAuthenticatedRef.current;
     prevEnterpriseAuthenticatedRef.current = isManagedAuthenticated;
     if (previouslyAuthenticated !== false || !isManagedAuthenticated) return;
-    if (!recorderStoppedByGateRef.current) return;
     posthog.capture("enterprise_auth_recording_restored", {
       authentication_state: authenticationState,
     });

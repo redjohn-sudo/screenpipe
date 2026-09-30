@@ -384,7 +384,7 @@ describe("AppEntitlementGate", () => {
     },
   );
 
-  it("leaves Enterprise resume to native auth instead of stopping its new recorder", async () => {
+  it("leaves Enterprise stop and resume to native auth", async () => {
     mocks.enterprise = {
       isManagedDeployment: true,
       isManagedDeploymentResolved: true,
@@ -396,14 +396,15 @@ describe("AppEntitlementGate", () => {
     const { rerender } = render(
       <AppEntitlementGate>{protectedApp}</AppEntitlementGate>,
     );
-    await waitFor(() => expect(mocks.stopScreenpipe).toHaveBeenCalledTimes(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mocks.stopScreenpipe).not.toHaveBeenCalled();
 
     mocks.enterprise.authenticationState = "authenticated";
     mocks.enterprise.isManagedAuthenticated = true;
     rerender(<AppEntitlementGate>{protectedApp}</AppEntitlementGate>);
 
     await new Promise((resolve) => setTimeout(resolve, 600));
-    expect(mocks.stopScreenpipe).toHaveBeenCalledTimes(1);
+    expect(mocks.stopScreenpipe).not.toHaveBeenCalled();
     expect(mocks.spawnScreenpipe).not.toHaveBeenCalled();
     expect(mocks.capture).toHaveBeenCalledWith(
       "enterprise_auth_recording_restored",
@@ -480,7 +481,8 @@ describe("AppEntitlementGate", () => {
     expect(screen.getByText(/account associated with the enterprise organization/i)).toBeInTheDocument();
     expect(screen.queryByTestId("protected-app")).not.toBeInTheDocument();
 
-    await waitFor(() => expect(mocks.stopScreenpipe).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(mocks.stopScreenpipe).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: /^sign in$/i }));
     expect(mocks.openLoginWindow).toHaveBeenCalled();
   });
