@@ -127,6 +127,6 @@ export function IntegratedWorkflows(props: Parameters<typeof DeviceWorkflows>[0]
     {error && <span role="alert" className="absolute left-0 top-full z-20 mt-1 w-60 rounded-md border bg-background p-3 text-foreground shadow-sm">{error}</span>}
   </label>;
   return source === "cloud"
-    ? <TooltipProvider><CloudWorkflows key={settings.user?.token ?? "signed-out"} {...props} sourceControl={sourceControl} token={settings.user?.token ?? undefined} api={mock ? fixtureCloudWorkflows : undefined} /></TooltipProvider>
+    ? <TooltipProvider><CloudWorkflows processingPromptSeen={settings.cloudWorkflowProcessingPromptSeen === true} onProcessingPromptSeen={async () => { await updateSettings({ cloudWorkflowProcessingPromptSeen: true }); }} key={settings.user?.token ?? "signed-out"} {...props} sourceControl={sourceControl} token={settings.user?.token ?? undefined} api={mock ? fixtureCloudWorkflows : undefined} /></TooltipProvider>
     : <DeviceWorkflows {...props} sourceControl={sourceControl} />;
 }

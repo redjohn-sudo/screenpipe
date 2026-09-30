@@ -9,25 +9,76 @@ vi.mock("@/lib/workflows/cloud-catalog", () => ({ loadCloudCatalog: vi.fn() }));
 vi.mock("@/lib/workflows/cloud-processing", () => ({ stopLocalWorkflowProcessing: vi.fn() }));
 const data = { licenseId: 'org-a', workflows: [{ id: 'a', title: 'Review a draft', summary: 'Check the supporting sources.', steps: [{ action: 'Open sources', detail: 'Check the citations' }], version: 3, updatedAt: '2026-09-30' }] };
 function api(): CloudWorkflowsServices { return { load: vi.fn().mockResolvedValue(data), stopLocal: vi.fn().mockResolvedValue(undefined) }; }
-const props = { active: true, onModeChange: vi.fn(), recordingStatus: <button>Recording</button> };
+const props = { processingPromptSeen: true, onProcessingPromptSeen: vi.fn().mockResolvedValue(undefined), active: true, onModeChange: vi.fn(), recordingStatus: <button>Recording</button> };
 it("renders cloud detail and search without any local analysis controls", async () => {
   render(<CloudWorkflows {...props} api={api()} />);
   fireEvent.click((await screen.findByRole('heading', { name: 'Review a draft' })).closest('article')!.querySelector('button')!);
   expect(await screen.findByRole('heading', { name: 'Open sources' })).toBeVisible();
   fireEvent.click(screen.getByRole('button', { name: 'Processing details' }));
-  expect(screen.getByText('Local workflow analysis is off')).toBeVisible();
+  expect(screen.getByText('Cloud and local processing are independent')).toBeVisible();
   expect(screen.queryByRole('switch', { name: 'Automatic updates' })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'All workflows' }));
   fireEvent.change(screen.getByRole('textbox', { name: 'Search workflows' }), { target: { value: 'missing' } });
   expect(screen.getByText('No workflows match these filters')).toBeVisible();
 });
-it("does not claim off until stopping succeeds; retries partial failure", async () => {
+it("never stops local jobs on mount, refresh, a later visit or a timer", async () => {
+  const service = api(); const view = render(<CloudWorkflows {...props} api={service} />);
+  await screen.findByRole('heading', { name: 'Review a draft' });
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh', exact: true }));
+  await waitFor(() => expect(service.load).toHaveBeenCalledTimes(2));
+  view.unmount(); render(<CloudWorkflows {...props} api={service} />);
+  await screen.findByRole('heading', { name: 'Review a draft' });
+  vi.useFakeTimers();
+  try { await act(async () => { await vi.advanceTimersByTimeAsync(30_000); }); } finally { vi.useRealTimers(); }
+  expect(service.stopLocal).not.toHaveBeenCalled();
+});
+it("asks once and keeps local processing unchanged by choice", async () => {
+  const service = api(); const remember = vi.fn().mockResolvedValue(undefined);
+  render(<CloudWorkflows {...props} api={service} processingPromptSeen={false} onProcessingPromptSeen={remember} />);
+  expect(screen.getByRole('dialog')).toHaveTextContent('Turn off local workflow processing?');
+  expect(service.stopLocal).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Keep local processing', exact: true }));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(remember).toHaveBeenCalledTimes(1); expect(service.stopLocal).not.toHaveBeenCalled();
+});
+it("stops only after consent and remembers after shutdown succeeds", async () => {
+  const service = api(); let finish!: () => void;
+  vi.mocked(service.stopLocal).mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+  const remember = vi.fn().mockResolvedValue(undefined);
+  render(<CloudWorkflows {...props} api={service} processingPromptSeen={false} onProcessingPromptSeen={remember} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Turn off local processing', exact: true }));
+  expect(remember).not.toHaveBeenCalled(); expect(screen.getByRole('button', { name: 'Saving…' })).toBeDisabled();
+  await act(async () => finish());
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(service.stopLocal).toHaveBeenCalledTimes(1); expect(remember).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Refresh', exact: true }));
+  expect(service.stopLocal).toHaveBeenCalledTimes(1);
+});
+it("keeps shutdown failure visible and retries only when asked", async () => {
   const service = api(); vi.mocked(service.stopLocal).mockRejectedValueOnce(new Error('offline'));
-  render(<CloudWorkflows {...props} api={service} />);
-  fireEvent.click(await screen.findByRole('button', { name: 'Retry stopping local analysis' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Processing details' }));
-  expect(await screen.findByText('Local workflow analysis is off')).toBeVisible();
-  expect(service.stopLocal).toHaveBeenCalledTimes(2);
+  const remember = vi.fn().mockResolvedValue(undefined);
+  render(<CloudWorkflows {...props} api={service} processingPromptSeen={false} onProcessingPromptSeen={remember} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Turn off local processing', exact: true }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('Could not confirm'); expect(remember).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Turn off local processing', exact: true }));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull()); expect(service.stopLocal).toHaveBeenCalledTimes(2);
+});
+it("keeps a failed preference save retryable without stopping pipes", async () => {
+  const service = api(); const remember = vi.fn().mockRejectedValueOnce(new Error('disk')).mockResolvedValue(undefined);
+  render(<CloudWorkflows {...props} api={service} processingPromptSeen={false} onProcessingPromptSeen={remember} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Keep local processing', exact: true }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('Could not save');
+  fireEvent.click(screen.getByRole('button', { name: 'Keep local processing', exact: true }));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull()); expect(service.stopLocal).not.toHaveBeenCalled();
+});
+it("dismisses without changing pipes and does not prompt in Chat", async () => {
+  const service = api(); const remember = vi.fn().mockResolvedValue(undefined);
+  const view = render(<CloudWorkflows {...props} active={false} api={service} processingPromptSeen={false} onProcessingPromptSeen={remember} />);
+  expect(screen.queryByRole('dialog')).toBeNull(); expect(service.stopLocal).not.toHaveBeenCalled();
+  view.rerender(<CloudWorkflows {...props} api={service} processingPromptSeen={false} onProcessingPromptSeen={remember} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Close', exact: true }));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(remember).toHaveBeenCalledTimes(1); expect(service.stopLocal).not.toHaveBeenCalled();
 });
 it("clears a formerly loaded catalog when access is revoked", async () => {
   const service = api(); render(<CloudWorkflows {...props} api={service} />);

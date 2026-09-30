@@ -297,6 +297,8 @@ export interface ChatHistoryStore {
 export type Settings = SettingsStore & {
 	/** Explicit consent on this device. Content is never stored in this field. */
 	workflowSource?: "device" | "cloud";
+	/** One-time local workflow processing choice when opening the cloud view. */
+	cloudWorkflowProcessingPromptSeen?: boolean;
 	workflowSharingPromptSeen?: Record<string, string>;
 	workflowSharing?: { accountId: string; epoch: string; enabledAt: number; priorBackend: "local" | "tinfoil" } | null;
 	/** Enable account data sync for this device. Default false. */
