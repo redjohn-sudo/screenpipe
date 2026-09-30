@@ -384,7 +384,7 @@ describe("AppEntitlementGate", () => {
     },
   );
 
-  it("resumes recording when a real enterprise gate authenticates", async () => {
+  it("leaves Enterprise resume to native auth instead of stopping its new recorder", async () => {
     mocks.enterprise = {
       isManagedDeployment: true,
       isManagedDeploymentResolved: true,
@@ -402,7 +402,9 @@ describe("AppEntitlementGate", () => {
     mocks.enterprise.isManagedAuthenticated = true;
     rerender(<AppEntitlementGate>{protectedApp}</AppEntitlementGate>);
 
-    await waitFor(() => expect(mocks.spawnScreenpipe).toHaveBeenCalledWith(null));
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    expect(mocks.stopScreenpipe).toHaveBeenCalledTimes(1);
+    expect(mocks.spawnScreenpipe).not.toHaveBeenCalled();
     expect(mocks.capture).toHaveBeenCalledWith(
       "enterprise_auth_recording_restored",
       { authentication_state: "authenticated" },

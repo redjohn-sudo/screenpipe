@@ -23,6 +23,9 @@ use tauri::{Emitter, Manager, State};
 use tokio::sync::Mutex;
 use tracing::{debug, error, info, warn};
 
+#[cfg(feature = "enterprise-build")]
+mod authorized_start;
+
 pub const DEFAULT_LOCAL_API_PORT: u16 = 3030;
 
 #[derive(Clone, Debug)]
@@ -1088,6 +1091,27 @@ pub(crate) fn resume_deferred_account_start(app: tauri::AppHandle) {
             );
         }
     });
+}
+
+/// The native authentication owner publishes capture intent when access is
+/// granted. Wait out any gate teardown, then recheck that a later pause,
+/// revocation, or quit has not cancelled that start. Never set intent here.
+#[cfg(feature = "enterprise-build")]
+pub(crate) async fn resume_enterprise_recording(app: &tauri::AppHandle) {
+    let state = app.state::<RecordingState>();
+    let result = authorized_start::run(
+        &state.server_lifecycle,
+        || {
+            state.capture_intended()
+                && crate::enterprise_policy::recording_authorized()
+                && !crate::process_exit::QUIT_REQUESTED.load(Ordering::SeqCst)
+        },
+        || spawn_screenpipe_inner(&state, app.clone()),
+    )
+    .await;
+    if let Err(error) = result {
+        warn!("enterprise: failed to resume recording after native authorization: {error}");
+    }
 }
 
 /// Automatic retry preserves capture intent; unlike the user command it must

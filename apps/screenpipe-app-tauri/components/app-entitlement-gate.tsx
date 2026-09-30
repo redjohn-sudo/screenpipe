@@ -610,9 +610,8 @@ export function AppEntitlementGate({
     })();
   }, []);
 
-  // A genuine enterprise gate (missing/invalid account or key) is allowed to
-  // stop capture. If the user then authenticates successfully, resume even
-  // though their paid entitlement was already true before the gate appeared.
+  // Report access recovery, but leave Enterprise capture startup to native
+  // verification so hiding or destroying this webview cannot abandon it.
   useEffect(() => {
     if (!isSettingsLoaded || !isManagedDeployment) {
       prevEnterpriseAuthenticatedRef.current = null;
@@ -625,17 +624,17 @@ export function AppEntitlementGate({
     posthog.capture("enterprise_auth_recording_restored", {
       authentication_state: authenticationState,
     });
-    resumeRecordingAfterGate(true);
+    // Native credential verification owns Enterprise capture startup. A
+    // webview restart here can race it, or disappear halfway through stop/start.
   }, [
     authenticationState,
     isManagedDeployment,
     isManagedAuthenticated,
     isSettingsLoaded,
-    resumeRecordingAfterGate,
   ]);
 
   useEffect(() => {
-    if (!isSettingsLoaded || devBypass) return;
+    if (!isSettingsLoaded || devBypass || isManagedDeployment) return;
     if (skipNextResumeForE2ESeedRef.current) {
       prevGateRef.current = shouldGate;
       if (!shouldGate) skipNextResumeForE2ESeedRef.current = false;
@@ -651,6 +650,7 @@ export function AppEntitlementGate({
   }, [
     devBypass,
     isSettingsLoaded,
+    isManagedDeployment,
     resumeRecordingAfterGate,
     shouldGate,
     user?.subscription_plan,

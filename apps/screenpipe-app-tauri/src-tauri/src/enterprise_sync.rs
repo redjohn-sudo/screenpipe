@@ -1457,10 +1457,21 @@ mod imp {
                         // completing a restart must not hold authentication IPC.
                         crate::enterprise::managed_settings::prepare(app, &policy.locked_settings)
                             .await?;
-                        crate::enterprise_policy::update_recording_authorized(true);
+                        let newly_authorized =
+                            crate::enterprise_policy::update_recording_authorized(true);
+                        if newly_authorized {
+                            app.state::<crate::recording::RecordingState>()
+                                .set_capture_intent(true);
+                        }
                         let apply_app = app.clone();
+                        // Own the continuation natively: applying hidden-UI policy
+                        // can destroy the webview before its gate resumes capture.
                         tauri::async_runtime::spawn(async move {
-                            let _ = crate::enterprise::managed_settings::apply(&apply_app).await;
+                            if crate::enterprise::managed_settings::apply(&apply_app).await.is_ok()
+                                && newly_authorized
+                            {
+                                crate::recording::resume_enterprise_recording(&apply_app).await;
+                            }
                         });
                         crate::enterprise_policy::set_enterprise_policy(
                             policy.hidden_sections,
@@ -1561,6 +1572,7 @@ mod imp {
                         let was_authorized = crate::enterprise_policy::recording_authorized();
                         // Save before granting access so a concurrent app
                         // start cannot capture with the previous policy.
+                        let mut newly_authorized = false;
                         let settings_applied = if crate::enterprise::managed_settings::prepare(
                             &app,
                             &policy.locked_settings,
@@ -1568,7 +1580,12 @@ mod imp {
                         .await
                         .is_ok()
                         {
-                            crate::enterprise_policy::update_recording_authorized(true);
+                            newly_authorized =
+                                crate::enterprise_policy::update_recording_authorized(true);
+                            if newly_authorized {
+                                app.state::<crate::recording::RecordingState>()
+                                    .set_capture_intent(true);
+                            }
                             crate::enterprise::managed_settings::apply(&app)
                                 .await
                                 .is_ok()
@@ -1598,15 +1615,8 @@ mod imp {
 
                         // Autostart and hidden-UI launches can have no webview,
                         // so AppEntitlementGate cannot perform the usual resume.
-                        if !was_authorized && settings_applied {
-                            let state = app.state::<crate::recording::RecordingState>();
-                            if let Err(error) =
-                                crate::recording::spawn_screenpipe(state, app.clone(), None).await
-                            {
-                                warn!(
-                                    "enterprise: failed to resume recording after native authorization: {error}"
-                                );
-                            }
+                        if newly_authorized && settings_applied {
+                            crate::recording::resume_enterprise_recording(&app).await;
                         }
                         // Hidden installs may never create the migration UI.
                         // This returns after scheduling native maintenance so
