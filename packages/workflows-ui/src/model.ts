@@ -159,7 +159,7 @@ export type WorkflowTiming = {
 export type WorkflowMap = {
   id?: string;
   revision?: number;
-  userCorrection?: string;
+  userCorrection?: string | null;
   userEditedAt?: string;
   catalogStatus?: "current" | "not-reobserved";
   lastReviewedAt?: string;

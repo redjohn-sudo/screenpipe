@@ -15,7 +15,11 @@ vi.mock("@/lib/workflows/desktop-platform", async () => {
     // jsdom cannot rasterize the browser fixture's SVG screenshots.
     loadCapturedWork: async () => {
       const catalog = structuredClone(fixtureWorkflowAnalysis);
-      catalog.analysis.workflows.forEach((workflow, index) => { workflow.id = `wf-fixture-${index}`; });
+      catalog.analysis.workflows.forEach((workflow, index) => {
+        workflow.id = `wf-fixture-${index}`;
+        // The persisted catalog represents unanswered corrections as null.
+        workflow.userCorrection = null;
+      });
       return catalog;
     },
   } };
