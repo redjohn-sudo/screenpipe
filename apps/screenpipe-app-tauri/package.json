@@ -17,6 +17,7 @@
     "test:bun": "bun scripts/run-bun-tests.ts",
     "test:shortcut-overlay": "./scripts/test-shortcut-overlay.sh",
     "test:timeline": "./scripts/test-timeline.sh",
+    "eval:workflow-video-edit": "bun ../../scripts/evals/workflow-video/run.ts",
     "eval:workflow-video": "bun scripts/eval-workflow-video-plans.ts",
     "preview:workflow-video": "bun scripts/preview-workflow-video.ts",
     "preview:timeline": "./scripts/preview-timeline.sh",

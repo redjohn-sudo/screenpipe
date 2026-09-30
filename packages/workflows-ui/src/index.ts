@@ -29,4 +29,5 @@ export * from "./workflow-edits";
 
 export * from "./questionnaire-voice";
 
+export { videoEditPrompt } from "./video-edit-prompt";
 export { applyVideoEdit, parseVideoEdit, parseVideoDraft, type VideoDraft, type VideoEdit } from "./video-tool";

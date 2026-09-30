@@ -3,7 +3,7 @@
 /** The tool proposes edits; only the mounted video page can persist or render them. */
 export type VideoFocus = { x: number; y: number; zoom: number };
 export type VideoDraft = { version: 1; sourceHash: string; scenes: Array<{ id: string; title: string; narration: string; includeImage: boolean; pace?: number; focus?: VideoFocus | null }> };
-export type VideoEdit = { changes: Array<{ id: string; title?: string; narration?: string; includeImage?: boolean; pace?: number; focus?: VideoFocus | null }>; order?: string[]; render: boolean };
+export type VideoEdit = { changes: Array<{ id: string; title?: string; narration?: string; maxNarrationWords?: number; includeImage?: boolean; pace?: number; focus?: VideoFocus | null }>; order?: string[]; render: boolean };
 const record = (v: unknown): v is Record<string, any> => !!v && typeof v === "object" && !Array.isArray(v);
 const text = (v: unknown, max: number) => typeof v === "string" && !!v.trim() && [...v].length <= max;
 const presentation = (s: Record<string, any>) =>
@@ -19,8 +19,8 @@ export function parseVideoDraft(value: unknown): VideoDraft {
 }
 export function parseVideoEdit(value: unknown): VideoEdit {
   if (!record(value) || Object.keys(value).some(k => !["changes", "order", "render"].includes(k)) || typeof value.render !== "boolean" || !Array.isArray(value.changes) || value.changes.length > 50 ||
-      value.changes.some(c => !record(c) || !/^section-\d+$/.test(c.id) || Object.keys(c).some(k => !["id", "title", "narration", "includeImage", "pace", "focus"].includes(k)) ||
-        (c.title !== undefined && !text(c.title, 140)) || (c.narration !== undefined && !text(c.narration, 18000)) || (c.includeImage !== undefined && typeof c.includeImage !== "boolean") || !presentation(c)) ||
+      value.changes.some(c => !record(c) || !/^section-\d+$/.test(c.id) || Object.keys(c).some(k => !["id", "title", "narration", "maxNarrationWords", "includeImage", "pace", "focus"].includes(k)) ||
+        (c.maxNarrationWords !== undefined && (!Number.isInteger(c.maxNarrationWords) || c.maxNarrationWords < 1 || c.maxNarrationWords > 18000)) || (c.title !== undefined && !text(c.title, 140)) || (c.narration !== undefined && !text(c.narration, 18000)) || (c.includeImage !== undefined && typeof c.includeImage !== "boolean") || !presentation(c)) ||
       new Set(value.changes.map(c => c.id)).size !== value.changes.length ||
       (value.order !== undefined && (!Array.isArray(value.order) || !value.order.length || value.order.length > 50 || value.order.some(id => typeof id !== "string" || !/^section-\d+$/.test(id)) || new Set(value.order).size !== value.order.length)))
     throw new Error("Invalid video edit. Your saved script is unchanged.");
@@ -30,15 +30,21 @@ export function applyVideoEdit(draft: VideoDraft, input: unknown): VideoDraft {
   const edit = parseVideoEdit(input);
   const ids = new Set(draft.scenes.map(s => s.id));
   if ([...edit.changes.map(c => c.id), ...(edit.order ?? [])].some(id => !ids.has(id))) throw new Error("The video edit references an unknown section.");
+  const changes = new Map(edit.changes.map(c => [c.id, c]));
   const scenes = draft.scenes.map(s => {
-    const next = { ...s, ...edit.changes.find(c => c.id === s.id) };
-    if (!next.includeImage) next.focus = null;
+    const change = changes.get(s.id);
+    const { maxNarrationWords, ...fields } = change ?? {};
+    const next = { ...s, ...fields };
+    if (maxNarrationWords !== undefined && next.narration.trim().split(/\s+/u).length > maxNarrationWords) throw new Error(`Narration for ${s.id} exceeds ${maxNarrationWords} words. Shorten it while preserving required actions and exceptions, then retry.`);
+    if (change?.focus && !next.includeImage) throw new Error("Include the screenshot before setting its focus.");
+    if (!next.includeImage && next.focus) next.focus = null;
     return next;
   });
   return parseVideoDraft({ ...draft, scenes: edit.order ? edit.order.map(id => scenes.find(s => s.id === id)!) : scenes });
 }
 export default function videoTool(pi: any) {
-  let read = false;
+  let draft: VideoDraft | null = null;
+  let proposed = false;
   const inspected = new Set<string>();
   pi.registerTool({
     name: "read_video_sop", label: "Inspect video project",
@@ -51,8 +57,7 @@ export default function videoTool(pi: any) {
       const path = `${ctx.cwd}/video-project.json`;
       if ((await fs.stat(path)).size > 100000) throw new Error("Video project is too large.");
       const project = JSON.parse(await fs.readFile(path, "utf8"));
-      const draft = parseVideoDraft(project.draft);
-      read = true;
+      draft = parseVideoDraft(project.draft);
       if (!args.scene_id) return { content: [{ type: "text", text: JSON.stringify({ ...draft, screenshots: Object.keys(project.images ?? {}) }) }] };
       if (!/^section-\d+$/.test(args.scene_id) || !draft.scenes.some(s => s.id === args.scene_id)) throw new Error("Unknown video section.");
       const mimeType = project.images?.[args.scene_id];
@@ -69,14 +74,17 @@ export default function videoTool(pi: any) {
     name: "edit_video_sop", label: "Edit video SOP",
     description: "Read the project and video skill with read_video_sop first. Inspect the actual section image before focusing. Pace 0.85–1.25; focus x/y normalized, zoom 1–1.6, null resets. Propose one combined patch to the attached video script. Existing section IDs only. Supply order to reorder or omit sections. Render true only when the user explicitly asks to create/regenerate the video. A normal wording edit saves the script without generating speech. No files, media URLs, arbitrary commands or workflow execution. The app validates and saves after the turn; do not claim success yourself.",
     parameters: { type: "object", additionalProperties: false, required: ["changes", "render"], properties: {
-      changes: { type: "array", maxItems: 50, items: { type: "object", additionalProperties: false, required: ["id"], properties: { id: { type: "string", pattern: "^section-\\d+$" }, title: { type: "string", minLength: 1, maxLength: 140 }, narration: { type: "string", minLength: 1, maxLength: 18000 }, includeImage: { type: "boolean" }, pace: { type: "number", minimum: 0.85, maximum: 1.25 }, focus: { anyOf: [{ type: "null" }, { type: "object", additionalProperties: false, required: ["x", "y", "zoom"], properties: { x: { type: "number", minimum: 0, maximum: 1 }, y: { type: "number", minimum: 0, maximum: 1 }, zoom: { type: "number", minimum: 1, maximum: 1.6 } } }] } } } },
+      changes: { type: "array", maxItems: 50, items: { type: "object", additionalProperties: false, required: ["id"], properties: { id: { type: "string", pattern: "^section-\\d+$" }, title: { type: "string", minLength: 1, maxLength: 140 }, narration: { type: "string", minLength: 1, maxLength: 18000 }, maxNarrationWords: { type: "integer", minimum: 1, maximum: 18000, description: "When the user specifies a narration word limit, copy it here. The tool counts whitespace-separated words and rejects excess before accepting." }, includeImage: { type: "boolean" }, pace: { type: "number", minimum: 0.85, maximum: 1.25 }, focus: { anyOf: [{ type: "null" }, { type: "object", additionalProperties: false, required: ["x", "y", "zoom"], properties: { x: { type: "number", minimum: 0, maximum: 1 }, y: { type: "number", minimum: 0, maximum: 1 }, zoom: { type: "number", minimum: 1, maximum: 1.6 } } }] } } } },
       order: { type: "array", minItems: 1, maxItems: 50, uniqueItems: true, items: { type: "string" } },
       render: { type: "boolean" },
     } },
     async execute(_id: string, input: unknown) {
-      if (!read) throw new Error("Read the attached project before editing it.");
+      if (!draft) throw new Error("Read the attached project before editing it.");
+      if (proposed) throw new Error("Use one combined video edit per answer. A proposal was already accepted.");
       const edit = parseVideoEdit(input);
       if (edit.changes.some(c => c.focus && !inspected.has(c.id))) throw new Error("Inspect each screenshot before choosing its focus.");
+      applyVideoEdit(draft, edit);
+      proposed = true;
       return { content: [{ type: "text", text: JSON.stringify(edit) }] };
     },
   });

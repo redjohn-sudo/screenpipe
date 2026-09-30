@@ -35,7 +35,7 @@ it("rejects multiple patches and cancelled turns",async()=>{
 
 it("requires project and screenshot inspection before accepting focus edits",async()=>{
  const tools:any={};videoTool({registerTool:(t:any)=>tools[t.name]=t});
- const patch={changes:[{id:"section-0",focus:{x:0.3,y:0.5,zoom:1.4},pace:1.1}],render:false};
+ const patch={changes:[{id:"section-0",includeImage:true,focus:{x:0.3,y:0.5,zoom:1.4},pace:1.1}],render:false};
  await expect(tools.edit_video_sop.execute("edit",patch)).rejects.toThrow(/Read/);
  await tools.read_video_sop.execute("read",{},undefined,undefined,{cwd:path,model:{input:["text","image"]}});
  await expect(tools.edit_video_sop.execute("edit",patch)).rejects.toThrow(/Inspect/);

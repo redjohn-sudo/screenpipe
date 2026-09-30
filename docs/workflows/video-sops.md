@@ -44,3 +44,9 @@ The native tests exercise the real bundled renderer, invalid screenshots, captio
 `bun run eval:workflow-video PRIVATE_WORKFLOWS_JSON PRIVATE_OUTPUT_DIR` evaluates up to twelve real workflow snapshots through the configured SOP model and validates each video plan. Tools are disabled for this evaluation. It does not save or execute user workflows.
 
 For visual review, run `bun run preview:workflow-video OPTIONAL_SYNTHETIC_MP4`. Open the first workflow and its SOP. The `state` query accepts `before`, `review`, `progress`, `error`, `quota`, `cancel`, `stale`, `missing`, and `revisions`. This renders the actual shared product components with fictional data and mocked host operations. Native IPC, the macOS save dialog, and Windows/Linux playback still need release-platform smoke testing; browser previews do not establish that coverage.
+
+### Video edit outcome evals
+
+`bun test scripts/eval-workflow-video-edit.test.ts` checks the edit-tool contracts and calibrated outcome grader. `bun run eval:workflow-video-edit --output PRIVATE_DIRECTORY` runs the actual pinned Pi CLI with scripted local model responses. Add `--live` for an explicitly authorized run through the existing account's `auto` route. It never saves a user workflow or invokes speech/rendering. See [the eval guide](../../scripts/evals/workflow-video/README.md) for frozen baseline comparisons, budgets, traces and coverage limits.
+
+Edits preserve untouched fields, validate the resulting whole script before acceptance, and permit correction of rejected proposals. Only one successful patch is accepted per turn. When a user specifies a narration word limit, the agent supplies `maxNarrationWords`; the tool checks it before accepting, and the limit is not persisted as video content.
