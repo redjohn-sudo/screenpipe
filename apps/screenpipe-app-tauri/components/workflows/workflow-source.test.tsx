@@ -11,7 +11,7 @@ vi.mock("./cloud-workflows", () => ({ CloudWorkflows: ({ sourceControl }: any) =
 vi.mock("@/lib/workflows/desktop-platform", () => ({ desktopWorkflowsPlatform: {} }));
 vi.mock("@/components/settings/connections-section", () => ({ ConnectionsSection: () => null }));
 vi.mock("@/components/connected-share-dialog", () => ({ ConnectedShareDialog: () => null }));
-vi.mock("@screenpipe/workflows-ui", () => ({ WorkflowsApp: ({ navigationBrand }: any) => <div>Device catalog{navigationBrand}</div> }));
+vi.mock("@screenpipe/workflows-ui", () => ({ WorkflowsApp: ({ navigationBrand, sourceControl }: any) => <div>Device catalog{navigationBrand}{sourceControl}</div> }));
 import { IntegratedWorkflows } from './integrated-workflows';
 const props = { active: true, onModeChange: vi.fn(), recordingStatus: null };
 beforeEach(() => { state.enterprise = true; state.resolved = true; state.loaded = true; state.enabled = true; state.source = undefined; state.save.mockReset().mockResolvedValue(undefined); });

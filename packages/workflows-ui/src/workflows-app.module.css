@@ -1088,3 +1088,9 @@
   .topbar:has(.toolbarAccessory) .search { flex: 1 1 calc(100% - 52px); min-width: 0; }
   .toolbarAccessory { margin-right: auto; }
 }
+
+/* Source selection and device controls share the available toolbar width. */
+@container workflow-pane (max-width: 900px) {
+  .sourceTopbar { height: auto; min-height: 59px; flex-wrap: wrap; padding-top: 12px; padding-bottom: 12px; }
+  .sourceTopbar .search { flex: 1 1 220px; min-width: 220px; width: auto; margin-right: auto; }
+}

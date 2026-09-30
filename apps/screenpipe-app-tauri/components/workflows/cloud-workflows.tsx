@@ -101,7 +101,7 @@ export function CloudWorkflows({ active, token, onModeChange, recordingStatus, n
       query={filters.query} setQuery={query => setFilters(current => ({ ...current, query }))}
       activeScope={null} scopes={[]} setScope={() => {}} embedded={false} active={active} fullscreen={fullscreen}
       startWindowDrag={process.env.NEXT_PUBLIC_SCREENPIPE_WEB_DEV === "mock" ? undefined : () => getCurrentWindow().startDragging().catch(() => {})}
-      navigationBrand={<><ProductSwitcher mode="workflows" onChange={onModeChange} /><div className="px-2 pt-2">{sourceControl}</div></>}
+      sourceControl={sourceControl} navigationBrand={<ProductSwitcher mode="workflows" onChange={onModeChange} />}
       navigationFooter={navigationFooter} recordingStatus={recordingStatus} toolbarAccessory={processing}
       openCommandPalette={() => setShortcuts(true)}>
       {localState === "error" && <div role="alert" className="mb-6 rounded-md border p-4 text-sm">Some local workflow jobs may still be running. <button className="underline" onClick={refresh}>Retry stopping local analysis</button></div>}

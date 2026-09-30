@@ -97,7 +97,7 @@ export function DeviceWorkflows({ active, fullscreen = false, onModeChange, reco
       <WorkflowsApp readyWorkflowIds={readyWorkflowIds} reviewRequest={reviewRequest} onReviewRequestHandled={handleReview} onAnalysisUnavailable={() => setAccessRequested(true)} analysisUnavailableReason={analysisUnavailableReason} composerAccessory={composerAccessory} fullscreen={fullscreen} onShareWorkflow={openShare} workflowAgentActions={workflowAgentActions} platform={platform} active={active} storageKey={null}
         toolbarAccessory={platform.managesAnalysis ? <WorkflowAccess requested={accessRequested} onRequestChange={setAccessRequested} active={active} onAccessChange={setAnalysisUnavailableReason} /> : process.env.NEXT_PUBLIC_SCREENPIPE_WEB_DEV === "mock" ? <WorkflowTasksPrompt active={active} tasks={fixtureWorkflowTasks} /> : undefined}
         recordingStatus={recordingStatus} navigationFooter={navigationFooter}
-        navigationBrand={<><ProductSwitcher mode="workflows" onChange={onModeChange} /><div className="px-2 pt-2">{sourceControl}</div></>} />
+        sourceControl={sourceControl} navigationBrand={<ProductSwitcher mode="workflows" onChange={onModeChange} />} />
     </TooltipProvider>
   );
 }
@@ -120,11 +120,11 @@ export function IntegratedWorkflows(props: Parameters<typeof DeviceWorkflows>[0]
     catch { setError("Could not save the workflow source. Try again."); }
     finally { setSaving(false); }
   }
-  const sourceControl = <label className="flex flex-col gap-2 text-xs"><span className="sr-only">Workflow source</span>
-    <select aria-label="Workflow source" className="w-full rounded-md border border-transparent bg-transparent px-2 py-1.5 text-sm text-inherit opacity-75 hover:opacity-100 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" value={source} disabled={saving} onChange={event => void change(event.target.value as "device" | "cloud")}>
+  const sourceControl = <label className="relative flex shrink-0 flex-col gap-2 text-xs"><span className="sr-only">Workflow source</span>
+    <select aria-label="Workflow source" style={{ color: "var(--ink)", colorScheme: "light" }} className="w-36 rounded-md border border-transparent bg-transparent px-2 py-1.5 text-xs text-inherit opacity-75 hover:opacity-100 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" value={source} disabled={saving} onChange={event => void change(event.target.value as "device" | "cloud")}>
       <option value="cloud">Cloud workspace</option><option value="device">This device</option>
     </select>
-    {error && <span role="alert">{error}</span>}
+    {error && <span role="alert" className="absolute left-0 top-full z-20 mt-1 w-60 rounded-md border bg-background p-3 text-foreground shadow-sm">{error}</span>}
   </label>;
   return source === "cloud"
     ? <TooltipProvider><CloudWorkflows key={settings.user?.token ?? "signed-out"} {...props} sourceControl={sourceControl} token={settings.user?.token ?? undefined} api={mock ? fixtureCloudWorkflows : undefined} /></TooltipProvider>
