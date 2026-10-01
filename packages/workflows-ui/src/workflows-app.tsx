@@ -112,8 +112,8 @@ import { useLocale } from "gt-react";
 
 const primaryNavigation = [
   ["workflows", ListTree, "Home", ["G", "W"]],
-  ["profile", UserRoundCog, "Context", ["G", "P"]],
   ["library", BookOpen, "Library", ["G", "L"]],
+  ["profile", UserRoundCog, "Context", ["G", "P"]],
 ] as const;
 
 type TimeLens = "categories" | "projects";
