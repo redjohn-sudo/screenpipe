@@ -226,6 +226,9 @@ const EXCLUDED_APPS: &[&str] = &[
     "cinnamon",
     "budgie-panel",
     "budgie-wm",
+    // GNOME Shell always reports its "Main stage" as FOCUSED on Wayland,
+    // which shadows the real active window (see find_focused_window).
+    "gnome-shell",
 ];
 
 /// Known browser process names for URL extraction.
