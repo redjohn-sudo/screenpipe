@@ -14,7 +14,7 @@ import {
 } from "@screenpipe/workflows-ui";
 import { runWorkflowAgent } from "./agent-runner";
 import { assistantProviderConfig, ASSISTANT_TOOLS } from "./assistant";
-import { loadGuideFromDisk, saveGuideToDisk } from "./disk-storage";
+import { loadGuideFromDisk, saveGuideToDisk, listGuidesFromDisk } from "./disk-storage";
 import { save } from "@tauri-apps/plugin-dialog";
 import { commands } from "@/lib/utils/tauri";
 import { open } from "@tauri-apps/plugin-shell";
@@ -78,6 +78,7 @@ export const desktopGuides: NonNullable<WorkflowsPlatform["guides"]> = {
       throw new Error("The web editor returned an invalid page.");
     await open(screenpipeWebUrl(`/sops/${result.id}`, PROD_WEB_BASE));
   },
+  list: listGuidesFromDisk,
   load: (workflow) => loadGuideFromDisk(guideKey(workflow)),
   async save(guide) {
     await saveGuideToDisk(guide);

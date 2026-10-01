@@ -42,10 +42,14 @@ export function WorkflowGuide({
   workflow,
   platform,
   close,
+  backLabel = "Back to workflow",
+  sourceMissing = false,
 }: {
   workflow: WorkflowMap;
   platform: NonNullable<WorkflowsPlatform["guides"]>;
   close: () => void;
+  backLabel?: string;
+  sourceMissing?: boolean;
 }) {
   const ui = useGT();
   const [promptRequest, setPromptRequest] = useState<{
@@ -138,7 +142,7 @@ export function WorkflowGuide({
       .getElementById(event.currentTarget.hash.slice(1))
       ?.scrollIntoView({ block: "start" });
   }
-  const stale = draft && draft.sourceRevision !== (workflow.revision ?? 0);
+  const stale = draft && (sourceMissing || draft.sourceRevision !== (workflow.revision ?? 0));
   function moveStep(from: number, to: number) {
     const current = latest.current;
     if (!current || from === to || to < 0 || to >= current.steps.length) return;
@@ -210,7 +214,7 @@ export function WorkflowGuide({
           }}
         >
           <ArrowLeft size={16} />
-          Back to workflow
+          {backLabel}
         </button>
         <div>
           <span role="status" className={styles.saveStatus} title={saved}>

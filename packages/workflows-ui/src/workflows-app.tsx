@@ -12,6 +12,8 @@ import { WorkflowEditor } from "./workflow-editor";
 import { retainNewerWorkflowEdits, type WorkflowEdit } from "./workflow-edits";
 import { WorkflowModelControl } from "./model-choice";
 import { matchesSidebarShortcut, useSidebarShortcuts } from "./sidebar-shortcuts";
+import { WorkflowLibrary } from "./workflow-library";
+import { guideKey } from "./guide";
 import { WorkflowGuide } from "./workflow-guide";
 import { WorkflowAssistant } from "./workflow-assistant";
 import { PageAssistantContext, type PageAssistant } from "./page-assistant";
@@ -111,6 +113,7 @@ import { useLocale } from "gt-react";
 const primaryNavigation = [
   ["workflows", ListTree, "Home", ["G", "W"]],
   ["profile", UserRoundCog, "Context", ["G", "P"]],
+  ["library", BookOpen, "Library", ["G", "L"]],
 ] as const;
 
 type TimeLens = "categories" | "projects";
@@ -358,6 +361,7 @@ function AppShell({
   navigate,
   runtime,
   workflowCount,
+  hasLibrary,
   query,
   setQuery,
   activeScope,
@@ -381,6 +385,7 @@ function AppShell({
   navigate: (view: AppView) => void;
   runtime: WorkflowRuntime | null;
   workflowCount: number;
+  hasLibrary: boolean;
   query: string;
   setQuery: (value: string) => void;
   activeScope: WorkflowScope | null;
@@ -453,7 +458,7 @@ function AppShell({
   const [assistantWidth, setAssistantWidth] = useState(420);
   const activeView = view === "workflow" ? "workflows" : view;
   const workspaceView = Boolean(runtime?.workspace);
-  const nav = primaryNavigation;
+  const nav = primaryNavigation.filter(([target]) => target !== "library" || hasLibrary);
   const statusLabel = workspaceView
     ? runtime?.recording ? "Reports ready" : "Loading"
     : runtime?.recording
@@ -908,6 +913,13 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
   const ui = useGT();
   const [expandedStages, setExpandedStages] = useState<Set<number>>(() => new Set());
   const [guideOpen, setGuideOpen] = useState(false);
+  const [hasGuide, setHasGuide] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setHasGuide(false);
+    if (workflow && platform.guides) void platform.guides.load(workflow).then(guide => { if (!cancelled) setHasGuide(Boolean(guide)); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [workflow?.id, workflow?.title, guideOpen, platform.guides]);
   const [skillOpen, setSkillOpen] = useState(false);
   const [skillDraft, setSkillDraft] = useState<WorkflowSkillDraft | null>(null);
   const [skillGenerating, setSkillGenerating] = useState(false);
@@ -923,7 +935,7 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
     setSkillSaved(null);
     setSkillError("");
     setSkillProgress({ phase: "reading", message: "Reading the mapped steps" });
-  }, [workflow?.title, workflow?.revision]);
+  }, [workflow?.id ?? workflow?.title]);
   const generateSkill = useCallback(() => {
     if (!workflow || !platform.generateWorkflowSkill) return;
     setSkillOpen(true);
@@ -942,8 +954,17 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
       setSkillOpen(true);
       return;
     }
-    generateSkill();
-  }, [generateSkill, skillDraft, skillError, skillGenerating, skillSaved]);
+    if (platform.library && workflow) {
+      setSkillOpen(true);
+      setSkillGenerating(true);
+      setSkillProgress({ phase: "reading", message: "Opening your saved skill" });
+      void platform.library.listSkillDrafts().then(entries => {
+        setSkillGenerating(false);
+        const stored = entries.find(entry => entry.workflowKey === guideKey(workflow));
+        if (stored) setSkillDraft(stored.draft); else generateSkill();
+      }).catch(() => { setSkillGenerating(false); setSkillError("Could not load your saved skill. Open Library to retry."); });
+    } else generateSkill();
+  }, [generateSkill, skillDraft, skillError, skillGenerating, skillSaved, platform, workflow]);
   const saveSkill = useCallback(() => {
     if (!skillDraft || !platform.saveWorkflowSkill) return;
     setSkillSaving(true);
@@ -967,7 +988,7 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
     return next;
   });
   const agentActions = workflowAgentActions?.(workflow);
-  const workflowActions = <div className={styles.workflowActions}>{agentActions}{platform.guides && <button className={styles.skillButton} type="button" aria-label="Create SOP" title="Create SOP" onClick={() => setGuideOpen(true)}><BookOpen size={16} aria-hidden="true"/>{ui("Create SOP")}</button>}{platform.generateWorkflowSkill && platform.saveWorkflowSkill && <button className={styles.skillButton} type="button" onClick={openSkill}><Sparkles size={14} />{skillGenerating ? ui("Creating skill…") : skillSaved ? platform.skillInstallMode === "preview" ? ui("Skill preview") : ui("Skill installed") : skillDraft ? ui("Review skill") : ui("Create skill")}</button>}{onShareWorkflow && <button className={styles.skillButton} type="button" onClick={() => onShareWorkflow(workflow)}><Share2 size={14} />Share with team</button>}{platform.assistant?.saveFeedback && <button className={styles.skillButton} type="button" onClick={() => window.dispatchEvent(new CustomEvent("workflows:feedback", { detail: { key: `feedback:${workflow.id || workflow.title}`, title: workflow.title, workflow, purpose: "feedback" } }))}><MessageCircle size={14} />Feedback</button>}</div>;
+  const workflowActions = <div className={styles.workflowActions}>{agentActions}{platform.guides && <button className={styles.skillButton} type="button" aria-label={hasGuide ? "Open SOP" : "Create SOP"} title={hasGuide ? "Open SOP" : "Create SOP"} onClick={() => setGuideOpen(true)}><BookOpen size={16} aria-hidden="true"/>{hasGuide ? ui("Open SOP") : ui("Create SOP")}</button>}{platform.generateWorkflowSkill && platform.saveWorkflowSkill && <button className={styles.skillButton} type="button" onClick={openSkill}><Sparkles size={14} />{skillGenerating ? ui("Creating skill…") : skillSaved ? platform.skillInstallMode === "preview" ? ui("Skill preview") : ui("Skill installed") : skillDraft ? ui("Review skill") : ui("Create skill")}</button>}{onShareWorkflow && <button className={styles.skillButton} type="button" onClick={() => onShareWorkflow(workflow)}><Share2 size={14} />Share with team</button>}{platform.assistant?.saveFeedback && <button className={styles.skillButton} type="button" onClick={() => window.dispatchEvent(new CustomEvent("workflows:feedback", { detail: { key: `feedback:${workflow.id || workflow.title}`, title: workflow.title, workflow, purpose: "feedback" } }))}><MessageCircle size={14} />Feedback</button>}</div>;
   return (
     <>
       <button className={styles.backButton} onClick={() => navigate("workflows")}><ArrowLeft size={14} />All workflows</button>
@@ -1033,7 +1054,10 @@ function WorkflowDetail({ canSaveAnswers, composerAccessory, active, onAnswersSa
 
 
       </div>
-      {skillOpen && <WorkflowSkillDialog workflow={workflow} draft={skillDraft} generating={skillGenerating} saving={skillSaving} saved={skillSaved} preview={platform.skillInstallMode === "preview"} progress={skillProgress} error={skillError} update={setSkillDraft} retry={generateSkill} save={saveSkill} close={() => setSkillOpen(false)} />}
+      {skillOpen && <WorkflowSkillDialog workflow={workflow} draft={skillDraft} generating={skillGenerating} saving={skillSaving} saved={skillSaved} preview={platform.skillInstallMode === "preview"} progress={skillProgress} error={skillError} update={draft => {
+        setSkillDraft(draft);
+        if (platform.library) void platform.library.saveSkillDraft(guideKey(workflow), draft).catch(() => setSkillError("Could not save your skill changes. Try again before leaving."));
+      }} retry={generateSkill} save={saveSkill} close={() => setSkillOpen(false)} />}
     </>
   );
 }
@@ -1290,6 +1314,7 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
   const activityPeriod: WorkflowActivityPeriod = 0;
   const [query, setQuery] = useState("");
   const [view, setView] = useState<AppView>("workflows");
+  const [libraryVisit, setLibraryVisit] = useState(0);
   const [timeLens, setTimeLens] = useState<TimeLens>("categories");
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const shortcutPrefix = useRef<{ key: string; at: number } | null>(null);
@@ -1300,12 +1325,14 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
   const workProfile = contextProfile.profile;
   const navigate = useCallback((target: AppView) => {
     setView(target);
+    if (target === "library") setLibraryVisit(value => value + 1);
     if (typeof window === "undefined") return;
     const scrollRegion = document.querySelector<HTMLElement>("[data-workflows-scroll-region]");
     if (scrollRegion) scrollRegion.scrollTop = 0;
     const url = new URL(window.location.href);
     // Keep the other workspace's section so switching back restores it.
     url.searchParams.set("view", target);
+    url.searchParams.delete("libraryItem");
     window.history.pushState(null, "", url);
   }, []);
   const knownWorkflows = analysis?.analysis.workflows ?? [];
@@ -1517,6 +1544,7 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
 
   const paletteCommands = useMemo<PaletteCommand[]>(() => {
     const navigationCommands = primaryNavigation
+      .filter(([target]) => target !== "library" || platform.guides?.list || platform.library)
       .map(([target, icon, label, shortcut]) => ({
         id: `navigate-${target}`,
         label: ui("Go to {value1}", { value1: label }),
@@ -1620,8 +1648,8 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
       const pending = shortcutPrefix.current;
       if (pending?.key === "g" && Date.now() - pending.at < 1_000) {
         shortcutPrefix.current = null;
-        const target = ({ w: "workflows", p: "profile" } as Record<string, AppView>)[key];
-        if (!target) return;
+        const target = ({ w: "workflows", p: "profile", l: "library" } as Record<string, AppView>)[key];
+        if (!target || (target === "library" && !platform.guides?.list && !platform.library)) return;
         event.preventDefault();
         navigate(target);
         return;
@@ -1659,22 +1687,24 @@ export function WorkflowsApp({ readyWorkflowIds, reviewRequest, onReviewRequestH
     } : undefined} />; break;
     case "bottlenecks": content = <BottlenecksView workflows={workflows} openWorkflow={openWorkflow} />; break;
     case "profile": content = null; break;
+    case "library": content = <WorkflowLibrary key={libraryVisit} platform={platform} workflows={knownWorkflows} />; break;
     case "evidence": content = <EvidenceView workflows={workflows} openWorkflow={openWorkflow} runtime={runtime} />; break;
     case "privacy": content = <PrivacyView runtime={runtime} />; break;
   }
 
-  const catalogView = view !== "profile" && view !== "privacy";
+  const catalogView = view !== "profile" && view !== "privacy" && view !== "library";
   if (catalogView && !knownWorkflows.length && (catalogLoading || catalogLoadError)) {
     content = catalogLoading ? <CatalogPlaceholder detail={view === "workflow"} reconnecting={catalogReconnecting} retry={refreshRuntime} /> : <>
       <div className={`${styles.pageHeader} ${styles.catalogHeader}`}><h1>Your workflows</h1></div>
       <section className={styles.catalogLoadError} role="alert"><AlertTriangle size={20} /><h2>Couldn’t load your workflows</h2><p>Your saved workflows haven’t been changed. Try loading them again.</p><button className={styles.primaryButton} onClick={refreshRuntime}><RefreshCw size={14} />Retry loading</button></section>
     </>;
-  } else if (catalogView && analysis && (catalogLoading || catalogLoadError)) {
-    content = <><div className={styles.catalogRefreshNotice} role={catalogLoadError ? "alert" : "status"}>{catalogLoadError ? <><span>Couldn’t refresh. Your last loaded workflows are still shown.</span><button onClick={refreshRuntime}>Retry loading</button></> : catalogReconnecting ? <><span>Reconnecting to Screenpipe. Your last loaded workflows are still shown.</span><button onClick={refreshRuntime}>Retry loading</button></> : ui("Refreshing saved workflows…")}</div>{content}</>;
+  } else if (catalogView && analysis) {
+    // Keep the document at the same React position while its catalog refreshes.
+    content = <>{(catalogLoading || catalogLoadError) && <div className={styles.catalogRefreshNotice} role={catalogLoadError ? "alert" : "status"}>{catalogLoadError ? <><span>Couldn’t refresh. Your last loaded workflows are still shown.</span><button onClick={refreshRuntime}>Retry loading</button></> : catalogReconnecting ? <><span>Reconnecting to Screenpipe. Your last loaded workflows are still shown.</span><button onClick={refreshRuntime}>Retry loading</button></> : ui("Refreshing saved workflows…")}</div>}{content}</>;
   }
 
   return <>
-    <AppShell toolbarAccessory={toolbarAccessory} modelControl={platform.modelPreference ? <WorkflowModelControl preference={platform.modelPreference} /> : undefined} composerAccessory={composerAccessory} active={active} fullscreen={fullscreen} navigationFooter={navigationFooter} navigationBrand={navigationBrand} recordingStatus={recordingStatus} view={view} navigate={navigate} runtime={runtime} workflowCount={knownWorkflows.length} query={query} setQuery={setQuery} activeScope={activeScope} scopes={scopes} setScope={selectScope} embedded={embedded} startWindowDrag={platform.startWindowDrag} openCommandPalette={() => setCommandPaletteOpen(true)} assistant={platform.assistant ? { platform: platform.assistant, context: view === "workflow" && activeWorkflow ? { key: `workflow:${activeWorkflow.title}`, title: activeWorkflow.title, workflow: activeWorkflow } : view === "profile" ? { key: "profile", title: ui("Context"), profile: workProfile } : { key: "workflows", title: ui("Your workflows"), catalog: workflows.map(({ title, description }) => ({ title, description })) } } : undefined}>{statusNotice}
+    <AppShell hasLibrary={Boolean(platform.guides?.list || platform.library)} toolbarAccessory={toolbarAccessory} modelControl={platform.modelPreference ? <WorkflowModelControl preference={platform.modelPreference} /> : undefined} composerAccessory={composerAccessory} active={active} fullscreen={fullscreen} navigationFooter={navigationFooter} navigationBrand={navigationBrand} recordingStatus={recordingStatus} view={view} navigate={navigate} runtime={runtime} workflowCount={knownWorkflows.length} query={query} setQuery={setQuery} activeScope={activeScope} scopes={scopes} setScope={selectScope} embedded={embedded} startWindowDrag={platform.startWindowDrag} openCommandPalette={() => setCommandPaletteOpen(true)} assistant={platform.assistant ? { platform: platform.assistant, context: view === "workflow" && activeWorkflow ? { key: `workflow:${activeWorkflow.title}`, title: activeWorkflow.title, workflow: activeWorkflow } : view === "profile" ? { key: "profile", title: ui("Context"), profile: workProfile } : { key: "workflows", title: ui("Your workflows"), catalog: workflows.map(({ title, description }) => ({ title, description })) } } : undefined}>{statusNotice}
       {/* Keep drafts, imports and the active fill alive when navigating away.
           A different scope must tear down the old request before accepting fields. */}
       <div key={`${activeScope?.kind ?? "personal"}:${activeScope?.id ?? ""}`} hidden={view !== "profile"}>

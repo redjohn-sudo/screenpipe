@@ -20,6 +20,7 @@ vi.mock("./assistant", () => ({
   ASSISTANT_TOOLS: ["search-content"],
 }));
 vi.mock("./disk-storage", () => ({
+  listGuidesFromDisk: vi.fn(),
   loadGuideFromDisk: mocks.load,
   saveGuideToDisk: mocks.save,
 }));
