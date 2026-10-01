@@ -62,6 +62,8 @@ export function WorkflowGuide({
   }>();
   const [videoMode, setVideoMode] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
+  const [videoBusy, setVideoBusy] = useState(false);
+  const videoRequested = useRef(false);
   const [videoContainer, setVideoContainer] = useState<HTMLDivElement | null>(null);
   const videoHandle = useRef<GuideVideoHandle>(null);
   const [draft, setDraft] = useState<Guide | null>(null);
@@ -263,7 +265,13 @@ export function WorkflowGuide({
           )}
           {draft && (
             <>
-              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} save={persist} onVideoMode={setVideoMode} onReconnect={sourceMissing ? undefined : reconnectSources} onReset={async () => {
+              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} save={persist} onVideoMode={setVideoMode} assistantBusy={videoBusy} onCreate={platform.video.edit ? () => {
+                if (videoRequested.current) return;
+                videoRequested.current = true;
+                setVideoBusy(true);
+                setVideoMode(true);
+                setPromptRequest({ id: crypto.randomUUID(), text: "Create a narrated video from this SOP using its current script and screenshots." });
+              } : undefined} onReconnect={sourceMissing ? undefined : reconnectSources} onReset={async () => {
                 const { video: _video, ...next } = draft;
                 await persist(next); latest.current = next; setDraft(next);
               }} />}
@@ -302,6 +310,10 @@ export function WorkflowGuide({
       {!busy && !error && (
         <GuideAssistant
           videoMode={videoMode}
+          onVideoBusyChange={(working) => {
+            videoRequested.current = working;
+            setVideoBusy(working);
+          }}
           renderVideo={(guide, signal, progress) => {
             if (!videoHandle.current) throw new Error("Open an SOP before creating its video.");
             return videoHandle.current.generate(guide, signal, progress);

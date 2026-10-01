@@ -13,6 +13,7 @@ import { useGT } from "gt-react";
 export function GuideAssistant(props: {
   guide: WorkflowGuide | null;
   videoMode?: boolean;
+  onVideoBusyChange?: (busy: boolean) => void;
   renderVideo?: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void>;
   promptRequest?: { id: string; text: string };
   workflow: WorkflowMap;
@@ -36,6 +37,7 @@ export function GuideAssistant(props: {
         purpose: props.videoMode ? "video" : "sop",
       },
       promptRequest: props.promptRequest,
+      onBusyChange: busy => current.current.onVideoBusyChange?.(!!current.current.videoMode && busy),
       ask: async ({ question, signal, onProgress, history }) => {
         const { guide, workflow, platform, update } = current.current;
         if (guide && !current.current.videoMode && !platform.edit)
@@ -49,7 +51,7 @@ export function GuideAssistant(props: {
         try {
           runSignal.throwIfAborted();
           const progress = (text: string) => {
-            if (!runSignal.aborted) onProgress({ text, activity: "writing" });
+            if (!runSignal.aborted) onProgress({ text, activity: current.current.videoMode ? "working" : "writing" });
           };
           if (current.current.videoMode && guide) {
             if (!platform.video?.edit) throw new Error("Video editing is unavailable.");
@@ -62,7 +64,7 @@ export function GuideAssistant(props: {
             if (response.render) {
               if (!current.current.renderVideo) throw new Error("Video rendering is unavailable.");
               await current.current.renderVideo(next, runSignal, progress);
-              return "Created the updated video. Review it in the Video SOP preview.";
+              return "Your video is ready on the page. Tell me what you’d like to change.";
             }
             return response.changed ? "Saved the video script. Ask me to create the video when you are ready, or choose Create video in the preview." : response.message || "The video script is unchanged.";
           }
@@ -99,5 +101,11 @@ export function GuideAssistant(props: {
       register(null);
     };
   }, [register, props.workflow.id, props.workflow.title, props.videoMode]);
+  // New page actions reach the mounted chat without replacing its run handler.
+  useEffect(() => {
+    if (!register || !props.promptRequest) return;
+    register(page => page && page.promptRequest?.id !== props.promptRequest?.id
+      ? { ...page, promptRequest: props.promptRequest } : page);
+  }, [register, props.promptRequest]);
   return null;
 }

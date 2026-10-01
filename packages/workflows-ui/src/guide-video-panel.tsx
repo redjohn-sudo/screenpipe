@@ -18,11 +18,13 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   loadScreenshot?: NonNullable<WorkflowsPlatform["guides"]>["loadScreenshot"];
   save: (guide: WorkflowGuide) => Promise<void>;
   onVideoMode?: (active: boolean) => void;
+  onCreate?: () => void;
+  assistantBusy?: boolean;
   onReconnect?: (guide: WorkflowGuide) => Promise<void>;
   onReset?: () => Promise<void>;
   container?: HTMLElement | null;
   onOpenChange?: (open: boolean) => void;
-}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onReconnect, onReset, container, onOpenChange }, ref) {
+}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onCreate, assistantBusy = false, onReconnect, onReset, container, onOpenChange }, ref) {
   const [open, setOpen] = useState(false);
   const [requireScreenshots, setRequireScreenshots] = useState(true);
   const [versions, setVersions] = useState<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
@@ -38,6 +40,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   const lock = useRef(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLElement>(null);
+  const working = busy || assistantBusy;
   const source = JSON.stringify(guide);
   let scenes: ReturnType<typeof guideVideoScenes> = [];
   let planError = "";
@@ -55,18 +58,15 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   useEffect(() => {
     onOpenChange?.(open);
     if (!open) return;
-    window.dispatchEvent(new CustomEvent("workflows:minimize-assistant"));
+    onVideoMode?.(true);
     panel.current?.focus({ preventScroll: true });
     panel.current?.scrollIntoView?.({ block: "start" });
     const dismiss = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); }
+      if (event.key === "Escape" && event.target instanceof Node && panel.current?.contains(event.target)) { backToSop(); }
     };
-    const showChat = () => { onVideoMode?.(true); setOpen(false); };
     document.addEventListener("keydown", dismiss);
-    window.addEventListener("workflows:assistant-opened", showChat);
     return () => {
       document.removeEventListener("keydown", dismiss);
-      window.removeEventListener("workflows:assistant-opened", showChat);
     };
   }, [open, onOpenChange, onVideoMode]);
   useImperativeHandle(ref, () => ({ generate: (next, signal, progress) => generate(next, signal, progress) }));
@@ -77,7 +77,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     if (requireScreenshots && missing.length) throw new Error(`Add screenshots before creating this video: ${missing.join("; ")}`);
     const targetSource = JSON.stringify(target);
     signal?.throwIfAborted();
-    setOpen(!signal);
+    setOpen(true);
     lock.current = true;
     setBusy(true); setError(""); setMessage("Preparing video");
     const abort = new AbortController();
@@ -98,7 +98,6 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
       savedVersions.current = history;
       setVersions(history);
       setOpen(true);
-      if (signal) window.dispatchEvent(new CustomEvent("workflows:minimize-assistant"));
       setResult(next); setRenderedSource(targetSource); setMessage("Video ready to review");
 
     } catch (cause) {
@@ -134,15 +133,15 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
         <div><p className={styles.videoEyebrow}>{result ? "Your video" : "Create a video"}</p><h2>{guide.title}</h2>
           <p className={styles.videoDescription}>{guide.steps.length} {guide.steps.length === 1 ? "step" : "steps"} · Narrated walkthrough</p></div>
         <div className={styles.videoActions}>
-          <button className={styles.primary} disabled={busy || !!planError || (requireScreenshots && gaps.length > 0)} onClick={() => void generate().catch(() => {})}>{busy ? <Loader2 size={16} className={styles.spin} /> : <Film size={16} />}{busy ? "Creating video…" : result ? "Create new video" : error ? "Try again" : "Create video"}</button>
-          {busy && <button onClick={() => { controller.current?.abort(); setMessage("Stopping video creation…"); }}>Stop</button>}
+          <button className={styles.primary} disabled={working || !!planError || (requireScreenshots && gaps.length > 0)} onClick={() => onCreate ? onCreate() : void generate().catch(() => {})}>{working ? <Loader2 size={16} className={styles.spin} /> : <Film size={16} />}{working ? "Creating video…" : result ? "Create new video" : error ? "Try again" : "Create video"}</button>
+          {busy && !onCreate && <button onClick={() => { controller.current?.abort(); setMessage("Stopping video creation…"); }}>Stop</button>}
         </div>
       </div>
-      {message && <p role="status" aria-live="polite">{message}</p>}
+      {message && (!onCreate || !working) && <p role="status" aria-live="polite">{message}</p>}
       {(error || (planError && !needsSources)) && <p role="alert">{error || planError}</p>}
       {needsSources && (onReconnect ? <GuideSourceReview key={`${source}:${workflow.revision}`} guide={guide} workflow={workflow} onApply={onReconnect} /> : <p role="alert">{planError}</p>)}
       {gaps.length > 0 && <div role="status"><p>These steps need a screenshot before rendering:</p><ul>{gaps.map(title => <li key={title}>{title}</li>)}</ul>
-        <label><input type="checkbox" checked={!requireScreenshots} disabled={busy} onChange={event => setRequireScreenshots(!event.target.checked)} /> Allow text-only steps for this video</label></div>}
+        <label><input type="checkbox" checked={!requireScreenshots} disabled={working} onChange={event => setRequireScreenshots(!event.target.checked)} /> Allow text-only steps for this video</label></div>}
       {result && <>
         {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}
         <video key={result.url} controls preload="metadata" src={result.url} aria-label="Narrated SOP preview">
@@ -152,7 +151,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
           <button onClick={() => void download(false)}><Download size={16} /> Download MP4</button>
           <button onClick={() => void download(true)}>Download captions</button>
         </div>
-        {versions.length > 1 && <details><summary>Video revisions · {versions.length}</summary><div className={styles.videoActions}>{versions.map((version) => <button key={version.result.path} disabled={busy || result === version.result} onClick={() => { setResult(version.result); setRenderedSource(version.source); }}>Version {version.number}</button>)}</div></details>}
+        {versions.length > 1 && <details><summary>Video revisions · {versions.length}</summary><div className={styles.videoActions}>{versions.map((version) => <button key={version.result.path} disabled={working || result === version.result} onClick={() => { setResult(version.result); setRenderedSource(version.source); }}>Version {version.number}</button>)}</div></details>}
         <p>The last three previews stay available while this SOP is open. Download a copy to keep it.</p>
       </>}
       {scenes.length > 0 && <section className={styles.videoScript} aria-label="Screenshots and narration">
@@ -168,12 +167,12 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
           <div><h4>{scene.title}</h4><p>{scene.narration}</p></div>
         </li>)}</ol>
       </section>}
-      {guide.video && <button disabled={busy} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
+      {guide.video && <button disabled={working} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
 
     </section>;
   return <>
-    <button ref={trigger} className={styles.actionButton} aria-label="Video SOP" aria-expanded={open} aria-controls="sop-video-panel" onClick={() => setOpen(!open)}>
-      {busy ? <Loader2 size={16} className={styles.spin} aria-hidden="true" /> : <Film size={16} aria-hidden="true" />} {busy ? "Creating video…" : "Video SOP"}
+    <button ref={trigger} className={styles.actionButton} aria-label="Video SOP" aria-expanded={open} aria-controls="sop-video-panel" onClick={() => { if (open) backToSop(); else setOpen(true); }}>
+      {working ? <Loader2 size={16} className={styles.spin} aria-hidden="true" /> : <Film size={16} aria-hidden="true" />} {working ? "Creating video…" : "Video SOP"}
     </button>
     {container ? createPortal(content, container) : content}
   </>;

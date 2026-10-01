@@ -14,9 +14,10 @@ import { useGT } from "gt-react";
 
 const FEEDBACK_PROMPT = "Review this workflow and ask me 3 specific questions to help refine it. Also invite any general feedback I have.";
 
-export function WorkflowAssistant({ platform, context, onDockChange, onWidthChange, onOpenChange, onModeChange, headerToggle = false, active = true, composerAccessory, promptRequest }: {
+export function WorkflowAssistant({ platform, context, onDockChange, onWidthChange, onOpenChange, onModeChange, headerToggle = false, active = true, composerAccessory, promptRequest, onBusyChange }: {
   platform: WorkflowsAssistantPlatform;
   promptRequest?: { id: string; text: string };
+  onBusyChange?: (busy: boolean) => void;
   context: AssistantContext;
   onDockChange: (docked: boolean) => void;
   onWidthChange?: (width: number) => void;
@@ -238,6 +239,7 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
     const answerId = crypto.randomUUID();
     const abort = new AbortController();
     controller.current = abort;
+    onBusyChange?.(true);
     setBusy(true); setError(""); setHistoryOpen(false); setActivity("Starting…");
     follow.current = true; setAtBottom(true);
     const snapshot = update((s) => ({ ...s, conversations: s.conversations.map((c) => c.id !== current.id ? c : {
@@ -255,7 +257,7 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
       const text = await platform.ask({ question: question.trim(), context: turnContext, history, signal: abort.signal, onProgress: (progress) => {
         if (abort.signal.aborted || !mounted.current) return;
         if (progress.workflow && current.feedbackContext) update(s => ({ ...s, conversations: s.conversations.map(c => c.id === current.id ? { ...c, feedbackContext: assistantContextSnapshot({ ...c.feedbackContext!, workflow: progress.workflow, title: progress.workflow!.title }) } : c) }));
-        setActivity(progress.activity === "searching" ? "Searching your memory…" : progress.activity === "writing" ? "Writing…" : "Starting…");
+        setActivity(progress.activity === "working" ? "Working…" : progress.activity === "searching" ? "Searching your memory…" : progress.activity === "writing" ? "Writing…" : "Starting…");
         patchMessage(current.id, answerId, { text: progress.text });
       } });
       if (!mounted.current) return;
@@ -267,6 +269,7 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
       if (!stopped) setError(cause instanceof Error ? cause.message : ui("Couldn’t finish the answer. Try again."));
     } finally {
       if (controller.current === abort) controller.current = null;
+      onBusyChange?.(false);
       if (mounted.current) {
         setBusy(false);
         if (saveTimer.current) clearTimeout(saveTimer.current);

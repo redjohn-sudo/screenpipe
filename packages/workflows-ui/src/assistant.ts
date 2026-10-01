@@ -28,7 +28,7 @@ export type AssistantState = {
   activeId: string;
   conversations: AssistantConversation[];
 };
-export type AssistantProgress = { text: string; activity: "starting" | "searching" | "writing"; workflow?: WorkflowMap };
+export type AssistantProgress = { text: string; activity: "starting" | "searching" | "writing" | "working"; workflow?: WorkflowMap };
 export type WorkflowsAssistantPlatform = {
   learnsFromFeedback?: boolean;
   openLink?: (url: string) => Promise<void>;

@@ -68,3 +68,18 @@ it("loads bundled guidance on demand without treating it as an inspected project
  expect(result.content[0].text).toBe(skill);
  await expect(tools.edit_video_sop.execute("edit",{changes:[],render:true})).rejects.toThrow(/Read/);
 });
+
+
+it("forwards streamed model text and tool progress to the existing chat", async () => {
+ const progress = vi.fn();
+ run.mockImplementation(async ({onProgress, onEvent}) => {
+  onProgress({text:"I will use the saved screenshots."});
+  onEvent({type:"tool_execution_start", toolName:"read_video_sop"});
+  onProgress({text:"The video will follow the three saved steps."});
+  return "Ready";
+ });
+ await editGuideVideo(draft,"Create video",[],new AbortController().signal,progress);
+ expect(progress.mock.calls.map(([text]) => text)).toEqual([
+  "I will use the saved screenshots.", "Reading the video project", "The video will follow the three saved steps."
+ ]);
+});

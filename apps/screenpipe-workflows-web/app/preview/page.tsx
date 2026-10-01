@@ -29,6 +29,24 @@ function preview(mode: string | null) {
       return analysis ? { ...analysis, analysis: { ...analysis.analysis, workflows: analysis.analysis.workflows.map(workflow => ({ ...workflow, revision: (workflow.revision ?? 0) + 1 })) } } : null;
     };
   }
+  // Explicit fictional state for the chat-to-video interaction evaluation.
+  if (mode === "video-chat") {
+    platform.guides!.video!.edit = async (draft, _request, _history, signal, progress) => {
+      progress("Reading the video project");
+      await new Promise(resolve => setTimeout(resolve, 250));
+      signal.throwIfAborted();
+      return { draft, changed: false, render: true, message: "" };
+    };
+    platform.guides!.video!.generate = async (_scenes, signal, progress) => {
+      progress("Creating narration");
+      await new Promise(resolve => setTimeout(resolve, 2200));
+      signal.throwIfAborted();
+      progress("Rendering the video");
+      await new Promise(resolve => setTimeout(resolve, 2200));
+      signal.throwIfAborted();
+      return { url: "/video-sop-fixture.mp4", path: "fictional-preview.mp4", captionsPath: "fictional-preview.vtt" };
+    };
+  }
   return { platform, initialAnalysis: mode ? null : fixtureWorkflowAnalysis };
 }
 

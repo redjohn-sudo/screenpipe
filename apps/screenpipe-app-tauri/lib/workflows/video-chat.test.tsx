@@ -56,7 +56,7 @@ describe("bottom-right video chat",()=>{
  it("saves first, then renders only the validated edited script",async()=>{
   const draft=guideVideoDraft(guide,workflow);
   const s=setup(vi.fn(async()=>({draft,changed:false,render:true,message:""})));
-  await act(async()=>{expect(await s.ask()).toContain("Created the updated video");});
+  await act(async()=>{expect(await s.ask()).toContain("Your video is ready on the page");});
   expect(s.update.mock.invocationCallOrder[0]).toBeLessThan(s.renderVideo.mock.invocationCallOrder[0]);
   expect(s.renderVideo).toHaveBeenCalledWith({...guide,video:draft},expect.any(AbortSignal),expect.any(Function));
  });

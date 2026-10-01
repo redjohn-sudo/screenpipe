@@ -15,8 +15,12 @@ export const editGuideVideo: NonNullable<GuideVideoPlatform["edit"]> = async (dr
     name: "guide", signal, allowEmpty: true,
     config: { ...assistantProviderConfig, maxTokens: 8192, allowedTools: ["read_video_sop", "edit_video_sop"] },
     prompt: videoEditPrompt(instruction, history),
-    onProgress: () => progress("Editing the video script"),
+    onProgress: ({ text }) => { if (text) progress(text); },
+
     onEvent: event => {
+      if (event.type === "tool_execution_start") {
+        progress(event.toolName === "read_video_sop" ? "Reading the video project" : "Updating the video script");
+      }
       if (event.type !== "tool_execution_end" || event.toolName !== "edit_video_sop" || event.isError) return;
       if (patch) throw new Error("Use one combined video edit per answer.");
       patch = parseVideoEdit(JSON.parse(event.result?.content?.find(part => typeof part.text === "string")?.text || "null"));

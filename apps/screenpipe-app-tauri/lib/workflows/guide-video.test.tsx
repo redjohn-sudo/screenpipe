@@ -212,9 +212,8 @@ it("shows the storyboard and lets the chat bubble edit video without rendering",
   expect(screen.queryByRole("button", { name: "Edit video in chat" })).toBeNull();
   act(() => window.dispatchEvent(new CustomEvent("workflows:assistant-opened")));
   expect(mode).toHaveBeenCalledWith(true);
-  expect(screen.queryByRole("region", { name: "Video SOP" })).toBeNull();
+  expect(screen.getByRole("region", { name: "Video SOP" })).toBeVisible();
   expect(p.generate).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
   fireEvent.click(screen.getByRole("button", { name: "Back to SOP" }));
   expect(mode).toHaveBeenLastCalledWith(false);
   expect(screen.getByRole("button", { name: "Video SOP" })).toHaveFocus();

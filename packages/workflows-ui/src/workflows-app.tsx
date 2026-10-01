@@ -523,7 +523,7 @@ function AppShell({
         </nav>}
         <main className={styles.main}>{children}</main>
       </section>
-      {assistant && <WorkflowAssistant composerAccessory={composerAccessory} active={active} platform={assistantPlatform!} context={pageAssistant?.context ?? assistant.context} promptRequest={pageAssistant?.promptRequest} onDockChange={setAssistantDocked} onWidthChange={setAssistantWidth} onOpenChange={setAssistantOpen} onModeChange={setAssistantMode} headerToggle />}
+      {assistant && <WorkflowAssistant composerAccessory={composerAccessory} active={active} platform={assistantPlatform!} context={pageAssistant?.context ?? assistant.context} promptRequest={pageAssistant?.promptRequest} onBusyChange={pageAssistant?.onBusyChange} onDockChange={setAssistantDocked} onWidthChange={setAssistantWidth} onOpenChange={setAssistantOpen} onModeChange={setAssistantMode} headerToggle />}
     </div></PageAssistantContext.Provider>
   );
 }
