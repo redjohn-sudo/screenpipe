@@ -1,6 +1,6 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
-import { guideKey, guideScreenshot, guideStepIncludesImage, type WorkflowGuide } from "./guide";
+import { guideKey, guideScreenshot, guideStepIncludesImage, guideSourceStage, guideNeedsSourceReview, type WorkflowGuide } from "./guide";
 import { parseVideoDraft, type VideoDraft, type VideoFocus } from "./video-tool";
 import type { AssistantMessage } from "./assistant";
 import type { WorkflowMap } from "./model";
@@ -17,8 +17,8 @@ export type GuideVideoPlatform = {
 /** Build the initial script from the reviewed SOP before applying explicit video edits. */
 function baseGuideVideoScenes(guide: WorkflowGuide, workflow: WorkflowMap): GuideVideoScene[] {
   if (guide.workflowKey !== guideKey(workflow)) throw new Error("Open the SOP for this workflow before creating a video.");
-  if (guide.sourceRevision !== (workflow.revision ?? 0))
-    throw new Error("Review the updated workflow and refresh this SOP before creating a video.");
+  if (guideNeedsSourceReview(guide, workflow))
+    throw new Error("Review the screenshot links below to use your saved SOP with the updated workflow.");
   if (guide.steps.some(step => !step.title.trim() || !step.instruction.trim()))
     throw new Error("Add a title and instruction to every SOP step before creating a video.");
   const scenes: GuideVideoScene[] = [];
@@ -28,14 +28,15 @@ function baseGuideVideoScenes(guide: WorkflowGuide, workflow: WorkflowMap): Guid
   add(guide.title, guide.summary || guide.title);
   add("Before you start", guide.prerequisites.filter(Boolean).join("\n"));
   for (const [index, step] of guide.steps.entries()) {
-    const image = guideScreenshot(workflow, step.sourceStage, step.imageReview);
+    const sourceStage = guideSourceStage(guide, step, workflow) ?? null;
+    const image = guideScreenshot(workflow, sourceStage, step.imageReview);
     const include = guideStepIncludesImage(step) && image;
     add(`${index + 1}. ${step.title}`, [step.instruction,
       step.expectedResult && `Expected result: ${step.expectedResult}`].filter(Boolean).join("\n"), include ? image.dataUrl || null : null, include ? image.frameId : undefined);
     const scene = scenes[scenes.length - 1];
     scene.requiresImage = true;
-    if (!image && guideStepIncludesImage(step) && !step.imageReview && step.sourceStage !== null) {
-      scene.imageSources = workflow.stages[step.sourceStage]?.evidence
+    if (!image && guideStepIncludesImage(step) && !step.imageReview && sourceStage !== null) {
+      scene.imageSources = workflow.stages[sourceStage]?.evidence
         .filter(e => !["audio", "meeting"].includes(e.source ?? "") && e.app && Number.isFinite(Date.parse(e.timestamp)))
         .slice(0, 3).map(e => ({ timestamp: e.timestamp, app: e.app! }));
     }
@@ -91,4 +92,21 @@ export function repeatedVideoScreenshots(scenes: GuideVideoScene[]): string[][] 
     groups.set(key, [...(groups.get(key) ?? []), scene.title]);
   }
   return [...groups.values()].filter(titles => titles.length > 1);
+}
+
+/** Reconnect only source references. Keep the user's document and video wording. */
+export function reconnectGuideSources(guide: WorkflowGuide, workflow: WorkflowMap, sources: Array<number | null>): WorkflowGuide {
+  if (guide.workflowKey !== guideKey(workflow) || sources.length !== guide.steps.length || sources.some(index => index !== null && (!Number.isInteger(index) || !workflow.stages[index]))) throw new Error("Choose a current workflow step for each screenshot link.");
+  const next: WorkflowGuide = { ...guide, sourceRevision: workflow.revision ?? 0, steps: guide.steps.map((step, i) => {
+    const { imageReview: previous, ...rest } = step;
+    const image = guideScreenshot(workflow, sources[i], previous) ?? guideScreenshot(workflow, sources[i]);
+    return { ...rest, sourceStage: sources[i], ...(image ? { imageReview: { frameId: image.frameId, timestamp: image.timestamp } } : {}) };
+  }) };
+  if (guide.video) {
+    const { video: _video, ...base } = next;
+    const current = guideVideoDraft(base, workflow);
+    next.video = { ...guide.video, sourceHash: current.sourceHash, scenes: guide.video.scenes.map(scene => ({ ...scene, focus: null })) };
+    guideVideoScenes(next, workflow);
+  }
+  return next;
 }

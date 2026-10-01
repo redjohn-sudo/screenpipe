@@ -185,7 +185,7 @@ describe("guide contracts and export", () => {
     w.stages[0].screenshot!.frameId = 2;
     expect(guideHtml(reopened, w, true)).not.toContain("<img ");
     w.stages[0].screenshot!.frameId = 1;
-    expect(guideHtml(reopened, { ...w, revision: 4 }, true)).not.toContain(
+    expect(guideHtml(reopened, { ...w, revision: 4 }, true)).toContain(
       "<img ",
     );
     w.stages[0].screenshot!.dataUrl = "https://example.com/tracker";

@@ -4,7 +4,7 @@ import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { GuideVideoPanel } from "../../../../packages/workflows-ui/src/guide-video-panel";
-import { guideVideoScenes, guideVideoDraft, videoScreenshotGaps, repeatedVideoScreenshots, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
+import { guideVideoScenes, guideVideoDraft, reconnectGuideSources, videoScreenshotGaps, repeatedVideoScreenshots, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
 import type { WorkflowGuide } from "../../../../packages/workflows-ui/src/guide";
 import { fixtureWorkflowAnalysis } from "../../../../packages/workflows-ui/src/fixture-platform";
 
@@ -35,7 +35,7 @@ describe("video SOP plans", () => {
     expect(guideVideoScenes(reviewed, unreviewed)[0].imageFrameId).toBe(5);
     reviewed.steps[0].imageReview.timestamp = "2026-09-02T10:00:00Z";
     expect(guideVideoScenes(reviewed, unreviewed)[0].imageFrameId).toBeUndefined();
-    expect(() => guideVideoScenes({ ...guide, sourceRevision: 1 }, workflow)).toThrow(/updated workflow/);
+    expect(() => guideVideoScenes({ ...guide, sourceRevision: 1 }, workflow)).toThrow(/screenshot links/);
   });
   it("supports explicit text-only export and rejects oversized plans without truncating", () => {
     expect(guideVideoScenes(guide, workflow, false).every(s => !s.image && !s.imageFrameId)).toBe(true);
@@ -249,4 +249,54 @@ it("loads the original screenshot for frame-only storyboard scenes and releases 
   expect(load.mock.calls[0][1].aborted).toBe(true);
   expect(revoke).toHaveBeenCalledWith("blob:storyboard-original");
   URL.revokeObjectURL = originalRevoke;
+});
+
+it("reconnects a stale SOP without rewriting its text, then follows pinned frames across reordered revisions", () => {
+  const stale = { ...guide, sourceRevision: 0 };
+  const fixed = reconnectGuideSources(stale, workflow, [0]);
+  expect(fixed.summary).toBe(stale.summary);
+  expect(fixed.steps[0].instruction).toBe(stale.steps[0].instruction);
+  expect(fixed.steps[0].imageReview).toEqual({ frameId: 5, timestamp: workflow.stages[0].screenshot!.timestamp });
+  const changed = { ...workflow, revision: 3, stages: [...workflow.stages].reverse() };
+  expect(guideVideoScenes(fixed, changed)[0].imageFrameId).toBe(5);
+  const missing = { ...changed, stages: [] };
+  expect(() => guideVideoScenes(fixed, missing)).toThrow(/screenshot links/);
+  expect(() => reconnectGuideSources(stale, workflow, [999])).toThrow(/Choose a current/);
+});
+it("keeps edited narration and scene order when reconnecting sources, and resets old focus coordinates", () => {
+  const video = guideVideoDraft(guide, workflow);
+  video.scenes[0].narration = "My own narration.";
+  video.scenes[0].focus = { x: 0.2, y: 0.3, zoom: 1.2 };
+  const changed = { ...workflow, revision: 3 };
+  const next = reconnectGuideSources({ ...guide, video }, changed, [0]);
+  expect(next.video!.scenes[0].narration).toBe("My own narration.");
+  expect(next.video!.scenes[0].focus).toBeNull();
+  expect(guideVideoScenes(next, changed)[0].narration).toBe("My own narration.");
+});
+it("shows real step counts and a recovery action when the catalog revision changed", async () => {
+  const p = platform(), save = vi.fn().mockResolvedValue(undefined);
+  function Reopen() {
+    const [draft, setDraft] = React.useState({ ...guide, sourceRevision: 0 });
+    return <GuideVideoPanel guide={draft} workflow={workflow} platform={p} save={save} onReconnect={async next => { await save(next); setDraft(next); }} />;
+  }
+  render(<Reopen />);
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  expect(screen.getByText("1 step · Narrated walkthrough")).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Create video" })).toBeDisabled();
+  expect(screen.getByRole("combobox", { name: "Screenshot source for step 1" })).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Use these sources" }));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Create video" })).toBeEnabled());
+  expect(save).toHaveBeenCalledWith(expect.objectContaining({ sourceRevision: 2 }));
+  expect(p.generate).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Create video" }));
+  await screen.findByLabelText("Narrated SOP preview");
+});
+it("keeps source review open and generation blocked when saving the reconnection fails", async () => {
+  const p = platform();
+  render(<GuideVideoPanel guide={{ ...guide, sourceRevision: 0 }} workflow={workflow} platform={p} save={async () => {}} onReconnect={async () => { throw new Error("Disk full"); }} />);
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  fireEvent.click(screen.getByRole("button", { name: "Use these sources" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("Disk full");
+  expect(screen.getByRole("button", { name: "Create video" })).toBeDisabled();
+  expect(p.generate).not.toHaveBeenCalled();
 });

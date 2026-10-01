@@ -4,7 +4,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowLeft, Download, Film, ImageOff, Loader2, MessageCircle } from "lucide-react";
-import { isGuideImage, type WorkflowGuide } from "./guide";
+import { isGuideImage, guideNeedsSourceReview, type WorkflowGuide } from "./guide";
+import { GuideSourceReview } from "./guide-source-review";
 import { SopScreenshot } from "./sop-screenshot";
 import type { WorkflowsPlatform } from "./platform";
 import type { WorkflowMap } from "./model";
@@ -17,10 +18,11 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   loadScreenshot?: NonNullable<WorkflowsPlatform["guides"]>["loadScreenshot"];
   save: (guide: WorkflowGuide) => Promise<void>;
   onVideoMode?: (active: boolean) => void;
+  onReconnect?: (guide: WorkflowGuide) => Promise<void>;
   onReset?: () => Promise<void>;
   container?: HTMLElement | null;
   onOpenChange?: (open: boolean) => void;
-}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onReset, container, onOpenChange }, ref) {
+}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onReconnect, onReset, container, onOpenChange }, ref) {
   const [open, setOpen] = useState(false);
   const [requireScreenshots, setRequireScreenshots] = useState(true);
   const [versions, setVersions] = useState<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
@@ -40,6 +42,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   let scenes: ReturnType<typeof guideVideoScenes> = [];
   let planError = "";
   try { scenes = guideVideoScenes(guide, workflow); } catch (cause) { planError = (cause as Error).message; }
+  const needsSources = guideNeedsSourceReview(guide, workflow);
   const gaps = videoScreenshotGaps(scenes);
   const repeated = repeatedVideoScreenshots(scenes);
   useEffect(() => {
@@ -130,14 +133,15 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
       <button className={styles.videoBack} onClick={backToSop}><ArrowLeft size={16} /> Back to SOP</button>
       <div className={styles.videoHeading}>
         <div><p className={styles.videoEyebrow}>{result ? "Your video" : "Create a video"}</p><h2>{guide.title}</h2>
-          <p className={styles.videoDescription}>{scenes.length} {scenes.length === 1 ? "step" : "steps"} · Narrated walkthrough</p></div>
+          <p className={styles.videoDescription}>{guide.steps.length} {guide.steps.length === 1 ? "step" : "steps"} · Narrated walkthrough</p></div>
         <div className={styles.videoActions}>
           <button className={styles.primary} disabled={busy || !!planError || (requireScreenshots && gaps.length > 0)} onClick={() => void generate().catch(() => {})}>{busy ? <Loader2 size={16} className={styles.spin} /> : <Film size={16} />}{busy ? "Creating video…" : result ? "Create new video" : error ? "Try again" : "Create video"}</button>
           {busy && <button onClick={() => { controller.current?.abort(); setMessage("Stopping video creation…"); }}>Stop</button>}
         </div>
       </div>
       {message && <p role="status" aria-live="polite">{message}</p>}
-      {(error || planError) && <p role="alert">{error || planError}</p>}
+      {(error || (planError && !needsSources)) && <p role="alert">{error || planError}</p>}
+      {needsSources && (onReconnect ? <GuideSourceReview key={`${source}:${workflow.revision}`} guide={guide} workflow={workflow} onApply={onReconnect} /> : <p role="alert">{planError}</p>)}
       {gaps.length > 0 && <div role="status"><p>These steps need a screenshot before rendering:</p><ul>{gaps.map(title => <li key={title}>{title}</li>)}</ul>
         <label><input type="checkbox" checked={!requireScreenshots} disabled={busy} onChange={event => setRequireScreenshots(!event.target.checked)} /> Allow text-only steps for this video</label></div>}
       {!planError && repeated.length > 0 && <details><summary>Some steps reuse the same screenshot</summary>

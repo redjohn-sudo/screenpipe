@@ -152,6 +152,19 @@ export function guideScreenshot(
     : images.find(image => image.visualVerified) ?? images[0]) ?? null;
 }
 
+/** Positional links are valid only for their source revision. Explicit frames
+ * remain usable across catalog updates, including reordered stages. */
+export function guideSourceStage(guide: WorkflowGuide, step: WorkflowGuide["steps"][number], workflow: WorkflowMap): number | null | undefined {
+  if (guide.sourceRevision === (workflow.revision ?? 0)) return step.sourceStage;
+  if (step.sourceStage === null || !guideStepIncludesImage(step)) return null;
+  if (!step.imageReview) return undefined;
+  const index = workflow.stages.findIndex(stage => stageScreenshots(stage).some(image => image.frameId === step.imageReview!.frameId && image.timestamp === step.imageReview!.timestamp));
+  return index >= 0 ? index : undefined;
+}
+export function guideNeedsSourceReview(guide: WorkflowGuide, workflow: WorkflowMap): boolean {
+  return guide.steps.some(step => guideSourceStage(guide, step, workflow) === undefined);
+}
+
 /** Older generated drafts disabled images based on legacy verification flags.
  * Only an explicit editor exclusion hides an attached source now. */
 export function guideStepIncludesImage(step: WorkflowGuide["steps"][number]): boolean {
@@ -193,9 +206,9 @@ export function guideHtml(
     .map((s, i) => {
       const image =
         includeImages &&
-        guide.sourceRevision === (workflow.revision ?? 0) &&
+        guideSourceStage(guide, s, workflow) !== undefined &&
         guideStepIncludesImage(s)
-          ? guideImage(workflow, s.sourceStage, s.imageReview)
+          ? guideImage(workflow, guideSourceStage(guide, s, workflow) ?? null, s.imageReview)
           : null;
       return `<article><h2>${i + 1}. ${escape(s.title)}</h2><p>${escape(s.instruction)}</p>${image ? `<img alt="${escape(s.title)}" src="${image}">` : ""}${s.expectedResult ? `<p><strong>Expected result:</strong> ${escape(s.expectedResult)}</p>` : ""}</article>`;
     })

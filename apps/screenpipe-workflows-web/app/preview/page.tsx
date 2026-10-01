@@ -16,6 +16,19 @@ function preview(mode: string | null) {
   };
   if (mode === "error") platform.loadCapturedWork = async () => { throw new Error("Preview unavailable"); };
   if (mode === "empty") platform.loadCapturedWork = async () => null;
+  if (mode === "stale-sop") {
+    const readGuide = platform.guides!.load;
+    platform.guides!.load = async workflow => {
+      const saved = await readGuide(workflow);
+      if (saved) return saved;
+      const generated = await platform.guides!.generate(workflow, new AbortController().signal, () => {});
+      return { ...generated, sourceRevision: Math.max(0, (workflow.revision ?? 0) - 1) };
+    };
+    platform.loadCapturedWork = async (...args) => {
+      const analysis = await load(...args);
+      return analysis ? { ...analysis, analysis: { ...analysis.analysis, workflows: analysis.analysis.workflows.map(workflow => ({ ...workflow, revision: (workflow.revision ?? 0) + 1 })) } } : null;
+    };
+  }
   return { platform, initialAnalysis: mode ? null : fixtureWorkflowAnalysis };
 }
 

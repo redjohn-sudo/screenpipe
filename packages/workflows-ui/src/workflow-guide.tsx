@@ -26,6 +26,8 @@ import {
   guideImage,
   guideScreenshot,
   guideStepIncludesImage,
+  guideSourceStage,
+  guideNeedsSourceReview,
   guideSourceImages,
   isGuideImage,
   type WorkflowGuide as Guide,
@@ -34,6 +36,7 @@ import { WorkflowRichText } from "./rich-text";
 import { InlineText } from "./inline-text";
 import { SopDocument } from "./sop-document";
 import { GuideAssistant } from "./guide-assistant";
+import { GuideSourceReview } from "./guide-source-review";
 import { SopScreenshot } from "./sop-screenshot";
 import { GuideVideoPanel, type GuideVideoHandle } from "./guide-video-panel";
 import styles from "./workflow-guide.module.css";
@@ -143,7 +146,14 @@ export function WorkflowGuide({
       .getElementById(event.currentTarget.hash.slice(1))
       ?.scrollIntoView({ block: "start" });
   }
-  const stale = draft && (sourceMissing || draft.sourceRevision !== (workflow.revision ?? 0));
+  const stale = draft && (sourceMissing || guideNeedsSourceReview(draft, workflow));
+  async function reconnectSources(next: Guide) {
+    const before = latest.current;
+    await persist(next);
+    if (latest.current !== before) return;
+    latest.current = next;
+    setDraft(next);
+  }
   function moveStep(from: number, to: number) {
     const current = latest.current;
     if (!current || from === to || to < 0 || to >= current.steps.length) return;
@@ -253,7 +263,7 @@ export function WorkflowGuide({
           )}
           {draft && (
             <>
-              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} save={persist} onVideoMode={setVideoMode} onReset={async () => {
+              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} save={persist} onVideoMode={setVideoMode} onReconnect={sourceMissing ? undefined : reconnectSources} onReset={async () => {
                 const { video: _video, ...next } = draft;
                 await persist(next); latest.current = next; setDraft(next);
               }} />}
@@ -410,13 +420,7 @@ export function WorkflowGuide({
               value={draft.summary}
               onChange={(summary) => update({ ...draft, summary })}
             />
-            {stale && (
-              <p className={styles.notice}>
-                This workflow has changed since the SOP was drafted. Your edits
-                are preserved. Screenshots are unavailable until the SOP is
-                reconciled with the new revision.
-              </p>
-            )}
+            {stale && (sourceMissing ? <p className={styles.notice}>The source workflow is unavailable. Your saved SOP is still editable.</p> : <GuideSourceReview key={`${draft.sourceRevision}:${workflow.revision}`} guide={draft} workflow={workflow} onApply={reconnectSources} />)}
             {lines(
               "Before you start",
               "prerequisites",
@@ -424,12 +428,13 @@ export function WorkflowGuide({
             )}
             <div className={styles.steps}>
               {draft.steps.map((step, i) => {
+                const sourceStage = guideSourceStage(draft, step, workflow) ?? null;
                 const image =
                   !stale && guideStepIncludesImage(step)
-                    ? guideImage(workflow, step.sourceStage, step.imageReview)
+                    ? guideImage(workflow, sourceStage, step.imageReview)
                     : null;
                 const sources = !stale
-                  ? guideSourceImages(workflow, step.sourceStage).filter(source => isGuideImage(source.dataUrl))
+                  ? guideSourceImages(workflow, sourceStage).filter(source => isGuideImage(source.dataUrl))
                   : [];
                 return (
                   <section
@@ -577,7 +582,7 @@ export function WorkflowGuide({
                         <figure>
                           <SopScreenshot
                             load={platform.loadScreenshot}
-                            frameId={guideScreenshot(workflow, step.sourceStage, step.imageReview)!.frameId}
+                            frameId={guideScreenshot(workflow, sourceStage, step.imageReview)!.frameId}
                             src={image}
                             alt={ui("Source for {value1}", {
                               value1: step.title,
@@ -626,13 +631,13 @@ export function WorkflowGuide({
                             });
                           }}
                         />
-                      ) : !image && !stale && guideStepIncludesImage(step) && !step.imageReview && step.sourceStage !== null && workflow.stages[step.sourceStage] ? (
-                        <SourceSopScreenshot stage={workflow.stages[step.sourceStage]} load={platform.loadSourceScreenshot} title={step.title} />
+                      ) : !image && !stale && guideStepIncludesImage(step) && !step.imageReview && sourceStage !== null && workflow.stages[sourceStage] ? (
+                        <SourceSopScreenshot stage={workflow.stages[sourceStage!]} load={platform.loadSourceScreenshot} title={step.title} />
                       ) : !image ? (
                         <p className={styles.muted}>
                           {stale
                             ? ui(
-                                "Source changed. Regenerate this SOP to review its screenshots.",
+                                "Reconnect this step’s screenshot source above.",
                               )
                             : ui("No captured screenshot for this step.")}
                         </p>
