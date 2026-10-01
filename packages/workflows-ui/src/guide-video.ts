@@ -82,18 +82,6 @@ export function videoScreenshotGaps(scenes: GuideVideoScene[]): string[] {
   return scenes.filter(s => s.requiresImage && !s.image && !s.imageFrameId && !s.imageSources?.length).map(s => s.title);
 }
 
-/** Repeated references are useful context, not proof of a distinct action in each step. */
-export function repeatedVideoScreenshots(scenes: GuideVideoScene[]): string[][] {
-  const groups = new Map<string, string[]>();
-  for (const scene of scenes) {
-    if (!scene.requiresImage) continue;
-    const key = scene.imageFrameId ? `frame:${scene.imageFrameId}` : scene.image;
-    if (!key) continue;
-    groups.set(key, [...(groups.get(key) ?? []), scene.title]);
-  }
-  return [...groups.values()].filter(titles => titles.length > 1);
-}
-
 /** Reconnect only source references. Keep the user's document and video wording. */
 export function reconnectGuideSources(guide: WorkflowGuide, workflow: WorkflowMap, sources: Array<number | null>): WorkflowGuide {
   if (guide.workflowKey !== guideKey(workflow) || sources.length !== guide.steps.length || sources.some(index => index !== null && (!Number.isInteger(index) || !workflow.stages[index]))) throw new Error("Choose a current workflow step for each screenshot link.");

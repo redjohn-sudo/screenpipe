@@ -4,7 +4,7 @@ import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { GuideVideoPanel } from "../../../../packages/workflows-ui/src/guide-video-panel";
-import { guideVideoScenes, guideVideoDraft, reconnectGuideSources, videoScreenshotGaps, repeatedVideoScreenshots, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
+import { guideVideoScenes, guideVideoDraft, reconnectGuideSources, videoScreenshotGaps, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
 import type { WorkflowGuide } from "../../../../packages/workflows-ui/src/guide";
 import { fixtureWorkflowAnalysis } from "../../../../packages/workflows-ui/src/fixture-platform";
 
@@ -166,18 +166,6 @@ it("keeps an existing edited video's supporting sections until an explicit reset
   expect(guideVideoScenes({ ...guide, video }, workflow)[0].narration).toBe("My custom introduction.");
   expect(guideVideoScenes(guide, workflow)).toHaveLength(1);
 });
-it("flags repeated captures without confusing a focus edit with new visual evidence", () => {
-  const step = guideVideoScenes(guide, workflow)[0];
-  expect(repeatedVideoScreenshots([step, { ...step, title: "Check", focus: { x: 0.2, y: 0.4, zoom: 1.3 } }])).toEqual([[step.title, "Check"]]);
-  expect(repeatedVideoScreenshots([step, { ...step, imageFrameId: 6 }])).toEqual([]);
-});
-it("shows repeated capture coverage instead of claiming each step has its own screenshot", () => {
-  render(<GuideVideoPanel guide={{ ...guide, steps: [...guide.steps, { ...guide.steps[0], title: "Check the result" }] }} workflow={workflow} platform={platform()} save={async () => {}} />);
-  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
-  expect(screen.getByText("Some steps reuse the same screenshot")).toBeTruthy();
-  expect(screen.queryByText("Each step has its own reviewed screenshot.")).toBeNull();
-});
-
 it("shows selected captures alongside narration without claiming semantic review", () => {
   const w = structuredClone(workflow);
   w.stages[0].screenshot!.dataUrl = "data:image/png;base64,YQ==";

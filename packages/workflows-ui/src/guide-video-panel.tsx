@@ -9,7 +9,7 @@ import { GuideSourceReview } from "./guide-source-review";
 import { SopScreenshot } from "./sop-screenshot";
 import type { WorkflowsPlatform } from "./platform";
 import type { WorkflowMap } from "./model";
-import { guideVideoScenes, videoScreenshotGaps, repeatedVideoScreenshots, type GuideVideoPlatform, type GuideVideoResult } from "./guide-video";
+import { guideVideoScenes, videoScreenshotGaps, type GuideVideoPlatform, type GuideVideoResult } from "./guide-video";
 import styles from "./workflow-guide.module.css";
 
 export type GuideVideoHandle = { generate: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void> };
@@ -44,7 +44,6 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   try { scenes = guideVideoScenes(guide, workflow); } catch (cause) { planError = (cause as Error).message; }
   const needsSources = guideNeedsSourceReview(guide, workflow);
   const gaps = videoScreenshotGaps(scenes);
-  const repeated = repeatedVideoScreenshots(scenes);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -144,10 +143,6 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
       {needsSources && (onReconnect ? <GuideSourceReview key={`${source}:${workflow.revision}`} guide={guide} workflow={workflow} onApply={onReconnect} /> : <p role="alert">{planError}</p>)}
       {gaps.length > 0 && <div role="status"><p>These steps need a screenshot before rendering:</p><ul>{gaps.map(title => <li key={title}>{title}</li>)}</ul>
         <label><input type="checkbox" checked={!requireScreenshots} disabled={busy} onChange={event => setRequireScreenshots(!event.target.checked)} /> Allow text-only steps for this video</label></div>}
-      {!planError && repeated.length > 0 && <details><summary>Some steps reuse the same screenshot</summary>
-        <p>Check that these captures show the actions you want to teach. Choose a different screenshot in the SOP when needed.</p>
-        {repeated.map((titles, index) => <p key={index}>{titles.join(" · ")}</p>)}
-      </details>}
       {result && <>
         {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}
         <video key={result.url} controls preload="metadata" src={result.url} aria-label="Narrated SOP preview">
