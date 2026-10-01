@@ -42,3 +42,22 @@ it("stop closes stdin so the renderer can cancel its owned subprocesses",async()
  await read();const abort=new AbortController();const progress=vi.fn(()=>abort.abort());
  await expect(render(abort.signal,progress)).rejects.toThrow(/stopped/);expect(progress).toHaveBeenCalled();
 });
+
+it("repairs a missing screenshot only after inspecting an available source",async()=>{
+ const source={...draft.scenes[0],includeImage:true}, missing={...draft.scenes[0],id:"section-1",title:"Continue"};
+ await writeFile(`${path}/video-project.json`,JSON.stringify({draft:{...draft,scenes:[source,missing]},images:{"section-0":"image/png"},requiredImages:["section-0","section-1"]}));
+ await writeFile(`${path}/section-0.image`,Buffer.from("fixture"));
+ await read();
+ const plan=await tools.read_video_sop.execute("read",{},undefined,undefined,{cwd:path});
+ expect(JSON.parse(plan.content[0].text).missingScreenshots).toEqual(["section-1"]);
+ const patch={changes:[{id:"section-1",imageSourceId:"section-0",includeImage:true}],render:false};
+ await expect(tools.edit_video_sop.execute("edit",patch)).rejects.toThrow(/Inspect the source/);
+ await tools.read_video_sop.execute("inspect",{scene_id:"section-0"},undefined,undefined,{cwd:path,model:{input:["text"]}});
+ await expect(tools.edit_video_sop.execute("edit",patch)).rejects.toThrow(/Inspect the source/);
+ await tools.read_video_sop.execute("inspect",{scene_id:"section-0"},undefined,undefined,{cwd:path,model:{input:["text","image"]}});
+ await tools.edit_video_sop.execute("edit",patch);
+ await renderer(`const fs=require('fs'),root=process.argv[3];fs.mkdirSync(root+'/rendered');fs.writeFileSync(root+'/rendered/video.mp4','fixture');fs.writeFileSync(root+'/rendered/captions.vtt','WEBVTT');console.log(JSON.stringify({complete:true}));`);
+ await render();
+ const scenes=JSON.parse(await readFile(`${path}/render-scenes.json`,"utf8"));
+ expect(scenes).toHaveLength(2);expect(scenes[1].image).toBe(scenes[0].image);expect(scenes[1].narration).toBe(missing.narration);
+});

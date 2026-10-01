@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { GuideVideoPanel } from "../../../../packages/workflows-ui/src/guide-video-panel";
 import { guideVideoScenes, guideVideoDraft, reconnectGuideSources, videoScreenshotGaps, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
-import type { WorkflowGuide } from "../../../../packages/workflows-ui/src/guide";
+import { parseGuide, type WorkflowGuide } from "../../../../packages/workflows-ui/src/guide";
 import { fixtureWorkflowAnalysis } from "../../../../packages/workflows-ui/src/fixture-platform";
 
 const workflow = structuredClone(fixtureWorkflowAnalysis.analysis.workflows[0]);
@@ -331,4 +331,16 @@ it("reports unavailable recording previews and retries without starting video ge
   fireEvent.click(screen.getByRole("button", { name: "Try again" }));
   await screen.findByRole("img", { name: "Screenshot for 1. Review sources" });
   expect(p.generate).not.toHaveBeenCalled();
+});
+
+it("persists a selected source for a previously unlinked step without changing SOP instructions",()=>{
+ const g={...guide,steps:[guide.steps[0],{...guide.steps[0],title:"Continue",sourceStage:null}]};
+ const video=guideVideoDraft(g,workflow);const sourceId=video.scenes[0].id;
+ video.scenes[1]={...video.scenes[1],includeImage:true,imageSourceId:sourceId};
+ const saved=parseGuide(JSON.parse(JSON.stringify({...g,video})));
+ const scenes=guideVideoScenes(saved,workflow);
+ expect(scenes[1].imageFrameId).toBe(5);expect(scenes[1].imageSourceId).toBe(sourceId);
+ expect(saved.steps[1].sourceStage).toBeNull();expect(scenes[1].narration).toBe(scenes[0].narration);
+ saved.video!.scenes[1].imageSourceId="section-999";
+ expect(()=>guideVideoScenes(saved,workflow)).toThrow(/SOP changed/);
 });

@@ -35,3 +35,12 @@ it("prunes only old owned folders and preserves recent turns and unrelated entri
  const project=await stageVideoProject(draft,[],new AbortController().signal);
  expect(mocks.stat).toHaveBeenCalledTimes(2);expect(mocks.remove).toHaveBeenCalledOnce();expect(mocks.remove.mock.calls[0][0]).toContain(old);await project.dispose();
 });
+
+it("retains a reused original by source ID after reopening even when the donor section was removed",async()=>{
+ const next={...draft,scenes:[{...draft.scenes[1],imageSourceId:"section-0"}]};
+ const project=await stageVideoProject(next,[{...scene,id:"section-1",imageSourceId:"section-0",requiresImage:true}],new AbortController().signal);
+ expect(mocks.writeFile.mock.calls[0][0]).toMatch(/\/section-0\.image$/);
+ const manifest=JSON.parse(mocks.writeTextFile.mock.calls[0][1]);
+ expect(manifest.images).toEqual({"section-0":"image/png"});expect(manifest.requiredImages).toEqual(["section-1"]);
+ await project.dispose();
+});

@@ -33,6 +33,8 @@ export async function stageVideoProject(draft: VideoDraft, scenes: GuideVideoSce
     for (const scene of scenes) {
       signal.throwIfAborted();
       if (!scene.id || !/^section-\d+$/.test(scene.id) || !draft.scenes.some(s => s.id === scene.id)) continue;
+      const sourceId = scene.imageSourceId ?? scene.id;
+      if (!/^section-\d+$/.test(sourceId) || images[sourceId]) continue;
       let data = scene.image;
       let frameId = scene.imageFrameId;
       if (!frameId && scene.imageSources?.length) {
@@ -54,8 +56,8 @@ export async function stageVideoProject(draft: VideoDraft, scenes: GuideVideoSce
       const image = Uint8Array.from(atob(match[2]), c => c.charCodeAt(0));
       bytes += image.length;
       if (image.length > 12000000 || bytes > 32000000) throw new Error("Use fewer screenshots in this video project.");
-      await writeFile(`${path}/${scene.id}.image`, image);
-      images[scene.id] = match[1];
+      await writeFile(`${path}/${sourceId}.image`, image);
+      images[sourceId] = match[1];
     }
     signal.throwIfAborted();
     await writeTextFile(`${path}/video-project.json`, JSON.stringify({ draft, images, requiredImages: scenes.filter(scene => scene.requiresImage).map(scene => scene.id) }));
