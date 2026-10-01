@@ -570,10 +570,11 @@ mod request_lifecycle_tests {
 
     #[tokio::test]
     async fn public_api_recovers_after_native_dimension_error() {
-        let maximum = {
-            let _apartment = WinRtApartment::initialize_mta().unwrap();
-            WindowsOcrEngine::MaxImageDimension().unwrap()
-        };
+        // Keep this test thread's WinRT activation alive while the worker uses
+        // the same runtime class. Tearing it down immediately after querying
+        // the static limit can invalidate the cached activation factory.
+        let _apartment = WinRtApartment::initialize_mta().unwrap();
+        let maximum = WindowsOcrEngine::MaxImageDimension().unwrap();
         let oversized = DynamicImage::new_rgba8(maximum.checked_add(1).unwrap(), 1);
         let error = tokio::time::timeout(
             Duration::from_secs(30),
