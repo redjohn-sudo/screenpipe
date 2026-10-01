@@ -78,6 +78,14 @@ fn windows_ocr_worker() -> &'static crate::ocr_worker::OcrWorker<OcrRequest> {
 
 #[cfg(target_os = "windows")]
 fn run_ocr_request(request: OcrRequest) {
+    finish_ocr_request(request, perform_ocr_windows_blocking);
+}
+
+#[cfg(target_os = "windows")]
+fn finish_ocr_request(
+    request: OcrRequest,
+    recognize: impl FnOnce(Vec<u8>, u32, u32, &[Language]) -> Result<(String, String, Option<f64>)>,
+) {
     let OcrRequest {
         rgba,
         width,
@@ -92,7 +100,7 @@ fn run_ocr_request(request: OcrRequest) {
     // Catch a request panic so subsequent captures can still use this worker.
     // The permit is outside the closure and survives until native work returns.
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        perform_ocr_windows_blocking(rgba, width, height, &languages)
+        recognize(rgba, width, height, &languages)
     }))
     .unwrap_or_else(|_| Err(anyhow!("Windows OCR request panicked")));
     let _ = reply.send(result);
@@ -455,5 +463,109 @@ mod tests {
         let mut pixels = vec![1, 2, 3, 4, 10, 20, 30, 40];
         rgba_to_bgra_in_place(&mut pixels);
         assert_eq!(pixels, vec![3, 2, 1, 4, 30, 20, 10, 40]);
+    }
+}
+
+#[cfg(all(test, target_os = "windows"))]
+mod request_lifecycle_tests {
+    use super::*;
+    use std::{sync::mpsc, time::Duration};
+
+    fn fixture() -> DynamicImage {
+        image::load_from_memory(include_bytes!("../tests/testing_OCR.png")).unwrap()
+    }
+
+    #[tokio::test]
+    async fn cancelled_running_ocr_keeps_permit_until_native_completion() {
+        let image = fixture();
+        let semaphore = Box::leak(Box::new(tokio::sync::Semaphore::new(1)));
+        let (reply, result) = tokio::sync::oneshot::channel();
+        let request = OcrRequest {
+            rgba: image.to_rgba8().into_raw(),
+            width: image.width(),
+            height: image.height(),
+            languages: vec![Language::English],
+            reply,
+            _permit: semaphore.acquire().await.unwrap(),
+        };
+        let (started, running) = mpsc::channel();
+        let (release, released) = mpsc::channel();
+        let (finished, completion) = mpsc::channel();
+        let worker = std::thread::spawn(move || {
+            finish_ocr_request(request, |rgba, width, height, languages| {
+                started.send(()).unwrap();
+                released.recv_timeout(Duration::from_secs(30)).unwrap();
+                let result = perform_ocr_windows_blocking(rgba, width, height, languages);
+                finished
+                    .send(
+                        result
+                            .as_ref()
+                            .map(|value| value.0.clone())
+                            .map_err(ToString::to_string),
+                    )
+                    .unwrap();
+                result
+            });
+        });
+        running.recv_timeout(Duration::from_secs(30)).unwrap();
+        drop(result);
+        assert!(
+            semaphore.try_acquire().is_err(),
+            "cancellation released a running job's permit"
+        );
+        release.send(()).unwrap();
+        worker.join().unwrap();
+        let text = completion
+            .recv_timeout(Duration::from_secs(30))
+            .unwrap()
+            .unwrap();
+        assert!(text.to_lowercase().contains("capture"));
+        assert_eq!(semaphore.available_permits(), 1);
+        let (text, _, _) = perform_ocr_windows(&image, &[Language::English])
+            .await
+            .unwrap();
+        assert!(
+            text.to_lowercase().contains("capture"),
+            "later OCR must recover"
+        );
+    }
+
+    #[tokio::test]
+    async fn abandoned_queued_request_skips_work_and_releases_permit() {
+        let semaphore = Box::leak(Box::new(tokio::sync::Semaphore::new(1)));
+        let (reply, result) = tokio::sync::oneshot::channel();
+        let request = OcrRequest {
+            rgba: Vec::new(),
+            width: 1,
+            height: 1,
+            languages: Vec::new(),
+            reply,
+            _permit: semaphore.acquire().await.unwrap(),
+        };
+        drop(result);
+        finish_ocr_request(request, |_, _, _, _| panic!("cancelled queued request ran"));
+        assert_eq!(semaphore.available_permits(), 1);
+    }
+
+    #[tokio::test]
+    async fn request_panic_returns_error_and_releases_permit() {
+        let semaphore = Box::leak(Box::new(tokio::sync::Semaphore::new(1)));
+        let (reply, result) = tokio::sync::oneshot::channel();
+        let request = OcrRequest {
+            rgba: Vec::new(),
+            width: 1,
+            height: 1,
+            languages: Vec::new(),
+            reply,
+            _permit: semaphore.acquire().await.unwrap(),
+        };
+        finish_ocr_request(request, |_, _, _, _| panic!("injected request panic"));
+        assert!(result
+            .await
+            .unwrap()
+            .unwrap_err()
+            .to_string()
+            .contains("panicked"));
+        assert_eq!(semaphore.available_permits(), 1);
     }
 }
