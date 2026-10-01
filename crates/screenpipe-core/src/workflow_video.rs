@@ -198,14 +198,21 @@ async fn speech(
     token: &str,
     text: &str,
 ) -> Result<Vec<u8>> {
-    let mut response = client
-        .post(format!("{}/tts", gateway.trim_end_matches('/')))
-        .bearer_auth(token)
-        .json(&serde_json::json!({"text": text, "profile": "sop"}))
-        .send()
-        .await
-        .context("Could not reach speech generation. Try again when connected.")?;
-    if !response.status().is_success() {
+    // Retry explicit transient HTTP failures, never account limits or ambiguous
+    // transport failures that might already have incurred a speech charge.
+    let mut attempt = 0;
+    let mut response = loop {
+        attempt += 1;
+        let mut response = client
+            .post(format!("{}/tts", gateway.trim_end_matches('/')))
+            .bearer_auth(token)
+            .json(&serde_json::json!({"text": text, "profile": "sop"}))
+            .send()
+            .await
+            .context("Could not reach speech generation. Try again when connected.")?;
+        if response.status().is_success() {
+            break response;
+        }
         let status = response.status().as_u16();
         let mut body = Vec::new();
         while let Some(chunk) = response.chunk().await? {
@@ -214,8 +221,17 @@ async fn speech(
                 break;
             }
         }
-        bail!(speech_failure(status, &String::from_utf8_lossy(&body)));
-    }
+        tracing::warn!(status, attempt, "SOP speech request failed");
+        if attempt < 3 && matches!(status, 500 | 502 | 503 | 504) {
+            drop(response);
+            tokio::time::sleep(Duration::from_secs(attempt)).await;
+            continue;
+        }
+        bail!(
+            "{} (HTTP {status})",
+            speech_failure(status, &String::from_utf8_lossy(&body))
+        );
+    };
     if response
         .headers()
         .get("x-screenpipe-narration-profile")

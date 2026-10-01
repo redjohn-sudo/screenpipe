@@ -261,7 +261,7 @@ mod tests {
                 ResponseTemplate::new(200)
                     .insert_header("x-screenpipe-narration-profile", "sop-openai-marin-v1")
                     .insert_header("content-type", "audio/wav")
-                    .set_body_bytes(wav),
+                    .set_body_bytes(wav.clone()),
             )
             .expect(1)
             .mount(&server)
@@ -287,6 +287,28 @@ mod tests {
         let captions = std::fs::read_to_string(temporary.path().join("captions.vtt")).unwrap();
         assert!(captions.contains("00:00:00.000 --> 00:00:00.208"));
         assert!(captions.contains(&scene.narration));
+        server.verify().await;
+        server.reset().await;
+        // Only the failed sixth segment may be repeated.
+        let calls = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let count = calls.clone();
+        let audio = wav.clone();
+        Mock::given(method("POST"))
+            .respond_with(move |_: &wiremock::Request| {
+                let index = count.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                if index == 5 { ResponseTemplate::new(502) }
+                else { ResponseTemplate::new(200)
+                    .insert_header("x-screenpipe-narration-profile", "sop-openai-marin-v1")
+                    .insert_header("content-type", "audio/wav").set_body_bytes(audio.clone()) }
+            }).expect(8).mount(&server).await;
+        let scenes: Vec<_> = (1..=7).map(|n| Scene { narration: format!("Read section {n}."), ..scene.clone() }).collect();
+        let (_sender, receiver) = watch::channel(false);
+        workflow_video::render(&scenes, temporary.path(), &binary, &server.uri(), "test", receiver, |_, _, _| {}).await.unwrap();
+        let requests = server.received_requests().await.unwrap();
+        let narrations: Vec<String> = requests.iter().map(|r| r.body_json::<serde_json::Value>().unwrap()["text"].as_str().unwrap().to_owned()).collect();
+        assert_eq!(narrations, ["Read section 1.", "Read section 2.", "Read section 3.", "Read section 4.", "Read section 5.", "Read section 6.", "Read section 6.", "Read section 7."]);
+        let captions = std::fs::read_to_string(temporary.path().join("captions.vtt")).unwrap();
+        assert_eq!(captions.matches("Read section").count(), 7);
         server.verify().await;
         server.reset().await;
         Mock::given(method("POST"))
@@ -494,7 +516,7 @@ mod tests {
         server.reset().await;
         Mock::given(method("POST"))
             .respond_with(ResponseTemplate::new(503).set_body_string("private upstream detail"))
-            .expect(1)
+            .expect(3)
             .mount(&server)
             .await;
         let (_sender, receiver) = watch::channel(false);
@@ -513,7 +535,25 @@ mod tests {
             .to_string()
             .contains("Speech generation is unavailable"));
         assert!(!error.to_string().contains("private upstream"));
-        server.verify().await; // No automatic billable retry.
+        assert!(error.to_string().contains("HTTP 503"));
+        server.verify().await; // Bounded to three attempts.
+        server.reset().await;
+        // Stop also cancels the backoff, without starting a second request.
+        let (sender, receiver) = watch::channel(false);
+        Mock::given(method("POST"))
+            .respond_with(move |_: &wiremock::Request| {
+                let sender = sender.clone();
+                tokio::spawn(async move {
+                    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                    let _ = sender.send(true);
+                });
+                ResponseTemplate::new(503)
+            }).expect(1).mount(&server).await;
+        let started = std::time::Instant::now();
+        let error = workflow_video::render(&[scene.clone()], temporary.path(), &binary, &server.uri(), "test", receiver, |_, _, _| {}).await.unwrap_err();
+        assert!(error.to_string().contains("stopped"));
+        assert!(started.elapsed() < std::time::Duration::from_secs(2));
+        server.verify().await;
         server.reset().await;
         for (body, expected) in [
             (
