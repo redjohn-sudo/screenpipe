@@ -8,7 +8,6 @@ import {
   Type,
   Heading2,
   Image,
-  Film,
   Minus,
   ArrowUp,
   ArrowDown,
@@ -193,7 +192,6 @@ export function DocumentBlockEditor({
                     ["text", Type, "Text"],
                     ["heading", Heading2, "Heading"],
                     ["image", Image, "Image"],
-                    ["video", Film, "Video"],
                     ["divider", Minus, "Divider"],
                   ] as const
                 ).map(([type, Icon, title]) => (
