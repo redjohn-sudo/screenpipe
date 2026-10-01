@@ -29,7 +29,6 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   onOpenChange?: (open: boolean) => void;
 }> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onCreate, onLayoutChange, assistantBusy = false, onReconnect, onReset, container, onOpenChange }, ref) {
   const [open, setOpen] = useState(false);
-  const [requireScreenshots, setRequireScreenshots] = useState(true);
   const [versions, setVersions] = useState<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
   const savedVersions = useRef<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
   const [busy, setBusy] = useState(false);
@@ -50,7 +49,6 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   let planError = "";
   try { scenes = guideVideoScenes(guide, workflow); } catch (cause) { planError = (cause as Error).message; }
   const needsSources = guideNeedsSourceReview(guide, workflow);
-  const gaps = videoScreenshotGaps(scenes);
   useEffect(() => {
     mounted.current = true;
     return () => {
@@ -78,7 +76,6 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     if (lock.current) throw new Error("A video is already being created. Stop it before starting another.");
     const selected = guideVideoScenes(target, workflow);
     const missing = videoScreenshotGaps(selected);
-    if (requireScreenshots && missing.length) throw new Error(`Add screenshots before creating this video: ${missing.join("; ")}`);
     const targetSource = videoSource(target);
     signal?.throwIfAborted();
     setOpen(true);
@@ -89,6 +86,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     const stop = () => abort.abort();
     signal?.addEventListener("abort", stop, { once: true });
     try {
+      if (missing.length) throw new Error(`Add screenshots before creating this video: ${missing.join("; ")}`);
       await save(target);
       abort.signal.throwIfAborted();
       const next = await platform.generate(selected, abort.signal, text => { if (mounted.current) setMessage(text); progress?.(text); });
@@ -137,15 +135,13 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
         <div><p className={styles.videoEyebrow}>{result ? "Your video" : "Create a video"}</p><h2>{guide.title}</h2>
           <p className={styles.videoDescription}>{guide.steps.length} {guide.steps.length === 1 ? "step" : "steps"} · Narrated walkthrough</p></div>
         <div className={styles.videoActions}>
-          <button className={styles.primary} disabled={working || !!planError || (requireScreenshots && gaps.length > 0)} onClick={() => onCreate ? onCreate() : void generate().catch(() => {})}>{working ? <Loader2 size={16} className={styles.spin} /> : <Film size={16} />}{working ? "Creating video…" : result ? "Create new video" : error ? "Try again" : "Create video"}</button>
+          <button className={styles.primary} disabled={working || !!planError} onClick={() => onCreate ? onCreate() : void generate().catch(() => {})}>{working ? <Loader2 size={16} className={styles.spin} /> : <Film size={16} />}{working ? "Creating video…" : result ? "Create new video" : error ? "Try again" : "Create video"}</button>
           {busy && !onCreate && <button onClick={() => { controller.current?.abort(); setMessage("Stopping video creation…"); }}>Stop</button>}
         </div>
       </div>
       {message && (!onCreate || !working) && <p role="status" aria-live="polite">{message}</p>}
       {(error || (planError && !needsSources)) && <p role="alert">{error || planError}</p>}
       {needsSources && (onReconnect ? <GuideSourceReview key={`${source}:${workflow.revision}`} guide={guide} workflow={workflow} onApply={onReconnect} /> : <p role="alert">{planError}</p>)}
-      {gaps.length > 0 && <div role="status"><p>These steps need a screenshot before rendering:</p><ul>{gaps.map(title => <li key={title}>{title}</li>)}</ul>
-        <label><input type="checkbox" checked={!requireScreenshots} disabled={working} onChange={event => setRequireScreenshots(!event.target.checked)} /> Allow text-only steps for this video</label></div>}
       <DocumentBlockEditor disabled={working} layout={guide.videoLayout} onChange={layout => onLayoutChange?.(layout)} blocks={[
         ...(result ? [{ id: "generated-video", label: "Generated video", content: <>
           {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}

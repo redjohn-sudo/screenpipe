@@ -125,16 +125,26 @@ it("renders the current chat-supplied script through the same preview controller
   expect(screen.queryByText(/earlier edit/)).toBeNull();
 });
 
-it("blocks procedural screenshot gaps before any rendering or speech",async()=>{
- const p=platform(); const without=structuredClone(workflow);without.stages[0].screenshot=undefined;without.stages[0].evidence=[];
- render(<GuideVideoPanel guide={guide} workflow={without} platform={p} save={async()=>{}} />);
+it("lets the assistant handle missing screenshots without a text-only checkbox",()=>{
+ const p=platform(); const onCreate=vi.fn(); const without=structuredClone(workflow);without.stages[0].screenshot=undefined;without.stages[0].evidence=[];
+ render(<GuideVideoPanel guide={guide} workflow={without} platform={p} save={async()=>{}} onCreate={onCreate} />);
  fireEvent.click(screen.getByRole("button",{name:"Video SOP"}));
- expect(screen.getByText(/These steps need a screenshot/)).toBeTruthy();
- expect(screen.getByRole("button",{name:"Create video"})).toBeDisabled();
- expect(p.generate).not.toHaveBeenCalled();
- fireEvent.click(screen.getByRole("checkbox",{name:/Allow text-only/}));
+ expect(screen.queryByText(/These steps need a screenshot/)).toBeNull();
+ expect(screen.queryByRole("checkbox",{name:/Allow text-only/})).toBeNull();
+ expect(screen.getByRole("button",{name:"Create video"})).toBeEnabled();
  fireEvent.click(screen.getByRole("button",{name:"Create video"}));
- await screen.findByLabelText("Narrated SOP preview");
+ expect(onCreate).toHaveBeenCalledOnce();
+ expect(p.generate).not.toHaveBeenCalled();
+});
+it("keeps screenshot validation before speech and reports missing sources for direct generation",async()=>{
+ const p=platform(); const save=vi.fn(); const without=structuredClone(workflow);without.stages[0].screenshot=undefined;without.stages[0].evidence=[];
+ render(<GuideVideoPanel guide={guide} workflow={without} platform={p} save={save} />);
+ fireEvent.click(screen.getByRole("button",{name:"Video SOP"}));
+ fireEvent.click(screen.getByRole("button",{name:"Create video"}));
+ expect(await screen.findByRole("alert")).toHaveTextContent(/Add screenshots/);
+ expect(p.generate).not.toHaveBeenCalled();
+ expect(save).not.toHaveBeenCalled();
+ expect(screen.getByRole("button",{name:"Try again"})).toBeEnabled();
 });
 it("selects a verified screenshot even if the first capture is unreviewed",()=>{
  const w=structuredClone(workflow);w.stages[0].screenshots=[{...w.stages[0].screenshot!,frameId:7,visualVerified:false},{...w.stages[0].screenshot!,frameId:8,visualVerified:true}];
