@@ -57,7 +57,6 @@ describe("video SOP review", () => {
     render(<GuideVideoPanel guide={guide} workflow={workflow} platform={p} save={save} />);
     expect(p.generate).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
-    expect(screen.getByText(/Narration is sent/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Create video" }));
     await screen.findByLabelText("Narrated SOP preview");
     expect(save).toHaveBeenCalledWith(guide);

@@ -586,7 +586,6 @@
 .videoPanel { scroll-margin-top: 80px; }
 .videoPanel:focus { outline: none; }
 .guide .videoBack { background: transparent; border: 0; padding-left: 0; color: var(--muted, #77776f); margin-bottom: 24px; }
-.videoPrivacy { font-size: 13px; color: var(--muted, #77776f); margin-top: 24px; }
 .videoPanel ul { padding-left: 24px; margin: 12px 0; }
 .videoPanel li { margin: 6px 0; }
 .videoPanel input[type="checkbox"] { margin-right: 8px; }

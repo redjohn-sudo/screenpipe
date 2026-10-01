@@ -174,7 +174,6 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
           <div><h4>{scene.title}</h4><p>{scene.narration}</p></div>
         </li>)}</ol>
       </section>}
-      <details className={styles.videoPrivacy}><summary>How your data is used</summary><p>Narration is sent to Screenpipe’s speech service. Rendering stays on this device. When you ask chat for visual edits, it can inspect the relevant screenshots through your selected AI service.</p></details>
       {guide.video && <button disabled={busy} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
 
     </section>;
