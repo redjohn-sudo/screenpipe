@@ -2,6 +2,7 @@
 // https://screenpipe.com
 "use client";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Download, Film, Loader2, MessageCircle, X } from "lucide-react";
 import { isGuideImage, type WorkflowGuide } from "./guide";
 import type { WorkflowMap } from "./model";
@@ -14,7 +15,9 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   save: (guide: WorkflowGuide) => Promise<void>;
   onVideoMode?: (active: boolean) => void;
   onReset?: () => Promise<void>;
-}> (function GuideVideoPanel({ guide, workflow, platform, save, onVideoMode, onReset }, ref) {
+  container?: HTMLElement | null;
+  onOpenChange?: (open: boolean) => void;
+}> (function GuideVideoPanel({ guide, workflow, platform, save, onVideoMode, onReset, container, onOpenChange }, ref) {
   const [open, setOpen] = useState(false);
   const [requireScreenshots, setRequireScreenshots] = useState(true);
   const [versions, setVersions] = useState<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
@@ -45,17 +48,22 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     };
   }, [platform]);
   useEffect(() => {
+    onOpenChange?.(open);
     if (!open) return;
+    window.dispatchEvent(new CustomEvent("workflows:minimize-assistant"));
+    panel.current?.focus({ preventScroll: true });
+    panel.current?.scrollIntoView?.({ block: "nearest" });
     const dismiss = (event: KeyboardEvent) => {
       if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); }
     };
-    const outside = (event: PointerEvent) => {
-      if (event.target instanceof Node && !panel.current?.contains(event.target) && !trigger.current?.contains(event.target)) setOpen(false);
-    };
+    const showChat = () => setOpen(false);
     document.addEventListener("keydown", dismiss);
-    document.addEventListener("pointerdown", outside);
-    return () => { document.removeEventListener("keydown", dismiss); document.removeEventListener("pointerdown", outside); };
-  }, [open]);
+    window.addEventListener("workflows:assistant-opened", showChat);
+    return () => {
+      document.removeEventListener("keydown", dismiss);
+      window.removeEventListener("workflows:assistant-opened", showChat);
+    };
+  }, [open, onOpenChange]);
   useImperativeHandle(ref, () => ({ generate: (next, signal, progress) => generate(next, signal, progress) }));
   async function generate(target = guide, signal?: AbortSignal, progress?: (text: string) => void) {
     if (lock.current) throw new Error("A video is already being created. Stop it before starting another.");
@@ -110,13 +118,11 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     try { if (await platform.export(result, guide.title, captions)) setMessage(captions ? "Captions downloaded" : "Video downloaded"); }
     catch { setMessage(""); setError("Could not download. Your preview is still available; try again."); }
   }
-  return <>
-    <button ref={trigger} className={styles.actionButton} aria-label="Video SOP" aria-expanded={open} aria-controls="sop-video-panel" onClick={() => { setOpen(!open); if (!open) onVideoMode?.(true); }}>
-      {busy ? <Loader2 size={16} className={styles.spin} aria-hidden="true" /> : <Film size={16} aria-hidden="true" />} {busy ? "Creating video…" : "Video SOP"}
-    </button>
-    {open && <section ref={panel} id="sop-video-panel" aria-label="Video SOP" className={styles.videoPanel}>
-      <div className={styles.videoHeading}><h2>Create a narrated walkthrough</h2><button aria-label="Close video panel" onClick={() => { setOpen(false); trigger.current?.focus(); }}><X size={16} /></button></div>
-      <p>Use this SOP’s instructions and selected screenshots. Narration is sent to Screenpipe’s speech service. Rendering stays on this device. When you ask chat for visual edits, it can inspect the relevant screenshots through your selected AI service.</p>
+  const content = open && <section ref={panel} tabIndex={-1} id="sop-video-panel" aria-label="Video SOP" className={styles.videoPanel}>
+      <div className={styles.videoHeading}><h2>Video SOP</h2><button aria-label="Close video panel" onClick={() => { setOpen(false); trigger.current?.focus(); }}><X size={16} /></button></div>
+      <p className={styles.videoTitle}>{guide.title}</p>
+      <p>Create a narrated video from this SOP’s steps and screenshots.</p>
+      <details className={styles.videoPrivacy}><summary>How your data is used</summary><p>Narration is sent to Screenpipe’s speech service. Rendering stays on this device. When you ask chat for visual edits, it can inspect the relevant screenshots through your selected AI service.</p></details>
       {platform.edit && <div className={styles.videoActions}>
         <button disabled={busy || !!planError} onClick={() => { onVideoMode?.(true); setOpen(false); window.dispatchEvent(new CustomEvent("workflows:open-assistant")); }}><MessageCircle size={16} /> Edit video in chat</button>
         <button onClick={() => { onVideoMode?.(false); setOpen(false); }}>Edit SOP instead</button>
@@ -152,6 +158,11 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
         {busy && <button onClick={() => { controller.current?.abort(); setMessage("Stopping video creation…"); }}>Stop</button>}
         <span role="status" aria-live="polite">{message}</span>
       </div>
-    </section>}
+    </section>;
+  return <>
+    <button ref={trigger} className={styles.actionButton} aria-label="Video SOP" aria-expanded={open} aria-controls="sop-video-panel" onClick={() => setOpen(!open)}>
+      {busy ? <Loader2 size={16} className={styles.spin} aria-hidden="true" /> : <Film size={16} aria-hidden="true" />} {busy ? "Creating video…" : "Video SOP"}
+    </button>
+    {container ? createPortal(content, container) : content}
   </>;
 });

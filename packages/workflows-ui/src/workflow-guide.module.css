@@ -571,31 +571,33 @@
     opacity: 0;
   }
 }
+.layout[hidden] { display: none; }
 .videoPanel {
-  position: absolute;
-  z-index: 20;
-  top: 100%;
-  right: 0;
-  width: min(640px, 100%);
-  max-height: 75vh;
-  overflow: auto;
-  padding: 24px;
-  background: var(--background, #fafaf8);
-  color: var(--foreground, #171714);
-  border: 1px solid #deded8;
-  border-radius: 12px;
-  box-shadow: 0 12px 36px #00000012;
-  display: block !important;
+  width: min(860px, 100%);
+  min-width: 0;
+  margin: 24px auto;
+  padding: clamp(16px, 3vw, 32px);
+  background: var(--panel, #fff);
+  color: var(--ink, #171815);
+  border: 1px solid var(--line, #dfe1d9);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
 }
+.videoPanel:focus { outline: none; }
+.videoPanel .videoTitle { font-size: 24px; line-height: 1.35; font-weight: 600; margin-top: 24px; }
+.videoPrivacy { font-size: 13px; color: var(--muted, #77776f); margin: 16px 0 24px; }
+.videoPanel ul { padding-left: 24px; margin: 12px 0; }
+.videoPanel li { margin: 6px 0; }
+.videoPanel input[type="checkbox"] { margin-right: 8px; }
 .videoHeading, .videoActions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .videoHeading { justify-content: space-between; }
 .videoPanel h2 { font-size: 20px; margin: 0; }
 .videoPanel p { font-size: 14px; line-height: 1.6; margin: 14px 0; white-space: pre-wrap; }
 .videoPanel > label { display: block; margin: 14px 0; font-size: 14px; }
 .videoPanel video { width: 100%; border-radius: 8px; background: #171714; }
-.videoScript { border-block: 1px solid #deded8; padding: 16px 0; margin: 16px 0; }
+.videoScript { border-block: 1px solid var(--line, #dfe1d9); padding: 16px 0; margin: 16px 0; }
 .videoScript summary { cursor: pointer; font-size: 14px; }
 .videoScript h3 { font-size: 15px; margin: 20px 0 0; }
 .videoScript img { display: block; width: 100%; height: auto; margin-top: 12px; border: 1px solid var(--line, #deded8); border-radius: 4px; }
-.videoScript small, .videoActions span { font-size: 13px; color: #77776f; }
-.videoActions button { border: 1px solid #deded8; border-radius: 6px; padding: 8px 12px; }
+.videoScript small, .videoActions span { font-size: 13px; color: var(--muted, #77776f); }
+.videoActions button { border: 1px solid var(--line, #dfe1d9); border-radius: 6px; padding: 8px 12px; }

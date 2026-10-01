@@ -50,6 +50,8 @@ export function WorkflowGuide({
     text: string;
   }>();
   const [videoMode, setVideoMode] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [videoContainer, setVideoContainer] = useState<HTMLDivElement | null>(null);
   const videoHandle = useRef<GuideVideoHandle>(null);
   const [draft, setDraft] = useState<Guide | null>(null);
   const [busy, setBusy] = useState(true);
@@ -243,7 +245,7 @@ export function WorkflowGuide({
           )}
           {draft && (
             <>
-              {platform.video && <GuideVideoPanel ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} save={persist} onVideoMode={setVideoMode} onReset={async () => {
+              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} save={persist} onVideoMode={setVideoMode} onReset={async () => {
                 const { video: _video, ...next } = draft;
                 await persist(next); latest.current = next; setDraft(next);
               }} />}
@@ -278,6 +280,7 @@ export function WorkflowGuide({
           )}
         </div>
       </header>
+      <div ref={setVideoContainer} />
       {!busy && !error && (
         <GuideAssistant
           videoMode={videoMode}
@@ -365,7 +368,7 @@ export function WorkflowGuide({
           {error && <button onClick={() => void openGuide()}>Try again</button>}
         </SopDocument>
       ) : (
-        <div className={styles.layout}>
+        <div className={styles.layout} hidden={videoOpen}>
           <aside className={styles.outline}>
             <p className={styles.eyebrow}>In this guide</p>
             <a onClick={jump} href="#guide-prerequisites">

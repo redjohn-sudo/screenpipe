@@ -138,11 +138,19 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
     };
   }, [platform]);
 
+  useEffect(() => {
+    if (active && open) window.dispatchEvent(new CustomEvent("workflows:assistant-opened"));
+  }, [active, open]);
+
   const close = useCallback(() => {
     setOpen(false);
     setDisplayOpen(false);
     if (loadedRef.current) void persist(stateRef.current).catch(() => {});
-    requestAnimationFrame(() => (useHeaderToggle ? document.querySelector<HTMLButtonElement>("[data-workflows-assistant-toggle]") : launcher.current)?.focus());
+    const focused = document.activeElement;
+    requestAnimationFrame(() => {
+      if (document.activeElement === focused || document.activeElement === document.body)
+        (useHeaderToggle ? document.querySelector<HTMLButtonElement>("[data-workflows-assistant-toggle]") : launcher.current)?.focus();
+    });
   }, [persist, useHeaderToggle]);
   useEffect(() => {
     if (!active) return;

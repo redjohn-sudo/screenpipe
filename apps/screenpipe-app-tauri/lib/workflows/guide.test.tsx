@@ -526,3 +526,30 @@ describe("SOP assistant and web editor", () => {
   });
 
 });
+
+
+describe("video editor layout and chat handoff", () => {
+  it("uses a separate page region, preserves SOP edits, and returns keyboard focus", async () => {
+    render(<WorkflowGuide workflow={workflow} close={() => {}} platform={{
+      load: async () => guide, generate: vi.fn(), save: vi.fn(), export: vi.fn(),
+      video: { generate: vi.fn(), release: vi.fn(), export: vi.fn(), edit: vi.fn() },
+    }} />);
+    const title = await screen.findByRole("textbox", { name: "SOP title" });
+    const trigger = screen.getByRole("button", { name: "Video SOP" });
+    fireEvent.click(trigger);
+    const panel = screen.getByRole("region", { name: "Video SOP" });
+    expect(panel.closest("header")).toBeNull();
+    expect(title.closest("[hidden]")).not.toBeNull();
+    expect(panel).toHaveFocus();
+    fireEvent.pointerDown(document.body);
+    expect(screen.getByRole("region", { name: "Video SOP" })).toBe(panel);
+    fireEvent.keyDown(panel, { key: "Escape" });
+    expect(screen.queryByRole("region", { name: "Video SOP" })).toBeNull();
+    expect(trigger).toHaveFocus();
+    expect(title.closest("[hidden]")).toBeNull();
+    fireEvent.click(trigger);
+    fireEvent(window, new CustomEvent("workflows:assistant-opened"));
+    expect(screen.queryByRole("region", { name: "Video SOP" })).toBeNull();
+    expect(title.closest("[hidden]")).toBeNull();
+  });
+});
