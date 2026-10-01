@@ -203,25 +203,21 @@ it("resolves unattached screen evidence automatically, but never audio or an exp
  expect(videoScreenshotGaps(guideVideoScenes(guide,source))).toHaveLength(1);
 });
 
-it("shows the storyboard immediately and hands narration editing to chat without rendering", () => {
+it("shows the storyboard and lets the chat bubble edit video without rendering", () => {
   const p = { ...platform(), edit: vi.fn() }, mode = vi.fn();
-  const openChat = vi.fn();
-  window.addEventListener("workflows:open-assistant", openChat);
   render(<GuideVideoPanel guide={guide} workflow={workflow} platform={p} save={async () => {}} onVideoMode={mode} />);
   fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
   expect(screen.getByRole("region", { name: "Screenshots and narration" })).toBeVisible();
   expect(screen.getByText(/Check each claim/)).toBeVisible();
   expect(screen.queryByRole("button", { name: "Edit video in chat" })).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Change narration" }));
+  act(() => window.dispatchEvent(new CustomEvent("workflows:assistant-opened")));
   expect(mode).toHaveBeenCalledWith(true);
-  expect(openChat).toHaveBeenCalledTimes(1);
   expect(screen.queryByRole("region", { name: "Video SOP" })).toBeNull();
   expect(p.generate).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
   fireEvent.click(screen.getByRole("button", { name: "Back to SOP" }));
   expect(mode).toHaveBeenLastCalledWith(false);
   expect(screen.getByRole("button", { name: "Video SOP" })).toHaveFocus();
-  window.removeEventListener("workflows:open-assistant", openChat);
 });
 it("loads the original screenshot for frame-only storyboard scenes and releases it on close", async () => {
   const load = vi.fn().mockResolvedValue("blob:storyboard-original");

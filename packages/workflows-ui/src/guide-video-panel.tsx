@@ -3,7 +3,7 @@
 "use client";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Download, Film, ImageOff, Loader2, MessageCircle } from "lucide-react";
+import { ArrowLeft, Download, Film, ImageOff, Loader2 } from "lucide-react";
 import { isGuideImage, guideNeedsSourceReview, type WorkflowGuide } from "./guide";
 import { GuideSourceReview } from "./guide-source-review";
 import { SopScreenshot } from "./sop-screenshot";
@@ -61,14 +61,14 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     const dismiss = (event: KeyboardEvent) => {
       if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); }
     };
-    const showChat = () => setOpen(false);
+    const showChat = () => { onVideoMode?.(true); setOpen(false); };
     document.addEventListener("keydown", dismiss);
     window.addEventListener("workflows:assistant-opened", showChat);
     return () => {
       document.removeEventListener("keydown", dismiss);
       window.removeEventListener("workflows:assistant-opened", showChat);
     };
-  }, [open, onOpenChange]);
+  }, [open, onOpenChange, onVideoMode]);
   useImperativeHandle(ref, () => ({ generate: (next, signal, progress) => generate(next, signal, progress) }));
   async function generate(target = guide, signal?: AbortSignal, progress?: (text: string) => void) {
     if (lock.current) throw new Error("A video is already being created. Stop it before starting another.");
@@ -158,7 +158,6 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
       {scenes.length > 0 && <section className={styles.videoScript} aria-label="Screenshots and narration">
         <div className={styles.videoScriptHeading}>
           <h3>Screenshots and narration</h3>
-          {platform.edit && <button disabled={busy || !!planError} onClick={() => { onVideoMode?.(true); setOpen(false); window.dispatchEvent(new CustomEvent("workflows:open-assistant")); }}><MessageCircle size={16} /> {result ? "Edit video in chat" : "Change narration"}</button>}
         </div>
         <ol className={styles.videoScenes}>{scenes.map((scene, i) => <li key={scene.id ?? i}>
           <div className={styles.videoSceneImage}>
