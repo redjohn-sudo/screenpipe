@@ -3,7 +3,7 @@
 "use client";
 import { useContext, useEffect, useRef } from "react";
 import { guideVideoDraft, guideVideoScenes } from "./guide-video";
-import type { WorkflowGuide } from "./guide";
+import { preserveGuideBlocks, type WorkflowGuide } from "./guide";
 import type { WorkflowMap } from "./model";
 import type { WorkflowsPlatform } from "./platform";
 import { PageAssistantContext } from "./page-assistant";
@@ -84,8 +84,9 @@ export function GuideAssistant(props: {
             throw new Error(
               "The SOP changed while the assistant was editing. Your edits were kept. Try again.",
             );
-          unsaved.current = next;
-          await update(next);
+          const preserved = guide ? preserveGuideBlocks(guide, next) : next;
+          unsaved.current = preserved;
+          await update(preserved);
           unsaved.current = null;
           return guide
             ? "Saved the updated SOP. Review the changes on the page."

@@ -11,6 +11,7 @@ import {
 } from "@testing-library/react";
 import {
   guideHtml,
+  guideWithBlockIds,
   guidePrompt,
   parseGuide,
   type WorkflowGuide as Guide,
@@ -230,7 +231,7 @@ describe("guide editor", () => {
       ),
     );
   });
-  it("edits in place and reorders complete steps from the keyboard", async () => {
+  it("edits in place and reorders complete steps from the step menu", async () => {
     const platform = host();
     render(
       <WorkflowGuide
@@ -244,13 +245,11 @@ describe("guide editor", () => {
     fireEvent.change(screen.getByLabelText("Step 1 title"), {
       target: { value: "Find the original sources" },
     });
-    fireEvent.keyDown(screen.getByRole("button", { name: "Reorder step 1" }), {
-      key: "ArrowDown",
-      altKey: true,
-    });
+    fireEvent.click(screen.getByLabelText("Step 1 actions"));
+    fireEvent.click(screen.getByRole("button", {name: "Move step 1 down"}));
     await waitFor(() =>
       expect(platform.save.mock.calls.at(-1)?.[0].steps[1]).toEqual({
-        ...guide.steps[0],
+        ...guideWithBlockIds(guide).steps[0],
         title: "Find the original sources",
       }),
     );
@@ -442,11 +441,11 @@ describe("guide editor", () => {
       <GenerationChat platform={platform} />,
     );
     await screen.findByText("Account unavailable");
-    fireEvent.click(screen.getByRole("button", { name: /Try again|Retry/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Try again|Retry/ }));
     await screen.findByText("disk full");
     expect(screen.queryByText("Saved your SOP on this device. Review its steps on the page.")).toBeNull();
     platform.save.mockResolvedValue(undefined);
-    fireEvent.click(screen.getByRole("button", { name: /Try again|Retry/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Try again|Retry/ }));
     await screen.findByText("Saved your SOP on this device. Review its steps on the page.");
     expect(platform.generate).toHaveBeenCalledTimes(2);
     await screen.findByRole("textbox", { name: "SOP title" });
@@ -473,7 +472,7 @@ describe("SOP assistant and web editor", () => {
     expect(openWeb).not.toHaveBeenCalled();
     expect(screen.queryByText("Create a short video")).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Continue to web editor"));
-    await waitFor(() => expect(openWeb).toHaveBeenCalledWith(guide));
+    await waitFor(() => expect(openWeb).toHaveBeenCalledWith(guideWithBlockIds(guide)));
   });
   it("edits with the existing harness adapter and cancels an in-flight edit", async () => {
     let signal: AbortSignal | undefined;
@@ -531,7 +530,7 @@ describe("video editor layout and chat handoff", () => {
     expect(title.closest("[hidden]")).toBeNull();
     fireEvent.click(trigger);
     fireEvent(window, new CustomEvent("workflows:assistant-opened"));
-    expect(screen.queryByRole("region", { name: "Video SOP" })).toBeNull();
-    expect(title.closest("[hidden]")).toBeNull();
+    expect(screen.getByRole("region", { name: "Video SOP" })).toBeVisible();
+    expect(title.closest("[hidden]")).not.toBeNull();
   });
 });

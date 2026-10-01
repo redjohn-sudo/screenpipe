@@ -2,6 +2,8 @@
 // https://screenpipe.com
 "use client";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { DocumentBlockEditor, type DocumentBlock } from "./document-block-editor";
+import type { DocumentLayout } from "./document-blocks";
 import { createPortal } from "react-dom";
 import { ArrowLeft, Download, Film, ImageOff, Loader2 } from "lucide-react";
 import { isGuideImage, guideNeedsSourceReview, type WorkflowGuide } from "./guide";
@@ -19,12 +21,13 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   save: (guide: WorkflowGuide) => Promise<void>;
   onVideoMode?: (active: boolean) => void;
   onCreate?: () => void;
+  onLayoutChange?: (layout: DocumentLayout) => void;
   assistantBusy?: boolean;
   onReconnect?: (guide: WorkflowGuide) => Promise<void>;
   onReset?: () => Promise<void>;
   container?: HTMLElement | null;
   onOpenChange?: (open: boolean) => void;
-}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onCreate, assistantBusy = false, onReconnect, onReset, container, onOpenChange }, ref) {
+}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onCreate, onLayoutChange, assistantBusy = false, onReconnect, onReset, container, onOpenChange }, ref) {
   const [open, setOpen] = useState(false);
   const [requireScreenshots, setRequireScreenshots] = useState(true);
   const [versions, setVersions] = useState<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
@@ -41,7 +44,8 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   const trigger = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLElement>(null);
   const working = busy || assistantBusy;
-  const source = JSON.stringify(guide);
+  const videoSource = (value: WorkflowGuide) => { const {documentLayout, videoLayout, ...content} = value; return JSON.stringify(content); };
+  const source = videoSource(guide);
   let scenes: ReturnType<typeof guideVideoScenes> = [];
   let planError = "";
   try { scenes = guideVideoScenes(guide, workflow); } catch (cause) { planError = (cause as Error).message; }
@@ -75,7 +79,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     const selected = guideVideoScenes(target, workflow);
     const missing = videoScreenshotGaps(selected);
     if (requireScreenshots && missing.length) throw new Error(`Add screenshots before creating this video: ${missing.join("; ")}`);
-    const targetSource = JSON.stringify(target);
+    const targetSource = videoSource(target);
     signal?.throwIfAborted();
     setOpen(true);
     lock.current = true;
@@ -142,31 +146,29 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
       {needsSources && (onReconnect ? <GuideSourceReview key={`${source}:${workflow.revision}`} guide={guide} workflow={workflow} onApply={onReconnect} /> : <p role="alert">{planError}</p>)}
       {gaps.length > 0 && <div role="status"><p>These steps need a screenshot before rendering:</p><ul>{gaps.map(title => <li key={title}>{title}</li>)}</ul>
         <label><input type="checkbox" checked={!requireScreenshots} disabled={working} onChange={event => setRequireScreenshots(!event.target.checked)} /> Allow text-only steps for this video</label></div>}
-      {result && <>
-        {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}
-        <video key={result.url} controls preload="metadata" src={result.url} aria-label="Narrated SOP preview">
-          {result.captionsUrl && <track kind="captions" src={result.captionsUrl} label="Narration" />}
-        </video>
-        <div className={styles.videoActions}>
-          <button onClick={() => void download(false)}><Download size={16} /> Download MP4</button>
-          <button onClick={() => void download(true)}>Download captions</button>
-        </div>
-        {versions.length > 1 && <details><summary>Video revisions · {versions.length}</summary><div className={styles.videoActions}>{versions.map((version) => <button key={version.result.path} disabled={working || result === version.result} onClick={() => { setResult(version.result); setRenderedSource(version.source); }}>Version {version.number}</button>)}</div></details>}
-        <p>The last three previews stay available while this SOP is open. Download a copy to keep it.</p>
-      </>}
-      {scenes.length > 0 && <section className={styles.videoScript} aria-label="Screenshots and narration">
-        <div className={styles.videoScriptHeading}>
-          <h3>Screenshots and narration</h3>
-        </div>
-        <ol className={styles.videoScenes}>{scenes.map((scene, i) => <li key={scene.id ?? i}>
-          <div className={styles.videoSceneImage}>
+      <DocumentBlockEditor disabled={working} layout={guide.videoLayout} onChange={layout => onLayoutChange?.(layout)} blocks={[
+        ...(result ? [{ id: "generated-video", label: "Generated video", content: <>
+          {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}
+          <video key={result.url} controls crossOrigin="anonymous" preload="metadata" src={result.url} aria-label="Narrated SOP preview">
+            {result.captionsUrl && <track kind="captions" src={result.captionsUrl} label="Narration" srcLang="en" default />}
+          </video>
+          <div className={styles.videoActions}>
+            <button onClick={() => void download(false)}><Download size={16} /> Download MP4</button>
+            <button onClick={() => void download(true)}>Download captions</button>
+          </div>
+          {versions.length > 1 && <details><summary>Video revisions · {versions.length}</summary><div className={styles.videoActions}>{versions.map((version) => <button key={version.result.path} disabled={working || result === version.result} onClick={() => { setResult(version.result); setRenderedSource(version.source); }}>Version {version.number}</button>)}</div></details>}
+          <p>The last three previews stay available while this SOP is open. Download a copy to keep it.</p>
+        </> }] : []),
+        ...scenes.flatMap((scene, i): DocumentBlock[] => [
+          {id: `scene/${scene.id ?? i}/heading`, label: `Scene ${i + 1} heading`, content: <h3>{scene.title}</h3>},
+          {id: `scene/${scene.id ?? i}/image`, label: `Scene ${i + 1} image`, content: <div className={styles.videoSceneImage}>
             {(scene.image && isGuideImage(scene.image)) || (scene.imageFrameId && loadScreenshot)
               ? <SopScreenshot src={scene.image && isGuideImage(scene.image) ? scene.image : ""} frameId={scene.imageFrameId ?? 0} load={scene.imageFrameId ? loadScreenshot : undefined} alt={`Screenshot for ${scene.title}`} />
               : <div className={styles.videoMissingImage}><ImageOff size={24} /><span>{scene.imageFrameId || scene.imageSources?.length ? "Screenshot will load from the recording" : "No screenshot for this step"}</span></div>}
-          </div>
-          <div><h4>{scene.title}</h4><p>{scene.narration}</p></div>
-        </li>)}</ol>
-      </section>}
+          </div>},
+          {id: `scene/${scene.id ?? i}/text`, label: `Scene ${i + 1} narration`, content: <p>{scene.narration}</p>},
+        ]),
+      ]} />
       {guide.video && <button disabled={working} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
 
     </section>;

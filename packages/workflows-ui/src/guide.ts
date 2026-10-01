@@ -1,5 +1,6 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
+import { orderedBlockIds, parseDocumentLayout, type AddedDocumentBlock, type DocumentLayout } from "./document-blocks";
 import { parseVideoDraft, type VideoDraft } from "./video-tool";
 import { stageScreenshots } from "./screenshots";
 import type { WorkflowMap } from "./model";
@@ -7,12 +8,15 @@ import type { WorkflowMap } from "./model";
 export type WorkflowGuide = {
   version: 1;
   video?: VideoDraft;
+  documentLayout?: DocumentLayout;
+  videoLayout?: DocumentLayout;
   workflowKey: string;
   sourceRevision: number;
   title: string;
   summary: string;
   prerequisites: string[];
   steps: Array<{
+    blockId?: string;
     title: string;
     instruction: string;
     expectedResult: string;
@@ -53,6 +57,7 @@ export function parseGuide(
     !g.steps.every(
       (s) =>
         s &&
+        (s.blockId === undefined || (typeof s.blockId === "string" && /^[\w-]{1,80}$/.test(s.blockId))) &&
         text(s.title) &&
         text(s.instruction) &&
         text(s.expectedResult) &&
@@ -87,6 +92,8 @@ export function parseGuide(
   return {
     version: 1,
     ...(!workflow && g.video ? { video: parseVideoDraft(g.video) } : {}),
+    ...(!workflow && g.documentLayout ? { documentLayout: parseDocumentLayout(g.documentLayout) } : {}),
+    ...(!workflow && g.videoLayout ? { videoLayout: parseDocumentLayout(g.videoLayout) } : {}),
     workflowKey: g.workflowKey,
     sourceRevision: g.sourceRevision,
     title: g.title,
@@ -94,6 +101,7 @@ export function parseGuide(
     prerequisites: g.prerequisites,
     steps: g.steps.map(
       ({
+        blockId,
         title,
         instruction,
         expectedResult,
@@ -103,6 +111,7 @@ export function parseGuide(
         imageReview,
         imageExcluded,
       }) => ({
+        ...(blockId ? { blockId } : {}),
         title,
         instruction,
         expectedResult,
@@ -192,7 +201,7 @@ const escape = (text: string) =>
       ]!,
   );
 
-/** Portable, script-free document. Images are opt-in and never loaded remotely. */
+/** Portable, script-free document. Media is opt-in; captures are embedded and user-added HTTPS media stays linked. */
 export function guideHtml(
   guide: WorkflowGuide,
   workflow: WorkflowMap,
@@ -202,19 +211,33 @@ export function guideHtml(
     items.length
       ? `<section><h2>${title}</h2><ul>${items.map((x) => `<li>${escape(x)}</li>`).join("")}</ul></section>`
       : "";
-  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'"><title>${escape(guide.title)}</title><style>body{font:16px/1.65 system-ui;color:#20221d;background:#fafaf7;max-width:820px;margin:60px auto;padding:0 28px}h1{font-size:38px;line-height:1.15}h2{font-size:22px}section,article{margin:30px 0}article{border-top:1px solid #ddd;padding-top:20px}img{max-width:100%;border:1px solid #ddd;border-radius:8px}p{white-space:pre-wrap}small{color:#666}@media print{body{margin:0}article{break-inside:avoid}}</style><body><small>SCREENPIPE · STANDARD OPERATING PROCEDURE · DRAFT FOR REVIEW</small><h1>${escape(guide.title)}</h1><p>${escape(guide.summary)}</p>${section("Before you start", guide.prerequisites)}${guide.steps
-    .map((s, i) => {
-      const image =
-        includeImages &&
-        guideSourceStage(guide, s, workflow) !== undefined &&
-        guideStepIncludesImage(s)
-          ? guideImage(workflow, guideSourceStage(guide, s, workflow) ?? null, s.imageReview)
-          : null;
-      return `<article><h2>${i + 1}. ${escape(s.title)}</h2><p>${escape(s.instruction)}</p>${image ? `<img alt="${escape(s.title)}" src="${image}">` : ""}${s.expectedResult ? `<p><strong>Expected result:</strong> ${escape(s.expectedResult)}</p>` : ""}</article>`;
-    })
-    .join(
-      "",
-    )}${section("Exceptions", guide.exceptions)}${section("Check your result", guide.completion)}${section("Still to confirm", guide.questions)}<footer><small>Based on workflow revision ${guide.sourceRevision}. Review before use.</small></footer></body></html>`;
+  const entries: Array<[string, string]> = [
+    ["summary", `<p>${escape(guide.summary)}</p>`],
+    ["prerequisites", section("Before you start", guide.prerequisites)],
+    ...guide.steps.flatMap((step, index): Array<[string, string]> => {
+      const id = `step/${step.blockId ?? `step-${index}`}`;
+      const stage = guideSourceStage(guide, step, workflow);
+      const image = includeImages && stage !== undefined && guideStepIncludesImage(step) ? guideImage(workflow, stage ?? null, step.imageReview) : null;
+      return [
+        [`${id}/title`, `<h2>${index + 1}. ${escape(step.title)}</h2>`],
+        [`${id}/text`, `<p>${escape(step.instruction)}</p>`],
+        [`${id}/image`, image ? `<img alt="${escape(step.title)}" src="${image}">` : ""],
+        [`${id}/result`, step.expectedResult ? `<p><strong>Expected result:</strong> ${escape(step.expectedResult)}</p>` : ""],
+      ];
+    }),
+    ["exceptions", section("Exceptions", guide.exceptions)],
+    ["completion", section("Check your result", guide.completion)],
+    ["questions", section("Still to confirm", guide.questions)],
+  ];
+  const content = renderDocumentEntries(entries, guide.documentLayout, block => {
+    if (block.type === "divider") return "<hr>";
+    if (block.type === "heading") return `<h2>${escape(block.text)}</h2>`;
+    if (block.type === "text") return `<p>${escape(block.text)}</p>`;
+    if (!includeImages || !block.url) return block.text ? `<p>${escape(block.text)}</p>` : "";
+    return block.type === "image" ? `<figure><img src="${escape(block.url)}" alt="${escape(block.text)}"><figcaption>${escape(block.text)}</figcaption></figure>`
+      : `<figure><video controls preload="metadata" src="${escape(block.url)}"></video><figcaption>${escape(block.text)}</figcaption></figure>`;
+  });
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: https:; media-src https:; style-src 'unsafe-inline'"><title>${escape(guide.title)}</title><style>body{font:16px/1.65 system-ui;color:#20221d;background:#fafaf7;max-width:820px;margin:60px auto;padding:0 28px}h1{font-size:38px;line-height:1.15}h2{font-size:22px}section,article{margin:30px 0}article{border-top:1px solid #ddd;padding-top:20px}img,video{max-width:100%;border:1px solid #ddd;border-radius:8px}p{white-space:pre-wrap}small{color:#666}@media print{body{margin:0}article{break-inside:avoid}}</style><body><small>SCREENPIPE · STANDARD OPERATING PROCEDURE · DRAFT FOR REVIEW</small><h1>${escape(guide.title)}</h1>${content}<footer><small>Based on workflow revision ${guide.sourceRevision}. Review before use.</small></footer></body></html>`;
 }
 
 /** Text-only SOP for the hosted editor. Never serializes raw evidence or image data. */
@@ -226,15 +249,44 @@ export function guideMarkdown(guide: WorkflowGuide): string {
           .map((v) => `- ${v}`)
           .join("\n")}\n`
       : "";
-  return [
-    guide.summary,
-    section("Before you start", guide.prerequisites),
-    ...guide.steps.map(
-      (s, i) =>
-        `\n## ${i + 1}. ${s.title}\n\n${s.instruction}\n${s.expectedResult ? `\n**Expected result:** ${s.expectedResult}\n` : ""}`,
-    ),
-    section("Exceptions", guide.exceptions),
-    section("Check your result", guide.completion),
-    section("Still to confirm", guide.questions),
-  ].join("\n");
+  const entries: Array<[string, string]> = [
+    ["summary", guide.summary],
+    ["prerequisites", section("Before you start", guide.prerequisites)],
+    ...guide.steps.flatMap((step, index): Array<[string,string]> => {
+      const id = `step/${step.blockId ?? `step-${index}`}`;
+      return [[`${id}/title`, `\n## ${index + 1}. ${step.title}\n`], [`${id}/text`, step.instruction], [`${id}/image`, ""], [`${id}/result`, step.expectedResult ? `**Expected result:** ${step.expectedResult}` : ""]];
+    }),
+    ["exceptions", section("Exceptions", guide.exceptions)],
+    ["completion", section("Check your result", guide.completion)],
+    ["questions", section("Still to confirm", guide.questions)],
+  ];
+  return `# ${guide.title}\n\n` + renderDocumentEntries(entries, guide.documentLayout, block => block.type === "divider" ? "---" : block.type === "heading" ? `## ${block.text}` : block.text, "\n\n");
+
+}
+
+/** Stable UI identities survive step reordering without copying their contents. */
+export function guideWithBlockIds(guide: WorkflowGuide): WorkflowGuide {
+  const seen = new Set<string>();
+  return { ...guide, steps: guide.steps.map((step, index) => {
+    let blockId = step.blockId || `step-${index}`;
+    if (seen.has(blockId)) blockId = crypto.randomUUID();
+    seen.add(blockId);
+    return { ...step, blockId };
+  }) };
+}
+/** Agent SOP edits keep editor-owned layout and added content. */
+export function preserveGuideBlocks(previous: WorkflowGuide, next: WorkflowGuide): WorkflowGuide {
+  const used = new Set<number>();
+  const steps = next.steps.map(step => {
+    const index = previous.steps.findIndex((old, i) => !used.has(i) && (step.blockId ? old.blockId === step.blockId : old.title === step.title && old.sourceStage === step.sourceStage));
+    if (index < 0) return { ...step, blockId: crypto.randomUUID() };
+    used.add(index);
+    return { ...step, blockId: previous.steps[index].blockId };
+  });
+  return guideWithBlockIds({ ...next, steps, documentLayout: previous.documentLayout, videoLayout: previous.videoLayout });
+}
+
+function renderDocumentEntries(entries: Array<[string,string]>, layout: DocumentLayout | undefined, render: (block: AddedDocumentBlock) => string, separator = ""): string {
+  const content = new Map([...entries, ...(layout?.added.map(block => [block.id, render(block)] as [string,string]) ?? [])]);
+  return orderedBlockIds(entries.map(([id]) => id), layout).map(id => content.get(id) ?? "").join(separator);
 }

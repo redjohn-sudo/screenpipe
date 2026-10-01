@@ -172,7 +172,7 @@ it("shows selected captures alongside narration without claiming semantic review
   render(<GuideVideoPanel guide={guide} workflow={w} platform={platform()} save={async () => {}} />);
   fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
   expect(screen.getByRole("img", { name: "Screenshot for 1. Review sources" })).toHaveAttribute("src", w.stages[0].screenshot!.dataUrl);
-  expect(screen.getByRole("region", { name: "Screenshots and narration" })).toBeVisible();
+  expect(screen.getByRole("region", { name: "Scene 1 narration block" })).toBeVisible();
   expect(screen.queryByText("Reviewed screenshot")).toBeNull();
   expect(screen.queryByText("Each step has its own reviewed screenshot.")).toBeNull();
 });
@@ -207,7 +207,7 @@ it("shows the storyboard and lets the chat bubble edit video without rendering",
   const p = { ...platform(), edit: vi.fn() }, mode = vi.fn();
   render(<GuideVideoPanel guide={guide} workflow={workflow} platform={p} save={async () => {}} onVideoMode={mode} />);
   fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
-  expect(screen.getByRole("region", { name: "Screenshots and narration" })).toBeVisible();
+  expect(screen.getByRole("region", { name: "Scene 1 narration block" })).toBeVisible();
   expect(screen.getByText(/Check each claim/)).toBeVisible();
   expect(screen.queryByRole("button", { name: "Edit video in chat" })).toBeNull();
   act(() => window.dispatchEvent(new CustomEvent("workflows:assistant-opened")));

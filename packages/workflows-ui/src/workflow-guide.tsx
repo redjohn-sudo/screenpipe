@@ -13,7 +13,6 @@ import {
   ExternalLink,
   ImageOff,
   Loader2,
-  GripVertical,
   MoreHorizontal,
   Plus,
   Trash2,
@@ -22,6 +21,7 @@ import {
 import type { WorkflowMap } from "./model";
 import type { WorkflowsPlatform } from "./platform";
 import {
+  guideWithBlockIds,
   guideHtml,
   guideImage,
   guideScreenshot,
@@ -34,6 +34,7 @@ import {
 } from "./guide";
 import { WorkflowRichText } from "./rich-text";
 import { InlineText } from "./inline-text";
+import { DocumentBlockEditor, type DocumentBlock } from "./document-block-editor";
 import { SopDocument } from "./sop-document";
 import { GuideAssistant } from "./guide-assistant";
 import { GuideSourceReview } from "./guide-source-review";
@@ -70,10 +71,7 @@ export function WorkflowGuide({
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState("");
-  const [dragOver, setDragOver] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState("");
-  const dragging = useRef<number | null>(null);
-  const stepKeys = useRef<string[]>([]);
   const root = useRef<HTMLDivElement>(null);
   const [images, setImages] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -109,10 +107,10 @@ export function WorkflowGuide({
     setBusy(true);
     setError("");
     try {
-      const existing = await platform.load(workflow);
+      const loaded = await platform.load(workflow);
+      const existing = loaded ? guideWithBlockIds(loaded) : null;
       if (version !== loadVersion.current) return;
       if (existing) {
-        stepKeys.current = existing.steps.map(() => crypto.randomUUID());
         latest.current = existing;
         setDraft(existing);
         setSaved("Saved on this device");
@@ -168,9 +166,18 @@ export function WorkflowGuide({
     const steps = [...current.steps];
     const [step] = steps.splice(from, 1);
     steps.splice(to, 0, step);
-    const [key] = stepKeys.current.splice(from, 1);
-    stepKeys.current.splice(to, 0, key);
-    update({ ...current, steps });
+    const layout = current.documentLayout;
+    let documentLayout = layout;
+    if (layout) {
+      const moving = layout.order.filter(id => id.startsWith(`step/${step.blockId}/`));
+      const order = layout.order.filter(id => !moving.includes(id));
+      const target = current.steps[to].blockId;
+      const targets = order.map((id, index) => id.startsWith(`step/${target}/`) ? index : -1).filter(index => index >= 0);
+      const insert = targets.length ? (to < from ? targets[0] : targets[targets.length - 1] + 1) : order.length;
+      order.splice(insert, 0, ...moving);
+      documentLayout = { ...layout, order };
+    }
+    update({ ...current, steps, documentLayout });
     setAnnouncement(`Step moved to position ${to + 1}`);
   }
   function changeStep(index: number, patch: Partial<Guide["steps"][number]>) {
@@ -265,7 +272,7 @@ export function WorkflowGuide({
           )}
           {draft && (
             <>
-              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} save={persist} onVideoMode={setVideoMode} assistantBusy={videoBusy} onCreate={platform.video.edit ? () => {
+              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} save={persist} onVideoMode={setVideoMode} onLayoutChange={videoLayout => update({ ...latest.current!, videoLayout })} assistantBusy={videoBusy} onCreate={platform.video.edit ? () => {
                 if (videoRequested.current) return;
                 videoRequested.current = true;
                 setVideoBusy(true);
@@ -324,12 +331,12 @@ export function WorkflowGuide({
           promptRequest={promptRequest}
           update={async (next) => {
             const original = latest.current;
-            await persist(next);
+            const identified = guideWithBlockIds(next);
+            await persist(identified);
             if (!mounted.current) return;
             if (latest.current !== original) throw new Error("The SOP changed while the assistant was saving. Your newer edit was kept.");
-            stepKeys.current = next.steps.map(() => crypto.randomUUID());
-            latest.current = next;
-            setDraft(next);
+            latest.current = identified;
+            setDraft(identified);
           }}
         />
       )}
@@ -427,19 +434,11 @@ export function WorkflowGuide({
             onTitleChange={(title) => update({ ...draft, title })}
             subtitle={<>{draft.steps.length} steps · Draft for review</>}
           >
-            <InlineText
-              label="Guide summary"
-              value={draft.summary}
-              onChange={(summary) => update({ ...draft, summary })}
-            />
             {stale && (sourceMissing ? <p className={styles.notice}>The source workflow is unavailable. Your saved SOP is still editable.</p> : <GuideSourceReview key={`${draft.sourceRevision}:${workflow.revision}`} guide={draft} workflow={workflow} onApply={reconnectSources} />)}
-            {lines(
-              "Before you start",
-              "prerequisites",
-              "No prerequisites confirmed yet. Add the information someone needs before starting.",
-            )}
-            <div className={styles.steps}>
-              {draft.steps.map((step, i) => {
+            <DocumentBlockEditor layout={draft.documentLayout} onChange={documentLayout => update({ ...latest.current!, documentLayout })} blocks={[
+              {id: "summary", label: "Guide summary", content: <InlineText label="Guide summary" value={draft.summary} onChange={summary => update({...latest.current!, summary})} />},
+              {id: "prerequisites", label: "Before you start", content: lines("Before you start", "prerequisites", "Add prerequisites…")},
+              ...draft.steps.flatMap((step, i): DocumentBlock[] => {
                 const sourceStage = guideSourceStage(draft, step, workflow) ?? null;
                 const image =
                   !stale && guideStepIncludesImage(step)
@@ -448,66 +447,10 @@ export function WorkflowGuide({
                 const sources = !stale
                   ? guideSourceImages(workflow, sourceStage).filter(source => isGuideImage(source.dataUrl))
                   : [];
-                return (
-                  <section
-                    className={`${styles.step} ${dragOver === i ? styles.drop : ""}`}
-                    key={stepKeys.current[i] ?? i}
-                    id={`guide-step-${i}`}
-                    onDragOverCapture={(event) => {
-                      if (dragging.current !== null) {
-                        event.preventDefault();
-                        event.dataTransfer.dropEffect = "move";
-                        setDragOver(i);
-                      }
-                    }}
-                    onDragLeave={(event) => {
-                      if (
-                        !event.currentTarget.contains(
-                          event.relatedTarget as Node,
-                        )
-                      )
-                        setDragOver(null);
-                    }}
-                    onDropCapture={(event) => {
-                      if (dragging.current !== null) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        moveStep(dragging.current, i);
-                        dragging.current = null;
-                        setDragOver(null);
-                      }
-                    }}
-                  >
+                const id = `step/${step.blockId ?? `step-${i}`}`;
+                return [
+                  {id: `${id}/title`, label: `Step ${i + 1} heading`, content: <section id={`guide-step-${i}`} className={styles.step}>
                     <div className={styles.stepHeading}>
-                      <button
-                        className={styles.grip}
-                        aria-label={`Reorder step ${i + 1}`}
-                        title="Drag to reorder. Use Alt + arrow keys to move."
-                        draggable
-                        onDragStart={(event) => {
-                          dragging.current = i;
-                          event.dataTransfer.effectAllowed = "move";
-                          event.dataTransfer.setData(
-                            "application/x-screenpipe-workflow",
-                            String(i),
-                          );
-                        }}
-                        onDragEnd={() => {
-                          dragging.current = null;
-                          setDragOver(null);
-                        }}
-                        onKeyDown={(event) => {
-                          if (
-                            event.altKey &&
-                            ["ArrowUp", "ArrowDown"].includes(event.key)
-                          ) {
-                            event.preventDefault();
-                            moveStep(i, i + (event.key === "ArrowUp" ? -1 : 1));
-                          }
-                        }}
-                      >
-                        <GripVertical size={16} />
-                      </button>
                       <span className={styles.number}>
                         {String(i + 1).padStart(2, "0")}
                       </span>
@@ -559,7 +502,6 @@ export function WorkflowGuide({
                             })}
                             disabled={draft.steps.length === 1}
                             onClick={() => {
-                              stepKeys.current.splice(i, 1);
                               update({
                                 ...draft,
                                 steps: draft.steps.filter((_, j) => j !== i),
@@ -579,7 +521,8 @@ export function WorkflowGuide({
                         </div>
                       </details>
                     </div>
-                    <div className={styles.stepBody}>
+                  </section>},
+                  {id: `${id}/text`, label: `Step ${i + 1} text`, content: <>
                       <WorkflowRichText
                         value={step.instruction}
                         label={ui("Step {value1} instructions", {
@@ -590,6 +533,8 @@ export function WorkflowGuide({
                           changeStep(i, { instruction })
                         }
                       />
+                  </>},
+                  {id: `${id}/image`, label: `Step ${i + 1} image`, content: <>
                       {image ? (
                         <figure>
                           <SopScreenshot
@@ -654,6 +599,8 @@ export function WorkflowGuide({
                             : ui("No captured screenshot for this step.")}
                         </p>
                       ) : null}
+                  </>},
+                  {id: `${id}/result`, label: `Step ${i + 1} result`, content:
                       <div className={styles.result}>
                         <span>Expected result</span>
                         <InlineText
@@ -667,16 +614,17 @@ export function WorkflowGuide({
                           }
                         />
                       </div>
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
+                  },
+                ];
+              }),
+              {id: "exceptions", label: "Exceptions", content: lines("Exceptions", "exceptions", "Add exceptions…")},
+              {id: "completion", label: "Check your result", content: lines("Check your result", "completion", "Add a completion check…")},
+              {id: "questions", label: "Still to confirm", content: lines("Still to confirm", "questions", "Add a question…")},
+            ]} />
             {draft.steps.length < 40 && (
               <button
                 className={styles.addStep}
                 onClick={() => {
-                  stepKeys.current.push(crypto.randomUUID());
                   update({
                     ...draft,
                     steps: [
@@ -684,6 +632,7 @@ export function WorkflowGuide({
                       {
                         title: ui("New step"),
                         instruction: "",
+                        blockId: crypto.randomUUID(),
                         expectedResult: "",
                         sourceStage: null,
                         includeImage: false,
@@ -702,17 +651,6 @@ export function WorkflowGuide({
                 <Plus size={15} />
                 Add step
               </button>
-            )}
-            {lines("Exceptions", "exceptions", "No exceptions confirmed yet.")}
-            {lines(
-              "Check your result",
-              "completion",
-              "Add a check that confirms the workflow is complete.",
-            )}
-            {lines(
-              "Still to confirm",
-              "questions",
-              "No open questions in this draft.",
             )}
           </SopDocument>
         </div>

@@ -44,7 +44,7 @@ function preview(mode: string | null) {
       progress("Rendering the video");
       await new Promise(resolve => setTimeout(resolve, 2200));
       signal.throwIfAborted();
-      return { url: "/video-sop-fixture.mp4", path: "fictional-preview.mp4", captionsPath: "fictional-preview.vtt" };
+      return { url: "/video-sop-fixture.mp4", path: "fictional-preview.mp4", captionsPath: "fictional-preview.vtt", captionsUrl: "/video-sop-fixture.vtt" };
     };
   }
   return { platform, initialAnalysis: mode ? null : fixtureWorkflowAnalysis };

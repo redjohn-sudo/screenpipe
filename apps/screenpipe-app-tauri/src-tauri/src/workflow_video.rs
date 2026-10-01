@@ -469,6 +469,14 @@ mod tests {
                 }
             }
         }
+        let info = std::process::Command::new(&binary)
+            .args(["-hide_banner", "-i"])
+            .arg(temporary.path().join("video.mp4"))
+            .output()
+            .unwrap();
+        let info = String::from_utf8_lossy(&info.stderr);
+        assert!(info.lines().any(|line| line.contains("Subtitle:") && line.contains("(default)")),
+            "Exported captions must be enabled by default: {info}");
         let subtitles = std::process::Command::new(&binary)
             .args(["-hide_banner", "-loglevel", "error", "-i"])
             .arg(temporary.path().join("video.mp4"))

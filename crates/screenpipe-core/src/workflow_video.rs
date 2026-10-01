@@ -298,7 +298,7 @@ async fn render_inner(
         "WEBVTT\n\n00:00:00.000 --> 00:00:00.042\nReviewed SOP\n",
     )
     .await?;
-    // Keep the captured screen unobscured. Narration is an optional MP4 subtitle
+    // Keep the captured screen unobscured. Narration is a default-enabled MP4 subtitle
     // track and a WebVTT sidecar, never a paragraph burned over the user's work.
     let title_filter = "drawtext=textfile=title.txt:expansion=none:fontsize=20:fontcolor=0x171714:x=32:y=12:line_spacing=4";
     let text_filters = format!("{title_filter},drawtext=text='Text walkthrough':fontsize=18:fontcolor=0x77776f:x=48:y=112,drawtext=textfile=caption.txt:expansion=none:fontsize=24:fontcolor=0x171714:x=48:y=(h-text_h)/2:line_spacing=8");
@@ -493,7 +493,7 @@ async fn render_inner(
         "-c:s",
         "mov_text",
         "-disposition:s:0",
-        "0",
+        "default",
         "-metadata:s:s:0",
         "title=Narration",
         "-c:v",
