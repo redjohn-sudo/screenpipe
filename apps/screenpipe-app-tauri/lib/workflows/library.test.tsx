@@ -94,7 +94,7 @@ it("a background workflow revision does not close its open SOP", async () => {
   expect(await screen.findByText("Saved summary")).toBeTruthy();
   const refreshed = { ...p, loadCapturedWork: vi.fn().mockResolvedValue({ ...analysis, analysis: { workflows: [{ ...workflow, title: "Refined source title", revision: 2 }] } }) };
   view.rerender(<WorkflowsApp platform={refreshed} initialAnalysis={analysis} storageKey={null} />);
-  expect(await screen.findByText(/Reconnect your screenshots/)).toBeTruthy();
+  expect(await screen.findByRole("button", { name: "Review screenshots" })).toBeTruthy();
   expect(screen.getByRole("button", { name: "Back to workflow" })).toBeTruthy();
   expect(screen.getByText("Saved summary")).toBeTruthy();
   expect(p.guides!.generate).not.toHaveBeenCalled();

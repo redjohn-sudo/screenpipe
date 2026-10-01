@@ -615,9 +615,21 @@
   .videoHeading > div:first-child { flex-basis: 100%; }
 }
 
-.sourceReview { margin: 20px 0; padding: 20px; border: 1px solid var(--line, #dfe1d9); border-radius: 6px; }
-.sourceReview h3 { margin: 0; font-size: 17px; }
-.sourceReviewRow { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin: 20px 0; }
-.sourceReviewRow label { display: grid; gap: 8px; flex: 1 1 220px; min-width: 0; }
-.sourceReviewRow select { width: 100%; min-width: 0; padding: 10px; font: inherit; color: inherit; background: var(--panel, #fff); border: 1px solid var(--line, #dfe1d9); border-radius: 6px; }
-.sourceReviewRow img { width: 160px; height: auto; border-radius: 4px; }
+/* Keep source maintenance secondary to the document. */
+.sourceReview { margin: 20px 0; font-size: 13px; }
+.sourceReviewHeader { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; color: var(--muted, #77776f); }
+.guide .sourceReviewToggle { min-height: 32px; padding: 4px 6px; border: 0; background: transparent; color: inherit; font-size: 13px; }
+.guide .sourceReviewToggle:hover { background: var(--soft, #f1f2ec); color: var(--ink, #171815); }
+.sourceReview > div[hidden] { display: none; }
+.guide .sourceReviewHint { margin: 12px 0 16px; font-size: 13px; line-height: 1.5; color: var(--muted, #77776f); }
+.sourceReviewRow { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line, #dfe1d9); }
+.sourceReviewRow label { display: grid; gap: 8px; flex: 1; min-width: 0; }
+.sourceReviewRow strong { font-size: 13px; line-height: 1.5; font-weight: 500; }
+.sourceReviewRow select { appearance: none; width: 100%; min-width: 0; padding: 8px 32px 8px 10px; font: inherit; color: inherit; background: var(--panel, #fff) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2377776f' stroke-width='1.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center; border: 1px solid var(--line, #dfe1d9); border-radius: 6px; text-overflow: ellipsis; }
+.sourceReviewRow select:focus-visible { outline: 2px solid var(--ink, #171815); outline-offset: 2px; }
+.sourceReviewRow img { width: 112px; max-height: 76px; object-fit: contain; border: 1px solid var(--line, #dfe1d9); border-radius: 4px; }
+.sourceReviewActions { display: flex; justify-content: flex-end; padding-top: 16px; }
+@container sop-guide (max-width: 480px) {
+  .sourceReviewRow { align-items: flex-start; gap: 10px; }
+  .sourceReviewRow img { width: 72px; max-height: 56px; }
+}

@@ -265,8 +265,17 @@ it("shows real step counts and a recovery action when the catalog revision chang
   fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
   expect(screen.getByText("1 step · Narrated walkthrough")).toBeTruthy();
   expect(screen.getByRole("button", { name: "Create video" })).toBeDisabled();
+  expect(screen.queryByRole("combobox")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Review screenshots" }));
   expect(screen.getByRole("combobox", { name: "Screenshot source for step 1" })).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: "Use these sources" }));
+  fireEvent.change(screen.getByRole("combobox"), { target: { value: "none" } });
+  fireEvent.click(screen.getByRole("button", { name: "Close review" }));
+  expect(screen.queryByRole("combobox")).toBeNull();
+  expect(save).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Review screenshots" }));
+  expect(screen.getByRole("combobox")).toHaveValue("none");
+  fireEvent.change(screen.getByRole("combobox"), { target: { value: "0" } });
+  fireEvent.click(screen.getByRole("button", { name: "Save screenshot choices" }));
   await waitFor(() => expect(screen.getByRole("button", { name: "Create video" })).toBeEnabled());
   expect(save).toHaveBeenCalledWith(expect.objectContaining({ sourceRevision: 2 }));
   expect(p.generate).not.toHaveBeenCalled();
@@ -277,7 +286,8 @@ it("keeps source review open and generation blocked when saving the reconnection
   const p = platform();
   render(<GuideVideoPanel guide={{ ...guide, sourceRevision: 0 }} workflow={workflow} platform={p} save={async () => {}} onReconnect={async () => { throw new Error("Disk full"); }} />);
   fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
-  fireEvent.click(screen.getByRole("button", { name: "Use these sources" }));
+  fireEvent.click(screen.getByRole("button", { name: "Review screenshots" }));
+  fireEvent.click(screen.getByRole("button", { name: "Save screenshot choices" }));
   expect(await screen.findByRole("alert")).toHaveTextContent("Disk full");
   expect(screen.getByRole("button", { name: "Create video" })).toBeDisabled();
   expect(p.generate).not.toHaveBeenCalled();
