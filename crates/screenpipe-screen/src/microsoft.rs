@@ -37,21 +37,65 @@ pub async fn perform_ocr_windows(
         return Ok(("".to_string(), "[]".to_string(), None));
     }
 
-    let _permit = windows_ocr_semaphore()
+    let permit = windows_ocr_semaphore()
         .acquire()
         .await
         .map_err(|_| anyhow!("Windows OCR semaphore closed"))?;
-    // Convert while the image is borrowed, then move the owned pixels into the
-    // blocking task. This replaces the old PNG encode -> stream -> decode path
-    // with one uncompressed buffer copy into a SoftwareBitmap.
-    let rgba = image.to_rgba8().into_raw();
-    let languages = languages.to_vec();
+    // Keep the admission permit with the actual job. Cancelling the awaiting
+    // future must not admit more work while native recognition is still running.
+    let (reply, result) = tokio::sync::oneshot::channel();
+    windows_ocr_worker()
+        .submit(OcrRequest {
+            rgba: image.to_rgba8().into_raw(),
+            width,
+            height,
+            languages: languages.to_vec(),
+            reply,
+            _permit: permit,
+        })
+        .map_err(|error| anyhow!(error))?;
+    result
+        .await
+        .map_err(|_| anyhow!("Windows OCR worker stopped"))?
+}
 
-    tokio::task::spawn_blocking(move || {
+#[cfg(target_os = "windows")]
+struct OcrRequest {
+    rgba: Vec<u8>,
+    width: u32,
+    height: u32,
+    languages: Vec<Language>,
+    reply: tokio::sync::oneshot::Sender<Result<(String, String, Option<f64>)>>,
+    _permit: tokio::sync::SemaphorePermit<'static>,
+}
+
+#[cfg(target_os = "windows")]
+fn windows_ocr_worker() -> &'static crate::ocr_worker::OcrWorker<OcrRequest> {
+    static WORKER: crate::ocr_worker::OcrWorker<OcrRequest> =
+        crate::ocr_worker::OcrWorker::new(run_ocr_request);
+    &WORKER
+}
+
+#[cfg(target_os = "windows")]
+fn run_ocr_request(request: OcrRequest) {
+    let OcrRequest {
+        rgba,
+        width,
+        height,
+        languages,
+        reply,
+        _permit,
+    } = request;
+    if reply.is_closed() {
+        return;
+    }
+    // Catch a request panic so subsequent captures can still use this worker.
+    // The permit is outside the closure and survives until native work returns.
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         perform_ocr_windows_blocking(rgba, width, height, &languages)
-    })
-    .await
-    .map_err(|error| anyhow!("Windows OCR blocking task failed: {error}"))?
+    }))
+    .unwrap_or_else(|_| Err(anyhow!("Windows OCR request panicked")));
+    let _ = reply.send(result);
 }
 
 #[cfg(target_os = "windows")]
@@ -175,7 +219,7 @@ struct WinRtApartment;
 impl WinRtApartment {
     fn initialize_mta() -> Result<Self> {
         // SAFETY: every successful RoInitialize call is balanced by this
-        // guard's Drop implementation on the same blocking-pool thread.
+        // guard's Drop implementation on the dedicated OCR thread.
         unsafe { RoInitialize(RO_INIT_MULTITHREADED)? };
         Ok(Self)
     }
