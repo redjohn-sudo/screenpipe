@@ -52,6 +52,8 @@ pub async fn perform_ocr_windows(
             languages: languages.to_vec(),
             reply,
             _permit: permit,
+            #[cfg(test)]
+            before_recognize: TEST_BEFORE_RECOGNIZE.with(|hook| hook.borrow_mut().take()),
         })
         .map_err(|error| anyhow!(error))?;
     result
@@ -67,6 +69,16 @@ struct OcrRequest {
     languages: Vec<Language>,
     reply: tokio::sync::oneshot::Sender<Result<(String, String, Option<f64>)>>,
     _permit: tokio::sync::SemaphorePermit<'static>,
+    #[cfg(test)]
+    before_recognize: Option<Box<dyn FnOnce() + Send>>,
+}
+
+// Per-caller injection keeps parallel tests from changing another request.
+// This field and hook do not exist in production builds.
+#[cfg(all(test, target_os = "windows"))]
+std::thread_local! {
+    static TEST_BEFORE_RECOGNIZE: std::cell::RefCell<Option<Box<dyn FnOnce() + Send>>> =
+        std::cell::RefCell::new(None);
 }
 
 #[cfg(target_os = "windows")]
@@ -78,7 +90,19 @@ fn windows_ocr_worker() -> &'static crate::ocr_worker::OcrWorker<OcrRequest> {
 
 #[cfg(target_os = "windows")]
 fn run_ocr_request(request: OcrRequest) {
+    #[cfg(not(test))]
     finish_ocr_request(request, perform_ocr_windows_blocking);
+    #[cfg(test)]
+    {
+        let mut request = request;
+        let before_recognize = request.before_recognize.take();
+        finish_ocr_request(request, |rgba, width, height, languages| {
+            if let Some(hook) = before_recognize {
+                hook();
+            }
+            perform_ocr_windows_blocking(rgba, width, height, languages)
+        });
+    }
 }
 
 #[cfg(target_os = "windows")]
@@ -93,6 +117,7 @@ fn finish_ocr_request(
         languages,
         reply,
         _permit,
+        ..
     } = request;
     if reply.is_closed() {
         return;
@@ -476,6 +501,101 @@ mod request_lifecycle_tests {
     }
 
     #[tokio::test]
+    async fn public_api_abort_keeps_native_admission_until_completion() {
+        let (started, running) = tokio::sync::oneshot::channel();
+        let (release, released) = mpsc::channel();
+        let first = tokio::spawn(async move {
+            TEST_BEFORE_RECOGNIZE.with(|hook| {
+                *hook.borrow_mut() = Some(Box::new(move || {
+                    started.send(()).unwrap();
+                    released.recv_timeout(Duration::from_secs(30)).unwrap();
+                }));
+            });
+            perform_ocr_windows(&fixture(), &[Language::English]).await
+        });
+        tokio::time::timeout(Duration::from_secs(30), running)
+            .await
+            .unwrap()
+            .unwrap();
+        first.abort();
+        assert!(first.await.unwrap_err().is_cancelled());
+        assert!(
+            windows_ocr_semaphore().try_acquire().is_err(),
+            "aborting the public future released native admission early"
+        );
+
+        let image = fixture();
+        let languages = [Language::English];
+        let mut next = Box::pin(perform_ocr_windows(&image, &languages));
+        std::future::poll_fn(|cx| {
+            use std::{future::Future, task::Poll};
+            assert!(
+                matches!(next.as_mut().poll(cx), Poll::Pending),
+                "later OCR bypassed a running request"
+            );
+            Poll::Ready(())
+        })
+        .await;
+        release.send(()).unwrap();
+        let (text, _, _) = tokio::time::timeout(Duration::from_secs(30), next)
+            .await
+            .unwrap()
+            .unwrap();
+        assert!(text.to_lowercase().contains("capture"));
+    }
+
+    #[tokio::test]
+    async fn public_api_recovers_after_request_panic() {
+        TEST_BEFORE_RECOGNIZE.with(|hook| {
+            *hook.borrow_mut() = Some(Box::new(|| panic!("injected public request panic")));
+        });
+        let image = fixture();
+        let error = tokio::time::timeout(
+            Duration::from_secs(30),
+            perform_ocr_windows(&image, &[Language::English]),
+        )
+        .await
+        .unwrap()
+        .unwrap_err();
+        assert!(error.to_string().contains("panicked"));
+        let (text, _, _) = tokio::time::timeout(
+            Duration::from_secs(30),
+            perform_ocr_windows(&image, &[Language::English]),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        assert!(text.to_lowercase().contains("capture"));
+    }
+
+    #[tokio::test]
+    async fn public_api_recovers_after_native_dimension_error() {
+        let maximum = {
+            let _apartment = WinRtApartment::initialize_mta().unwrap();
+            WindowsOcrEngine::MaxImageDimension().unwrap()
+        };
+        let oversized = DynamicImage::new_rgba8(maximum.checked_add(1).unwrap(), 1);
+        let error = tokio::time::timeout(
+            Duration::from_secs(30),
+            perform_ocr_windows(&oversized, &[Language::English]),
+        )
+        .await
+        .unwrap();
+        assert!(
+            error.is_err(),
+            "oversized image must reach native validation"
+        );
+        let (text, _, _) = tokio::time::timeout(
+            Duration::from_secs(30),
+            perform_ocr_windows(&fixture(), &[Language::English]),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        assert!(text.to_lowercase().contains("capture"));
+    }
+
+    #[tokio::test]
     async fn cancelled_running_ocr_keeps_permit_until_native_completion() {
         let image = fixture();
         let semaphore = Box::leak(Box::new(tokio::sync::Semaphore::new(1)));
@@ -487,6 +607,7 @@ mod request_lifecycle_tests {
             languages: vec![Language::English],
             reply,
             _permit: semaphore.acquire().await.unwrap(),
+            before_recognize: None,
         };
         let (started, running) = mpsc::channel();
         let (release, released) = mpsc::channel();
@@ -541,6 +662,7 @@ mod request_lifecycle_tests {
             languages: Vec::new(),
             reply,
             _permit: semaphore.acquire().await.unwrap(),
+            before_recognize: None,
         };
         drop(result);
         finish_ocr_request(request, |_, _, _, _| panic!("cancelled queued request ran"));
@@ -558,6 +680,7 @@ mod request_lifecycle_tests {
             languages: Vec::new(),
             reply,
             _permit: semaphore.acquire().await.unwrap(),
+            before_recognize: None,
         };
         finish_ocr_request(request, |_, _, _, _| panic!("injected request panic"));
         assert!(result
