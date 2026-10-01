@@ -598,6 +598,9 @@ mod request_lifecycle_tests {
 
     #[tokio::test]
     async fn cancelled_running_ocr_keeps_permit_until_native_completion() {
+        // This helper bypasses the public entry point. Respect its admission
+        // gate so parallel tests cannot overlap on the cached native engine.
+        let native_admission = windows_ocr_semaphore().acquire().await.unwrap();
         let image = fixture();
         let semaphore = Box::leak(Box::new(tokio::sync::Semaphore::new(1)));
         let (reply, result) = tokio::sync::oneshot::channel();
@@ -643,6 +646,7 @@ mod request_lifecycle_tests {
             .unwrap();
         assert!(text.to_lowercase().contains("capture"));
         assert_eq!(semaphore.available_permits(), 1);
+        drop(native_admission);
         let (text, _, _) = perform_ocr_windows(&image, &[Language::English])
             .await
             .unwrap();
