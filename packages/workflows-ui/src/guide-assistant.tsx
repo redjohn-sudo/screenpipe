@@ -31,9 +31,9 @@ export function GuideAssistant(props: {
     register({
       context: {
         key: `${props.videoMode ? "video" : "sop"}:${props.workflow.id || props.workflow.title}`,
-        title: ui(props.videoMode ? "Video: {value1}" : "SOP: {value1}", {
-          value1: props.guide?.title ?? props.workflow.title,
-        }),
+        title: props.videoMode
+          ? ui("Video: {value1}", { value1: props.guide?.title ?? props.workflow.title })
+          : ui("SOP: {value1}", { value1: props.guide?.title ?? props.workflow.title }),
         purpose: props.videoMode ? "video" : "sop",
       },
       promptRequest: props.promptRequest,
