@@ -5,9 +5,10 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import { DocumentBlockEditor, type DocumentBlock } from "./document-block-editor";
 import type { DocumentLayout } from "./document-blocks";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Download, Film, ImageOff, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, Film, Loader2 } from "lucide-react";
 import { isGuideImage, guideNeedsSourceReview, type WorkflowGuide } from "./guide";
 import { GuideSourceReview } from "./guide-source-review";
+import { SourceSopScreenshot } from "./source-sop-screenshot";
 import { SopScreenshot } from "./sop-screenshot";
 import type { WorkflowsPlatform } from "./platform";
 import type { WorkflowMap } from "./model";
@@ -17,6 +18,7 @@ import styles from "./workflow-guide.module.css";
 export type GuideVideoHandle = { generate: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void> };
 export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   guide: WorkflowGuide; workflow: WorkflowMap; platform: GuideVideoPlatform;
+  loadSourceScreenshot?: NonNullable<WorkflowsPlatform["guides"]>["loadSourceScreenshot"];
   loadScreenshot?: NonNullable<WorkflowsPlatform["guides"]>["loadScreenshot"];
   save: (guide: WorkflowGuide) => Promise<void>;
   onVideoMode?: (active: boolean) => void;
@@ -27,7 +29,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   onReset?: () => Promise<void>;
   container?: HTMLElement | null;
   onOpenChange?: (open: boolean) => void;
-}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onCreate, onLayoutChange, assistantBusy = false, onReconnect, onReset, container, onOpenChange }, ref) {
+}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, loadSourceScreenshot, save, onVideoMode, onCreate, onLayoutChange, assistantBusy = false, onReconnect, onReset, container, onOpenChange }, ref) {
   const [open, setOpen] = useState(false);
   const [versions, setVersions] = useState<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
   const savedVersions = useRef<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
@@ -160,7 +162,9 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
           {id: `scene/${scene.id ?? i}/image`, label: `Scene ${i + 1} image`, content: <div className={styles.videoSceneImage}>
             {(scene.image && isGuideImage(scene.image)) || (scene.imageFrameId && loadScreenshot)
               ? <SopScreenshot src={scene.image && isGuideImage(scene.image) ? scene.image : ""} frameId={scene.imageFrameId ?? 0} load={scene.imageFrameId ? loadScreenshot : undefined} alt={`Screenshot for ${scene.title}`} />
-              : <div className={styles.videoMissingImage}><ImageOff size={24} /><span>{scene.imageFrameId || scene.imageSources?.length ? "Screenshot will load from the recording" : "No screenshot for this step"}</span></div>}
+              : scene.imageSources?.length
+                ? <SourceSopScreenshot stage={{ evidence: scene.imageSources }} load={loadSourceScreenshot} title={scene.title} alt={`Screenshot for ${scene.title}`} />
+                : <p className={styles.muted}>No screenshot for this step</p>}
           </div>},
           {id: `scene/${scene.id ?? i}/text`, label: `Scene ${i + 1} narration`, content: <p>{scene.narration}</p>},
         ]),

@@ -16,6 +16,23 @@ function preview(mode: string | null) {
   };
   if (mode === "error") platform.loadCapturedWork = async () => { throw new Error("Preview unavailable"); };
   if (mode === "empty") platform.loadCapturedWork = async () => null;
+  if (mode === "source-preview") {
+    const captures = new Map<string, NonNullable<typeof fixtureWorkflowAnalysis.analysis.workflows[number]["stages"][number]["screenshot"]>>();
+    platform.loadCapturedWork = async (...args) => {
+      const analysis = await load(...args);
+      if (!analysis) return analysis;
+      return { ...analysis, analysis: { ...analysis.analysis, workflows: analysis.analysis.workflows.map(workflow => ({ ...workflow, stages: workflow.stages.map(stage => {
+        const image = stage.screenshot ?? stage.screenshots?.[0];
+        if (!image) return stage;
+        captures.set(`${image.timestamp}:${image.app}`, image);
+        return { ...stage, screenshot: undefined, screenshots: [], evidence: [{ timestamp: image.timestamp, app: image.app, source: "screen", detail: "Fictional captured step" }] };
+      }) })) } };
+    };
+    platform.guides!.loadSourceScreenshot = async (timestamp, app, signal) => {
+      signal.throwIfAborted();
+      return captures.get(`${timestamp}:${app}`) ?? null;
+    };
+  }
   if (mode === "stale-sop") {
     const readGuide = platform.guides!.load;
     platform.guides!.load = async workflow => {

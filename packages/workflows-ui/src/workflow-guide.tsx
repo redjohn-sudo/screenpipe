@@ -1,7 +1,7 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
 "use client";
-import { useSourceScreenshot } from "./use-source-screenshot";
+import { SourceSopScreenshot } from "./source-sop-screenshot";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import {
   ArrowLeft,
@@ -272,7 +272,7 @@ export function WorkflowGuide({
           )}
           {draft && (
             <>
-              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} save={persist} onVideoMode={setVideoMode} onLayoutChange={videoLayout => update({ ...latest.current!, videoLayout })} assistantBusy={videoBusy} onCreate={platform.video.edit ? () => {
+              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} loadSourceScreenshot={platform.loadSourceScreenshot} save={persist} onVideoMode={setVideoMode} onLayoutChange={videoLayout => update({ ...latest.current!, videoLayout })} assistantBusy={videoBusy} onCreate={platform.video.edit ? () => {
                 if (videoRequested.current) return;
                 videoRequested.current = true;
                 setVideoBusy(true);
@@ -787,20 +787,4 @@ function ScreenshotReview({
       )}
     </div>
   );
-}
-
-
-
-function SourceSopScreenshot({ stage, load, title }: {
-  stage: WorkflowMap["stages"][number];
-  load: NonNullable<WorkflowsPlatform["guides"]>["loadSourceScreenshot"];
-  title: string;
-}) {
-  const source = useSourceScreenshot(stage, false, load);
-  return <figure ref={source.ref}>
-    {source.image ? <img src={source.image.dataUrl} alt={`Source for ${title}`} loading="lazy" draggable={false} />
-      : <p className={styles.muted} role="status">{source.status === "loading" ? "Loading screenshot…" : "No captured screenshot available for this step."}
-        {source.canRetry && source.status !== "loading" && <button onClick={source.retry}>Try again</button>}
-      </p>}
-  </figure>;
 }

@@ -302,3 +302,33 @@ it("keeps source review open and generation blocked when saving the reconnection
   expect(screen.getByRole("button", { name: "Create video" })).toBeDisabled();
   expect(p.generate).not.toHaveBeenCalled();
 });
+
+it("loads timestamp-only storyboard sources on opening and releases the original on close", async () => {
+  const source = structuredClone(workflow); source.stages[0].screenshot = undefined;
+  const originalRevoke = URL.revokeObjectURL; const revoke = vi.fn(); URL.revokeObjectURL = revoke;
+  const loadSourceScreenshot = vi.fn().mockResolvedValue({ frameId: 42, dataUrl: "blob:resolved-original" });
+  try {
+    render(<GuideVideoPanel guide={guide} workflow={source} platform={platform()} loadSourceScreenshot={loadSourceScreenshot} save={async () => {}} />);
+    expect(loadSourceScreenshot).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+    await waitFor(() => expect(screen.getByRole("img", { name: "Screenshot for 1. Review sources" })).toHaveAttribute("src", "blob:resolved-original"));
+    const expected = guideVideoScenes(guide, source)[0].imageSources![0];
+    expect(loadSourceScreenshot).toHaveBeenCalledWith(expected.timestamp, expected.app, expect.any(AbortSignal));
+    expect(screen.queryByText("Screenshot will load from the recording")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Back to SOP" }));
+    expect(loadSourceScreenshot.mock.calls[0][2].aborted).toBe(true);
+    expect(revoke).toHaveBeenCalledWith("blob:resolved-original");
+  } finally { URL.revokeObjectURL = originalRevoke; }
+});
+it("reports unavailable recording previews and retries without starting video generation", async () => {
+  const source = structuredClone(workflow); source.stages[0].screenshot = undefined;
+  const loadSourceScreenshot = vi.fn().mockResolvedValue(null); const p = platform();
+  render(<GuideVideoPanel guide={guide} workflow={source} platform={p} loadSourceScreenshot={loadSourceScreenshot} save={async () => {}} />);
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  await screen.findByText("No captured screenshot available for this step.");
+  expect(screen.queryByText("Loading screenshot…")).toBeNull();
+  loadSourceScreenshot.mockResolvedValue({ frameId: 42, dataUrl: "data:image/png;base64,YQ==" });
+  fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+  await screen.findByRole("img", { name: "Screenshot for 1. Review sources" });
+  expect(p.generate).not.toHaveBeenCalled();
+});
