@@ -3,7 +3,8 @@
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { save } from "@tauri-apps/plugin-dialog";
-import { copyFile } from "@tauri-apps/plugin-fs";
+import { copyFile, mkdir, remove, readDir, stat } from "@tauri-apps/plugin-fs";
+import { appDataDir } from "@tauri-apps/api/path";
 import posthog from "posthog-js";
 import { commands } from "@/lib/utils/tauri";
 import type { GuideVideoPlatform, GuideVideoResult } from "@screenpipe/workflows-ui";
@@ -23,6 +24,33 @@ export async function loadVideoScreenshot(frameId: number, signal: AbortSignal):
 }
 
 const ids = new WeakMap<GuideVideoResult, string>();
+/** Retain only the CLI's final artifacts; the turn workspace is removed afterward. */
+export async function adoptAgentVideo(project: string, signal: AbortSignal): Promise<GuideVideoResult> {
+  const root = `${await appDataDir()}/workflow-videos`;
+  await mkdir(root, {recursive: true});
+  let bytes = 0;
+  for (const entry of await readDir(root)) {
+    if (!entry.isDirectory || entry.isSymlink || !/^[a-f0-9]{8}-[a-f0-9-]{27}$/.test(entry.name)) continue;
+    const path = `${root}/${entry.name}`;
+    const info = await stat(path);
+    if (info.mtime && Date.now() - info.mtime.getTime() > 86400000 && !activeAgentPreviews.has(path)) {
+      await remove(path, {recursive: true}); continue;
+    }
+    bytes += await stat(`${path}/video.mp4`).then(info => info.size).catch(() => 0);
+  }
+  if (bytes > 700 * 1024 * 1024) throw new Error("Video preview storage is full. Download and close other previews.");
+  signal.throwIfAborted();
+  const id = crypto.randomUUID(), directory = `${root}/${id}`;
+  await mkdir(directory);
+  try {
+    for (const name of ["video.mp4", "captions.vtt"]) await copyFile(`${project}/rendered/${name}`, `${directory}/${name}`);
+    signal.throwIfAborted();
+    const result = {path: `${directory}/video.mp4`, captionsPath: `${directory}/captions.vtt`, url: convertFileSrc(`${directory}/video.mp4`), captionsUrl: convertFileSrc(`${directory}/captions.vtt`)};
+    ids.set(result, id); activeAgentPreviews.add(directory);
+    return result;
+  } catch (error) { await remove(directory, {recursive: true}).catch(() => {}); throw error; }
+}
+const activeAgentPreviews = new Set<string>();
 export const desktopGuideVideo: GuideVideoPlatform = {
   async generate(scenes, signal, progress) {
     signal.throwIfAborted();
@@ -89,5 +117,6 @@ export const desktopGuideVideo: GuideVideoPlatform = {
     const response = await commands.discardWorkflowVideo(id);
     if (response.status === "error") throw new Error(response.error);
     ids.delete(result);
+    activeAgentPreviews.delete(result.path.slice(0, result.path.lastIndexOf("/")));
   },
 };

@@ -46,6 +46,9 @@ for (const test of selected) {
     await copyFile(skillPath, join(project, ".pi/skills/video-sop/SKILL.md"));
     await writeFile(join(project, "video-project.json"), JSON.stringify({ draft: test.source ?? draft, images: {} }));
     await writeFile(join(config, "settings.json"), JSON.stringify({ retry: { enabled: false }, defaultThinkingLevel: "off" }));
+    // A protocol fixture checks actual agent tool awaiting without hosted speech.
+    const renderer = join(root, "renderer");
+    await writeFile(renderer, `#!/usr/bin/env node\nconst fs=require('fs'),root=process.argv[3];console.log(JSON.stringify({progress:'Rendering 1 of 1'}));fs.mkdirSync(root+'/rendered');fs.writeFileSync(root+'/rendered/video.mp4','protocol fixture');fs.writeFileSync(root+'/rendered/captions.vtt','WEBVTT');console.log(JSON.stringify({complete:true}));`, {mode:0o700});
     const requests: any[] = [];
     if (live) {
       // Reuse the same configured product route and account. Never fall back to another provider.
@@ -61,7 +64,7 @@ for (const test of selected) {
       const turns: any[] = [
         { name: "read_video_sop", arguments: { guidance: true } },
         { name: "read_video_sop", arguments: {} },
-        ...(test.expected ? [{ name: "edit_video_sop", arguments: test.shortening ? { changes: [{ id: "section-0", narration: "Open request; confirm owner. If missing, ask coordinator before proceeding." }], render: false } : test.expected }] : []),
+        ...(test.expected?.render ? [{name: "render_video_sop", arguments: {}}] : test.expected ? [{ name: "edit_video_sop", arguments: test.shortening ? { changes: [{ id: "section-0", narration: "Open request; confirm owner. If missing, ask coordinator before proceeding." }], render: false } : test.expected }] : []),
       ];
       server = Bun.serve({ hostname: "127.0.0.1", port: 0, async fetch(request) {
         const body = await request.json(); requests.push(body);
@@ -72,8 +75,8 @@ for (const test of selected) {
       } });
       await writeFile(join(config, "models.json"), JSON.stringify({ providers: { eval: { baseUrl: `http://127.0.0.1:${server.port}/v1`, api: "openai-completions", apiKey: "fictional", models: [{ id: "eval", name: "Eval", input: ["text", "image"], reasoning: false, contextWindow: 128000, maxTokens: 8192, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }] } } }));
     }
-    child = Bun.spawn([process.execPath, join(runtime, "dist/cli.js"), "--provider", live ? "screenpipe" : "eval", "--model", live ? "auto" : "eval", "--mode", "json", "--no-session", "--no-extensions", "--extension", toolPath, "--no-skills", "--no-context-files", "--no-prompt-templates", "--tools", "read_video_sop,edit_video_sop", "--print", videoEditPrompt(test.request, test.history ?? [])], {
-      cwd: project, env: { ...process.env, PI_CODING_AGENT_DIR: config, PI_SKIP_VERSION_CHECK: "1", JITI_TRY_NATIVE: "0" }, stdin: "ignore", stdout: "pipe", stderr: "pipe",
+    child = Bun.spawn([process.execPath, join(runtime, "dist/cli.js"), "--provider", live ? "screenpipe" : "eval", "--model", live ? "auto" : "eval", "--mode", "json", "--no-session", "--no-extensions", "--extension", toolPath, "--no-skills", "--no-context-files", "--no-prompt-templates", "--tools", "read_video_sop,edit_video_sop,render_video_sop", "--print", videoEditPrompt(test.request, test.history ?? [])], {
+      cwd: project, env: { ...process.env, SCREENPIPE_VIDEO_CLI: renderer, PI_CODING_AGENT_DIR: config, PI_SKIP_VERSION_CHECK: "1", JITI_TRY_NATIVE: "0" }, stdin: "ignore", stdout: "pipe", stderr: "pipe",
     });
     let timedOut = false, budgetExceeded = false, stdout = "", turns = 0, partial = "";
     const timeout = setTimeout(() => { timedOut = true; child!.kill(); }, 180000);
@@ -96,15 +99,16 @@ for (const test of selected) {
       if (event.type !== "tool_execution_end" || event.isError) continue;
       const call = events.find(e => e.type === "tool_execution_start" && e.toolCallId === event.toolCallId);
       if (event.toolName === "read_video_sop") { if (call?.args?.guidance) outcome.guidance = true; else outcome.read = true; }
+      if (event.toolName === "render_video_sop") { outcome.render = true; outcome.renderCompleted = true; }
       if (event.toolName === "edit_video_sop") {
         outcome.patches++;
-        try { const patch = JSON.parse(event.result.content.find((c: any) => c.type === "text").text); outcome.draft = applyVideoEdit(test.source ?? draft, patch); outcome.render = patch.render; }
+        try { const patch = JSON.parse(event.result.content.find((c: any) => c.type === "text").text); outcome.draft = applyVideoEdit(test.source ?? draft, patch); outcome.render = patch.render || outcome.render; }
         catch (e) { outcome.errors.push(String(e)); }
       }
     }
     if (timedOut || budgetExceeded) outcome.errors.push(timedOut ? "timeout" : "turn budget exceeded");
     if (last?.errorMessage) outcome.errors.push(last.errorMessage);
-    if (!live && requests.some(r => r.tools?.length !== 2 || r.tools.some((t: any) => !["read_video_sop", "edit_video_sop"].includes(t.function.name)))) outcome.errors.push("Wrong tools exposed to model");
+    if (!live && requests.some(r => r.tools?.length !== 3 || r.tools.some((t: any) => !["read_video_sop", "edit_video_sop", "render_video_sop"].includes(t.function.name)))) outcome.errors.push("Wrong tools exposed to model");
     const failures = grade(test, outcome);
     // Only actual provider/runtime errors are classified as blocked, never source text or a refusal.
     const providerError = String(last?.errorMessage ?? stderr);

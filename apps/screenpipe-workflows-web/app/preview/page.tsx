@@ -49,19 +49,15 @@ function preview(mode: string | null) {
   // Explicit fictional state for the chat-to-video interaction evaluation.
   if (mode === "video-chat") {
     platform.guides!.video!.edit = async (draft, _request, _history, signal, progress) => {
-      progress("Reading the video project");
-      await new Promise(resolve => setTimeout(resolve, 250));
-      signal.throwIfAborted();
-      return { draft, changed: false, render: true, message: "" };
-    };
-    platform.guides!.video!.generate = async (_scenes, signal, progress) => {
-      progress("Creating narration");
+      const read = {id:"read", name:"read_video_sop", status:"complete" as const, detail:"Loaded the video skill and saved project."};
+      progress({text:"I’ll create the video from your saved script and screenshots.",activity:"working",toolCalls:[read,{id:"render",name:"render_video_sop",status:"running",detail:"Creating narration"}]});
       await new Promise(resolve => setTimeout(resolve, 2200));
       signal.throwIfAborted();
-      progress("Rendering the video");
+      progress({text:"I’ll create the video from your saved script and screenshots.",activity:"working",toolCalls:[read,{id:"render",name:"render_video_sop",status:"running",detail:"Rendering the video"}]});
       await new Promise(resolve => setTimeout(resolve, 2200));
       signal.throwIfAborted();
-      return { url: "/video-sop-fixture.mp4", path: "fictional-preview.mp4", captionsPath: "fictional-preview.vtt", captionsUrl: "/video-sop-fixture.vtt" };
+      progress({text:"",activity:"working",toolCalls:[read,{id:"render",name:"render_video_sop",status:"complete",detail:"MP4 and captions ready."}]});
+      return { draft, changed: false, render: false, message: "Your video is ready on the page.", result: { url: "/video-sop-fixture.mp4", path: "fictional-preview.mp4", captionsPath: "fictional-preview.vtt", captionsUrl: "/video-sop-fixture.vtt" } };
     };
   }
   return { platform, initialAnalysis: mode ? null : fixtureWorkflowAnalysis };

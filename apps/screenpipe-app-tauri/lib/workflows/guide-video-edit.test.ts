@@ -4,6 +4,8 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { mkdtemp, writeFile, rm, mkdir, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 const run=vi.hoisted(()=>vi.fn());
+const adopt=vi.hoisted(()=>vi.fn());
+vi.mock("./guide-video",()=>({adoptAgentVideo:adopt}));
 const stage=vi.hoisted(()=>vi.fn());
 vi.mock("./video-project",()=>({stageVideoProject:stage}));
 vi.mock("./agent-runner",()=>({runWorkflowAgent:run}));
@@ -22,7 +24,7 @@ it("uses the scoped tool and sends a single text-only draft with bounded history
  const history=Array.from({length:20},()=>({id:"id",role:"user" as const,text:"x".repeat(2000),at:"now",context:{key:"private",title:"secret catalog"}}));
  const output=await editGuideVideo(draft,"Shorten it",history,new AbortController().signal,()=>{});
  expect(output.changed).toBe(true);expect(output.render).toBe(false);expect(output.draft.scenes[0].narration).toBe("Read sources.");
- const request=run.mock.calls[0][0];expect(request.config.allowedTools).toEqual(["read_video_sop", "edit_video_sop"]);
+ const request=run.mock.calls[0][0];expect(request.config.allowedTools).toEqual(["read_video_sop", "edit_video_sop", "render_video_sop"]);
  expect(request.prompt).not.toContain("secret catalog");expect(request.prompt.length).toBeLessThan(12000);
 });
 it("rejects multiple patches and cancelled turns",async()=>{
@@ -73,13 +75,24 @@ it("loads bundled guidance on demand without treating it as an inspected project
 it("forwards streamed model text and tool progress to the existing chat", async () => {
  const progress = vi.fn();
  run.mockImplementation(async ({onProgress, onEvent}) => {
-  onProgress({text:"I will use the saved screenshots."});
+  onProgress({text:"I will use the saved screenshots.",toolCalls:[{id:"r",name:"read_video_sop",status:"running"}]});
   onEvent({type:"tool_execution_start", toolName:"read_video_sop"});
   onProgress({text:"The video will follow the three saved steps."});
   return "Ready";
  });
  await editGuideVideo(draft,"Create video",[],new AbortController().signal,progress);
  expect(progress.mock.calls.map(([text]) => text)).toEqual([
-  "I will use the saved screenshots.", "Reading the video project", "The video will follow the three saved steps."
+  {text:"I will use the saved screenshots.",toolCalls:[{id:"r",name:"read_video_sop",status:"running"}]}, {text:"The video will follow the three saved steps."}
  ]);
+});
+
+it("adopts only a completed tool render and never asks the page to render again", async () => {
+ const result = {path:"/saved/video.mp4",url:"asset://video.mp4",captionsPath:"/saved/captions.vtt"};
+ adopt.mockResolvedValue(result);
+ run.mockImplementation(async ({onEvent}) => { onEvent({type:"tool_execution_end",toolName:"render_video_sop",isError:false}); return "Video ready on the page."; });
+ const response = await editGuideVideo(draft,"Create video",[],new AbortController().signal,()=>{});
+ expect(adopt).toHaveBeenCalledTimes(1);expect(response.result).toBe(result);expect(response.render).toBe(false);
+ run.mockImplementation(async ({onEvent}) => { onEvent({type:"tool_execution_end",toolName:"render_video_sop",isError:true}); return "Speech failed."; });
+ expect((await editGuideVideo(draft,"Create video",[],new AbortController().signal,()=>{})).result).toBeUndefined();
+ expect(adopt).toHaveBeenCalledTimes(1);
 });

@@ -118,3 +118,17 @@ it("releases the page button when stopped before the persisted turn can start th
   await waitFor(() => expect(screen.getByRole("button", { name: "Create video", exact: true })).toBeEnabled());
   expect(s.generate).not.toHaveBeenCalled();
 });
+
+it("shows real tool progress and displays the agent artifact without a page render", async () => {
+ const s=setup();let finish!:()=>void;
+ s.edit.mockImplementationOnce(async (draft,_request,_history,_signal,progress:any) => {
+  progress({text:"I’ll create the video from your saved script.",activity:"working",toolCalls:[{id:"read",name:"read_video_sop",status:"complete"},{id:"render",name:"render_video_sop",status:"running",detail:"Narrating 4 of 7"}]});
+  await new Promise<void>(resolve=>{finish=resolve;});
+  progress({text:"",activity:"working",toolCalls:[{id:"read",name:"read_video_sop",status:"complete"},{id:"render",name:"render_video_sop",status:"complete",detail:"Video and captions ready"}]});
+  return {draft,changed:false,render:false,result,message:"Your video is ready on the page."};
+ });
+ await openVideo();const chat=await screen.findByRole("region",{name:"Screenpipe assistant"});
+ await within(chat).findByText("Narrating 4 of 7", {selector:"small"});expect(within(chat).getByText("render video sop")).toBeVisible();
+ await act(async()=>finish());await screen.findByLabelText("Narrated SOP preview");
+ expect(s.generate).not.toHaveBeenCalled();expect(within(chat).getByText("read video sop")).toBeVisible();
+});

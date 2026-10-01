@@ -3,8 +3,7 @@
 These evals exercise the desktop video editor's actual prompt, bundled skill and
 scoped Pi tools. Fixtures are fictional. Expected results stay in the evaluator;
 the agent receives only the request, bounded conversation and staged project.
-The host applies returned patches in memory. No workflow, SOP or video is saved,
-rendered or published by this suite.
+The host applies returned patches in memory. No user workflow or SOP is changed by this suite. Generation uses a subprocess protocol fixture, not hosted speech or a real MP4.
 
 From `apps/screenpipe-app-tauri`:
 
@@ -28,7 +27,7 @@ A baseline directory contains `video-tool.ts`, `video-edit-prompt.ts` and
 source, prompt, skill, case, grader and harness hashes, the installed Pi version,
 and execution budgets. It rejects a Pi version that differs from the product pin.
 Each case gets an isolated temporary project and config, with only
-`read_video_sop` and `edit_video_sop` exposed. The temporary account config is
+`read_video_sop`, `edit_video_sop`, and `render_video_sop` exposed. The temporary account config is
 removed afterward. Existing sessions and app data are untouched.
 
 Live mode uses the configured account and `auto` route with 8,192 output tokens,
@@ -97,3 +96,15 @@ One scorer initially rejected a truthful "haven't rendered" statement and a
 valid synonym for voice support. Calibration fixtures now cover both, and
 regrading retains the original results. The scorer remains conservative and
 heuristic; the final-state and tool-boundary checks are its strongest evidence.
+
+## Agent renderer verification, October 1, 2026
+
+The updated scripted Pi suite passes 13/13 cases. Live model trials pass explicit
+creation and edit-only requests with an earlier render request in history (2/2).
+These use a renderer protocol fixture to evaluate tool routing and awaiting,
+not video quality. The separate real tool-to-bundled-CLI smoke produced a 720p
+H.264/AAC MP4 with a source screenshot, timed captions and non-silent narration.
+Closing stdin on the installed CLI cancelled a run and removed its temporary
+output. Browser fixture checks cover tool rows, progress, completed page preview,
+repeat generation, stop and compact layout. These checks do not establish
+screenshot relevance for every saved workflow or Windows/Linux behavior.

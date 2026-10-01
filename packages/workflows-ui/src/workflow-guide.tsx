@@ -321,6 +321,10 @@ export function WorkflowGuide({
             videoRequested.current = working;
             setVideoBusy(working);
           }}
+          showVideo={(guide, result) => {
+            if (!videoHandle.current) throw new Error("Open an SOP before creating its video.");
+            videoHandle.current.show(guide, result);
+          }}
           renderVideo={(guide, signal, progress) => {
             if (!videoHandle.current) throw new Error("Open an SOP before creating its video.");
             return videoHandle.current.generate(guide, signal, progress);

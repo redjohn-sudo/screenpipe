@@ -15,7 +15,7 @@ import type { WorkflowMap } from "./model";
 import { guideVideoScenes, videoScreenshotGaps, type GuideVideoPlatform, type GuideVideoResult } from "./guide-video";
 import styles from "./workflow-guide.module.css";
 
-export type GuideVideoHandle = { generate: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void> };
+export type GuideVideoHandle = { show: (guide: WorkflowGuide, result: GuideVideoResult) => void; generate: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void> };
 export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   guide: WorkflowGuide; workflow: WorkflowMap; platform: GuideVideoPlatform;
   loadSourceScreenshot?: NonNullable<WorkflowsPlatform["guides"]>["loadSourceScreenshot"];
@@ -73,12 +73,21 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
       document.removeEventListener("keydown", dismiss);
     };
   }, [open, onOpenChange, onVideoMode]);
-  useImperativeHandle(ref, () => ({ generate: (next, signal, progress) => generate(next, signal, progress) }));
+  useImperativeHandle(ref, () => ({ show: showResult, generate: (next, signal, progress) => generate(next, signal, progress) }));
+  function showResult(target: WorkflowGuide, next: GuideVideoResult) {
+    if (!mounted.current) { void platform.release(next); return; }
+    const targetSource = videoSource(target);
+    const history = [...savedVersions.current, { result: next, source: targetSource, number: ++revision.current }];
+    if (history.length > 3) void platform.release(history.shift()!.result).catch(() => {});
+    savedVersions.current = history;
+    setVersions(history);
+    setOpen(true);
+    setResult(next); setRenderedSource(targetSource); setMessage("Video ready to review");
+  }
   async function generate(target = guide, signal?: AbortSignal, progress?: (text: string) => void) {
     if (lock.current) throw new Error("A video is already being created. Stop it before starting another.");
     const selected = guideVideoScenes(target, workflow);
     const missing = videoScreenshotGaps(selected);
-    const targetSource = videoSource(target);
     signal?.throwIfAborted();
     setOpen(true);
     lock.current = true;
@@ -97,12 +106,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
         if (mounted.current) setMessage("Video creation stopped. Your SOP is unchanged.");
         throw new DOMException("Stopped", "AbortError");
       }
-      const history = [...savedVersions.current, { result: next, source: targetSource, number: ++revision.current }];
-      if (history.length > 3) void platform.release(history.shift()!.result).catch(() => {});
-      savedVersions.current = history;
-      setVersions(history);
-      setOpen(true);
-      setResult(next); setRenderedSource(targetSource); setMessage("Video ready to review");
+      showResult(target, next);
 
     } catch (cause) {
       if (mounted.current) {

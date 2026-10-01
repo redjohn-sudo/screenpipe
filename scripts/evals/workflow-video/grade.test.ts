@@ -13,6 +13,7 @@ test("accepts an evidenced exact edit and an evidenced no-change answer", () => 
 for (const [name, mutate] of Object.entries<(o: Outcome) => void>({
   "no actual change": o => { o.draft!.scenes[0].title = "Prepare"; },
   "dropped exception": o => { o.draft!.scenes[0].narration = "Proceed."; },
+  "failed unrequested render attempt": o => { o.tools.push("render_video_sop"); },
   "unrequested render": o => { o.render = true; },
   "missing completion": o => { o.completed = false; },
   "missing skill exposure": o => { o.guidance = false; },

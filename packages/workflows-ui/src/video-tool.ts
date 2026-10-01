@@ -1,6 +1,6 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
-/** The tool proposes edits; only the mounted video page can persist or render them. */
+/** Scoped video tools run inside the normal agent, using the bundled renderer CLI. */
 export type VideoFocus = { x: number; y: number; zoom: number };
 export type VideoDraft = { version: 1; sourceHash: string; scenes: Array<{ id: string; title: string; narration: string; includeImage: boolean; pace?: number; focus?: VideoFocus | null }> };
 export type VideoEdit = { changes: Array<{ id: string; title?: string; narration?: string; maxNarrationWords?: number; includeImage?: boolean; pace?: number; focus?: VideoFocus | null }>; order?: string[]; render: boolean };
@@ -45,6 +45,7 @@ export function applyVideoEdit(draft: VideoDraft, input: unknown): VideoDraft {
 export default function videoTool(pi: any) {
   let draft: VideoDraft | null = null;
   let proposed = false;
+  let rendered = false;
   const inspected = new Set<string>();
   pi.registerTool({
     name: "read_video_sop", label: "Inspect video project",
@@ -57,7 +58,7 @@ export default function videoTool(pi: any) {
       const path = `${ctx.cwd}/video-project.json`;
       if ((await fs.stat(path)).size > 100000) throw new Error("Video project is too large.");
       const project = JSON.parse(await fs.readFile(path, "utf8"));
-      draft = parseVideoDraft(project.draft);
+      draft ??= parseVideoDraft(project.draft);
       if (!args.scene_id) return { content: [{ type: "text", text: JSON.stringify({ ...draft, screenshots: Object.keys(project.images ?? {}) }) }] };
       if (!/^section-\d+$/.test(args.scene_id) || !draft.scenes.some(s => s.id === args.scene_id)) throw new Error("Unknown video section.");
       const mimeType = project.images?.[args.scene_id];
@@ -72,7 +73,7 @@ export default function videoTool(pi: any) {
   });
   pi.registerTool({
     name: "edit_video_sop", label: "Edit video SOP",
-    description: "Read the project and video skill with read_video_sop first. Inspect the actual section image before focusing. Pace 0.85–1.25; focus x/y normalized, zoom 1–1.6, null resets. Propose one combined patch to the attached video script. Existing section IDs only. Supply order to reorder or omit sections. Render true only when the user explicitly asks to create/regenerate the video. A normal wording edit saves the script without generating speech. No files, media URLs, arbitrary commands or workflow execution. The app validates and saves after the turn; do not claim success yourself.",
+    description: "Read the project and video skill with read_video_sop first. Inspect the actual section image before focusing. Pace 0.85–1.25; focus x/y normalized, zoom 1–1.6, null resets. Propose one combined patch to the attached video script. Existing section IDs only. Supply order to reorder or omit sections. Render true only when the user explicitly asks to create/regenerate the video. A normal wording edit saves the script without generating speech. No files, media URLs, arbitrary commands or workflow execution. The app saves the validated draft. To create a video, call render_video_sop after editing and wait for its result.",
     parameters: { type: "object", additionalProperties: false, required: ["changes", "render"], properties: {
       changes: { type: "array", maxItems: 50, items: { type: "object", additionalProperties: false, required: ["id"], properties: { id: { type: "string", pattern: "^section-\\d+$" }, title: { type: "string", minLength: 1, maxLength: 140 }, narration: { type: "string", minLength: 1, maxLength: 18000 }, maxNarrationWords: { type: "integer", minimum: 1, maximum: 18000, description: "When the user specifies a narration word limit, copy it here. The tool counts whitespace-separated words and rejects excess before accepting." }, includeImage: { type: "boolean" }, pace: { type: "number", minimum: 0.85, maximum: 1.25 }, focus: { anyOf: [{ type: "null" }, { type: "object", additionalProperties: false, required: ["x", "y", "zoom"], properties: { x: { type: "number", minimum: 0, maximum: 1 }, y: { type: "number", minimum: 0, maximum: 1 }, zoom: { type: "number", minimum: 1, maximum: 1.6 } } }] } } } },
       order: { type: "array", minItems: 1, maxItems: 50, uniqueItems: true, items: { type: "string" } },
@@ -80,12 +81,76 @@ export default function videoTool(pi: any) {
     } },
     async execute(_id: string, input: unknown) {
       if (!draft) throw new Error("Read the attached project before editing it.");
+      if (rendered) throw new Error("The video has already been created. Save further edits in a new turn.");
       if (proposed) throw new Error("Use one combined video edit per answer. A proposal was already accepted.");
       const edit = parseVideoEdit(input);
       if (edit.changes.some(c => c.focus && !inspected.has(c.id))) throw new Error("Inspect each screenshot before choosing its focus.");
-      applyVideoEdit(draft, edit);
+      draft = applyVideoEdit(draft, edit);
       proposed = true;
       return { content: [{ type: "text", text: JSON.stringify(edit) }] };
     },
   });
+  pi.registerTool({
+    name: "render_video_sop", label: "Create video",
+    description: "Create the attached video with narration, screenshots and captions using the bundled renderer CLI. Read the project and skill first. Apply any requested edits before calling. Only call for an explicit request to create or regenerate a video. Wait for the result; progress is streamed while it runs. One render attempt per turn. No arbitrary commands or paths.",
+    parameters: { type: "object", additionalProperties: false, properties: {} },
+    async execute(_id: string, _args: unknown, signal: AbortSignal, update: ((result: unknown) => void) | undefined, ctx: { cwd: string }) {
+      if (!draft) throw new Error("Read the attached project before creating its video.");
+      if (rendered) throw new Error("A video was already attempted in this turn. Ask the user before retrying.");
+      signal?.throwIfAborted();
+      const fsModule = "node:fs/promises", processModule = "node:child_process", envModule = "node:process";
+      const fs = await import(/* @vite-ignore */ fsModule);
+      const { spawn } = await import(/* @vite-ignore */ processModule);
+      const { env } = await import(/* @vite-ignore */ envModule);
+      const binary = env.SCREENPIPE_VIDEO_CLI;
+      if (!binary) throw new Error("The video renderer is unavailable. Reopen the desktop app.");
+      const project = JSON.parse(await fs.readFile(`${ctx.cwd}/video-project.json`, "utf8"));
+      const scenes = draft.scenes.map(scene => {
+        const image = scene.includeImage && project.images?.[scene.id] ? `${ctx.cwd}/${scene.id}.image` : null;
+        if (project.requiredImages?.includes(scene.id) && !image) throw new Error(`The screenshot for “${scene.title}” is unavailable. Choose a capture in the SOP and retry.`);
+        return { title: scene.title, narration: scene.narration, image, pace: scene.pace ?? 1, focus: scene.focus ?? null };
+      });
+      await fs.writeFile(`${ctx.cwd}/render-scenes.json`, JSON.stringify(scenes));
+      signal?.throwIfAborted();
+      rendered = true;
+      await new Promise<void>((resolve, reject) => {
+        const child = spawn(binary, ["--render-workflow-video", ctx.cwd], { stdio: ["pipe", "pipe", "ignore"], windowsHide: true });
+        let buffer = "", error = "", completed = false;
+        const stop = () => child.stdin.end();
+        const timeout = setTimeout(() => { error = "Video creation timed out. Try a shorter video."; stop(); }, 600000);
+        signal?.addEventListener("abort", stop, { once: true });
+        if (signal?.aborted) stop();
+        child.stdin.on("error", () => {});
+        child.stdout.setEncoding("utf8");
+        child.stdout.on("data", (chunk: string) => {
+          buffer += chunk;
+          if (buffer.length > 65536) { error = "Invalid renderer output"; stop(); buffer = ""; return; }
+          let newline: number;
+          while ((newline = buffer.indexOf("\n")) >= 0) {
+            const line = buffer.slice(0, newline); buffer = buffer.slice(newline + 1);
+            try {
+              const event = JSON.parse(line);
+              if (typeof event.progress === "string") update?.({ content: [{ type: "text", text: event.progress.slice(0, 500) }] });
+              if (typeof event.error === "string") error = event.error.slice(0, 1000);
+              if (event.complete === true) completed = true;
+            } catch { /* Non-protocol startup logging is not model context. */ }
+          }
+        });
+        const cleanup = () => { clearTimeout(timeout); signal?.removeEventListener("abort", stop); };
+        child.once("error", (cause: Error) => { cleanup(); reject(cause); });
+        child.once("close", (code: number) => {
+          cleanup();
+          if (signal?.aborted) reject(new Error("Video creation stopped."));
+          else if (code !== 0 || !completed || error) reject(new Error(error || "The video renderer did not finish."));
+          else resolve();
+        });
+      });
+      // Verify the files before reporting tool success to the model.
+      for (const name of ["video.mp4", "captions.vtt"]) {
+        if (!(await fs.stat(`${ctx.cwd}/rendered/${name}`)).size) throw new Error("The renderer returned an empty video or captions.");
+      }
+      return { content: [{ type: "text", text: JSON.stringify({ video: "rendered/video.mp4", captions: "rendered/captions.vtt", status: "ready" }) }] };
+    },
+  });
+
 }

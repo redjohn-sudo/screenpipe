@@ -3,6 +3,7 @@
 import { mkdir, writeFile, writeTextFile, remove, readDir, stat } from "@tauri-apps/plugin-fs";
 import type { VideoDraft, GuideVideoScene } from "@screenpipe/workflows-ui";
 import { commands } from "@/lib/utils/tauri";
+import { findWorkflowScreenshot } from "./source-screenshot";
 import { loadVideoScreenshot } from "./guide-video";
 
 /** A turn-scoped project, with pixels outside the prompt and no account credentials. */
@@ -33,12 +34,19 @@ export async function stageVideoProject(draft: VideoDraft, scenes: GuideVideoSce
       signal.throwIfAborted();
       if (!scene.id || !/^section-\d+$/.test(scene.id) || !draft.scenes.some(s => s.id === scene.id)) continue;
       let data = scene.image;
-      if (scene.imageFrameId) {
-        if (!cache.has(scene.imageFrameId)) {
-          try { cache.set(scene.imageFrameId, await loadVideoScreenshot(scene.imageFrameId, signal)); }
-          catch { signal.throwIfAborted(); cache.set(scene.imageFrameId, null); }
+      let frameId = scene.imageFrameId;
+      if (!frameId && scene.imageSources?.length) {
+        for (const source of scene.imageSources.slice(0, 3)) {
+          const frame = await findWorkflowScreenshot(source.timestamp, source.app, signal);
+          if (frame) { frameId = frame.frameId; break; }
         }
-        data = cache.get(scene.imageFrameId) ?? null;
+      }
+      if (frameId) {
+        if (!cache.has(frameId)) {
+          try { cache.set(frameId, await loadVideoScreenshot(frameId, signal)); }
+          catch { signal.throwIfAborted(); cache.set(frameId, null); }
+        }
+        data = cache.get(frameId) ?? null;
       }
       if (!data) continue;
       const match = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/.exec(data);
@@ -50,7 +58,7 @@ export async function stageVideoProject(draft: VideoDraft, scenes: GuideVideoSce
       images[scene.id] = match[1];
     }
     signal.throwIfAborted();
-    await writeTextFile(`${path}/video-project.json`, JSON.stringify({ draft, images }));
+    await writeTextFile(`${path}/video-project.json`, JSON.stringify({ draft, images, requiredImages: scenes.filter(scene => scene.requiresImage).map(scene => scene.id) }));
     return { path, dispose };
   } catch (error) { await dispose().catch(() => {}); throw error; }
 }

@@ -3623,6 +3623,12 @@ pub async fn pi_start_inner(
         }
     }
 
+    // The video skill invokes this binary's headless renderer. Credentials stay
+    // in the inherited account environment, never in a project or model prompt.
+    if provider_config.as_ref().is_some_and(|config| config.allowed_tools.as_ref().is_some_and(|tools| tools.iter().any(|tool| tool == "render_video_sop"))) {
+        cmd.env("SCREENPIPE_VIDEO_CLI", std::env::current_exe().map_err(|e| e.to_string())?);
+    }
+
     // Pass local API config so the Pi agent can authenticate to the runtime local API.
     {
         use crate::recording::local_api_context_from_app;

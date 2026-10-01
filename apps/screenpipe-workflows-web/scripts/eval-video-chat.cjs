@@ -34,7 +34,7 @@ const fs = require("node:fs");
     }
     await page.getByRole("button", { name: "Video SOP", exact: true }).click();
     await page.getByRole("button", { name: "Create video", exact: true }).click();
-    await page.getByText("Creating narration", { exact: true }).waitFor();
+    await page.getByText("Creating narration", { exact: true }).first().waitFor();
     await page.screenshot({ path: dir + (before ? "/before.png" : "/streaming.png") });
     const chat = page.getByRole("region", { name: "Screenpipe assistant" });
     if (!before) {
@@ -66,7 +66,7 @@ const fs = require("node:fs");
     await page.getByRole("button", {name:"Move Generated video",exact:true}).focus();
     await page.keyboard.press("Alt+ArrowUp");
     await page.getByRole("button", { name: "Create new video", exact: true }).click();
-    await chat.getByText("Creating narration", { exact: true }).waitFor();
+    await chat.getByText("Creating narration", { exact: true }).first().waitFor();
     await chat.getByRole("button", { name: "Stop answer" }).click();
     await page.getByRole("button", { name: "Create new video", exact: true }).waitFor({ state: "visible" });
     await page.setViewportSize({ width: 900, height: 800 });

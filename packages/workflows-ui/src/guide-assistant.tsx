@@ -2,7 +2,7 @@
 // https://screenpipe.com
 "use client";
 import { useContext, useEffect, useRef } from "react";
-import { guideVideoDraft, guideVideoScenes } from "./guide-video";
+import { guideVideoDraft, guideVideoScenes, type GuideVideoResult } from "./guide-video";
 import { preserveGuideBlocks, type WorkflowGuide } from "./guide";
 import type { WorkflowMap } from "./model";
 import type { WorkflowsPlatform } from "./platform";
@@ -14,6 +14,7 @@ export function GuideAssistant(props: {
   guide: WorkflowGuide | null;
   videoMode?: boolean;
   onVideoBusyChange?: (busy: boolean) => void;
+  showVideo?: (guide: WorkflowGuide, result: GuideVideoResult) => void;
   renderVideo?: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void>;
   promptRequest?: { id: string; text: string };
   workflow: WorkflowMap;
@@ -55,11 +56,22 @@ export function GuideAssistant(props: {
           };
           if (current.current.videoMode && guide) {
             if (!platform.video?.edit) throw new Error("Video editing is unavailable.");
-            const response = await platform.video.edit(guideVideoDraft(guide, workflow), question, history, runSignal, progress, guideVideoScenes(guide, workflow));
-            runSignal.throwIfAborted();
-            if (current.current.guide !== guide) throw new Error("The SOP or video script changed while the assistant was editing. Your edits were kept. Try again.");
+            const response = await platform.video.edit(guideVideoDraft(guide, workflow), question, history, runSignal, event => { if (!runSignal.aborted) typeof event === "string" ? progress(event) : onProgress(event); }, guideVideoScenes(guide, workflow));
             const next = { ...guide, video: response.draft };
-            if (response.changed || response.render) await update(next);
+            try {
+              runSignal.throwIfAborted();
+              if (current.current.guide !== guide) throw new Error("The SOP or video script changed while the assistant was editing. Your edits were kept. Try again.");
+              if (response.changed || response.render || response.result) await update(next);
+              runSignal.throwIfAborted();
+              if (response.result) {
+                if (!current.current.showVideo) throw new Error("Video preview is unavailable.");
+                current.current.showVideo(next, response.result);
+                return response.message || "Your video is ready on the page.";
+              }
+            } catch (error) {
+              if (response.result) await platform.video.release(response.result).catch(() => {});
+              throw error;
+            }
             runSignal.throwIfAborted();
             if (response.render) {
               if (!current.current.renderVideo) throw new Error("Video rendering is unavailable.");

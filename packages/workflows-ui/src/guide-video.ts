@@ -2,13 +2,13 @@
 // https://screenpipe.com
 import { guideKey, guideScreenshot, guideStepIncludesImage, guideSourceStage, guideNeedsSourceReview, type WorkflowGuide } from "./guide";
 import { parseVideoDraft, type VideoDraft, type VideoFocus } from "./video-tool";
-import type { AssistantMessage } from "./assistant";
+import type { AssistantMessage, AssistantProgress } from "./assistant";
 import type { WorkflowMap } from "./model";
 
 export type GuideVideoScene = { title: string; narration: string; image: string | null; imageFrameId?: number; imageSources?: { timestamp: string; app: string }[]; id?: string; requiresImage?: boolean; pace?: number; focus?: VideoFocus | null };
 export type GuideVideoResult = { url: string; path: string; captionsPath: string; captionsUrl?: string };
 export type GuideVideoPlatform = {
-  edit?: (draft: VideoDraft, instruction: string, history: AssistantMessage[], signal: AbortSignal, progress: (message: string) => void, scenes?: GuideVideoScene[]) => Promise<{ draft: VideoDraft; render: boolean; message: string; changed: boolean }>;
+  edit?: (draft: VideoDraft, instruction: string, history: AssistantMessage[], signal: AbortSignal, progress: (message: string | AssistantProgress) => void, scenes?: GuideVideoScene[]) => Promise<{ draft: VideoDraft; render: boolean; result?: GuideVideoResult; message: string; changed: boolean }>;
   generate: (scenes: GuideVideoScene[], signal: AbortSignal, progress: (message: string) => void) => Promise<GuideVideoResult>;
   export: (result: GuideVideoResult, title: string, captions: boolean) => Promise<boolean>;
   release: (result: GuideVideoResult) => Promise<void>;

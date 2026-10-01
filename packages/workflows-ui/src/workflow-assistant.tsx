@@ -258,14 +258,15 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
         if (abort.signal.aborted || !mounted.current) return;
         if (progress.workflow && current.feedbackContext) update(s => ({ ...s, conversations: s.conversations.map(c => c.id === current.id ? { ...c, feedbackContext: assistantContextSnapshot({ ...c.feedbackContext!, workflow: progress.workflow, title: progress.workflow!.title }) } : c) }));
         setActivity(progress.activity === "working" ? "Working…" : progress.activity === "searching" ? "Searching your memory…" : progress.activity === "writing" ? "Writing…" : "Starting…");
-        patchMessage(current.id, answerId, { text: progress.text });
+        patchMessage(current.id, answerId, { text: progress.text, ...(progress.toolCalls ? {toolCalls: progress.toolCalls} : {}) });
       } });
       if (!mounted.current) return;
       patchMessage(current.id, answerId, { text, status: abort.signal.aborted ? "stopped" : undefined });
     } catch (cause) {
       if (!mounted.current) return;
       const stopped = abort.signal.aborted;
-      patchMessage(current.id, answerId, { status: stopped ? "stopped" : "error" });
+      const answer = stateRef.current.conversations.find(c => c.id === current.id)?.messages.find(m => m.id === answerId);
+      patchMessage(current.id, answerId, { status: stopped ? "stopped" : "error", toolCalls: answer?.toolCalls?.map(tool => tool.status === "running" ? {...tool, status: stopped ? "stopped" : "error"} : tool) });
       if (!stopped) setError(cause instanceof Error ? cause.message : ui("Couldn’t finish the answer. Try again."));
     } finally {
       if (controller.current === abort) controller.current = null;
@@ -390,6 +391,10 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
           </div>}
           {conversation.messages.map((message) => <article key={message.id} className={message.role === "user" ? styles.user : styles.assistant} aria-label={message.role === "user" ? ui("Your question") : ui("Screenpipe answer")}>
             {message.role === "user" ? <p>{message.text}</p> : <ChatMarkdown text={message.text} streaming={busy && message.id === lastAnswer?.id} allowLink={isAssistantLink} onOpenLink={platform.openLink ? openSource : undefined} />}
+            {message.toolCalls?.map(tool => <details key={tool.id} className={styles.toolCall}>
+              <summary><span aria-hidden="true">{tool.status === "running" ? "◌" : tool.status === "complete" ? "✓" : tool.status === "stopped" ? "□" : "!"}</span><span>{tool.name.replace(/_/g, " ")}</span><small>{tool.status === "running" && tool.detail && !tool.detail.startsWith("{") ? tool.detail.slice(0, 80) : tool.status}</small></summary>
+              {tool.detail && <pre>{tool.detail}</pre>}
+            </details>)}
             {message.feedbackSaved && message.id === lastUser?.id && <small>Feedback saved for the next update</small>}
             {message.status === "stopped" && <small>Stopped</small>}
             {message.role === "assistant" && message.text && (!busy || message.id !== lastAnswer?.id) && <div className={styles.messageActions}>

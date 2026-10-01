@@ -111,3 +111,8 @@
 .feedbackActions { display: flex; justify-content: flex-end; padding: 8px 16px 0; }
 .feedbackActions button { padding: 7px 12px; border: 1px solid var(--chat-line); border-radius: 7px; background: var(--chat-soft); color: var(--chat-ink); font: inherit; font-size: 12px; cursor: pointer; }
 .feedbackActions button:disabled { opacity: .5; cursor: wait; }
+
+.toolCall { margin: 10px 0; font-size: 13px; color: var(--wf-muted, #75776e); }
+.toolCall summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; }
+.toolCall summary small { margin-left: auto; font-size: 11px; }
+.toolCall pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 220px; overflow: auto; font-size: 11px; padding: 10px; border: 1px solid #e6e6e1; border-radius: 6px; }
