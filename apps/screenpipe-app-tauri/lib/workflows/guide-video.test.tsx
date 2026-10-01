@@ -72,7 +72,7 @@ describe("video SOP review", () => {
     const view = render(<GuideVideoPanel guide={guide} workflow={workflow} platform={p} save={async () => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
     fireEvent.click(screen.getByRole("button", { name: "Create video" }));
-    fireEvent.click(screen.getByRole("button", { name: "Create video" }));
+    fireEvent.click(screen.getByRole("button", { name: "Creating video…" }));
     await waitFor(() => expect(p.generate).toHaveBeenCalledTimes(1));
     view.unmount(); expect(signal?.aborted).toBe(true);
   });
@@ -184,9 +184,8 @@ it("shows selected captures alongside narration without claiming semantic review
   w.stages[0].screenshot!.dataUrl = "data:image/png;base64,YQ==";
   render(<GuideVideoPanel guide={guide} workflow={w} platform={platform()} save={async () => {}} />);
   fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
-  fireEvent.click(screen.getByText(/Review narration/));
   expect(screen.getByRole("img", { name: "Screenshot for 1. Review sources" })).toHaveAttribute("src", w.stages[0].screenshot!.dataUrl);
-  expect(screen.getByText("Captured screenshot")).toBeTruthy();
+  expect(screen.getByRole("region", { name: "Screenshots and narration" })).toBeVisible();
   expect(screen.queryByText("Reviewed screenshot")).toBeNull();
   expect(screen.queryByText("Each step has its own reviewed screenshot.")).toBeNull();
 });
@@ -215,4 +214,39 @@ it("resolves unattached screen evidence automatically, but never audio or an exp
  expect(videoScreenshotGaps(guideVideoScenes(removed,source))).toHaveLength(1);
  source.stages[0].evidence=source.stages[0].evidence.map(e=>({...e,source:"audio"}));
  expect(videoScreenshotGaps(guideVideoScenes(guide,source))).toHaveLength(1);
+});
+
+it("shows the storyboard immediately and hands narration editing to chat without rendering", () => {
+  const p = { ...platform(), edit: vi.fn() }, mode = vi.fn();
+  const openChat = vi.fn();
+  window.addEventListener("workflows:open-assistant", openChat);
+  render(<GuideVideoPanel guide={guide} workflow={workflow} platform={p} save={async () => {}} onVideoMode={mode} />);
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  expect(screen.getByRole("region", { name: "Screenshots and narration" })).toBeVisible();
+  expect(screen.getByText(/Check each claim/)).toBeVisible();
+  expect(screen.queryByRole("button", { name: "Edit video in chat" })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Change narration" }));
+  expect(mode).toHaveBeenCalledWith(true);
+  expect(openChat).toHaveBeenCalledTimes(1);
+  expect(screen.queryByRole("region", { name: "Video SOP" })).toBeNull();
+  expect(p.generate).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  fireEvent.click(screen.getByRole("button", { name: "Back to SOP" }));
+  expect(mode).toHaveBeenLastCalledWith(false);
+  expect(screen.getByRole("button", { name: "Video SOP" })).toHaveFocus();
+  window.removeEventListener("workflows:open-assistant", openChat);
+});
+it("loads the original screenshot for frame-only storyboard scenes and releases it on close", async () => {
+  const load = vi.fn().mockResolvedValue("blob:storyboard-original");
+  const originalRevoke = URL.revokeObjectURL;
+  const revoke = vi.fn();
+  URL.revokeObjectURL = revoke;
+  render(<GuideVideoPanel guide={guide} workflow={workflow} platform={platform()} loadScreenshot={load} save={async () => {}} />);
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  await waitFor(() => expect(screen.getByRole("img", { name: "Screenshot for 1. Review sources" })).toHaveAttribute("src", "blob:storyboard-original"));
+  expect(load).toHaveBeenCalledWith(5, expect.any(AbortSignal));
+  fireEvent.click(screen.getByRole("button", { name: "Back to SOP" }));
+  expect(load.mock.calls[0][1].aborted).toBe(true);
+  expect(revoke).toHaveBeenCalledWith("blob:storyboard-original");
+  URL.revokeObjectURL = originalRevoke;
 });

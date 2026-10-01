@@ -425,6 +425,12 @@ export const fixtureLibrary: NonNullable<WorkflowsPlatform["library"]> = {
 
 export function fixtureGuides(): NonNullable<WorkflowsPlatform["guides"]> {
   return {
+    video: {
+      generate: async () => { throw new Error("Video rendering is unavailable in this fictional browser preview. Use the desktop app to create an MP4."); },
+      edit: async () => { throw new Error("Video editing is unavailable in this fictional browser preview."); },
+      export: async () => false,
+      release: async () => {},
+    },
     list: async () => Object.keys(localStorage).filter(key => key.startsWith("workflow-guide-preview:")).map(key => parseGuide(JSON.parse(localStorage.getItem(key)!))),
     openWeb: async () => {
       throw new Error("This fictional preview does not publish. Use the website preview to try editing and sharing.");

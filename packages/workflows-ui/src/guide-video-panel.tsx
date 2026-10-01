@@ -3,8 +3,10 @@
 "use client";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Download, Film, Loader2, MessageCircle, X } from "lucide-react";
+import { ArrowLeft, Download, Film, ImageOff, Loader2, MessageCircle } from "lucide-react";
 import { isGuideImage, type WorkflowGuide } from "./guide";
+import { SopScreenshot } from "./sop-screenshot";
+import type { WorkflowsPlatform } from "./platform";
 import type { WorkflowMap } from "./model";
 import { guideVideoScenes, videoScreenshotGaps, repeatedVideoScreenshots, type GuideVideoPlatform, type GuideVideoResult } from "./guide-video";
 import styles from "./workflow-guide.module.css";
@@ -12,12 +14,13 @@ import styles from "./workflow-guide.module.css";
 export type GuideVideoHandle = { generate: (guide: WorkflowGuide, signal: AbortSignal, progress: (text: string) => void) => Promise<void> };
 export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
   guide: WorkflowGuide; workflow: WorkflowMap; platform: GuideVideoPlatform;
+  loadScreenshot?: NonNullable<WorkflowsPlatform["guides"]>["loadScreenshot"];
   save: (guide: WorkflowGuide) => Promise<void>;
   onVideoMode?: (active: boolean) => void;
   onReset?: () => Promise<void>;
   container?: HTMLElement | null;
   onOpenChange?: (open: boolean) => void;
-}> (function GuideVideoPanel({ guide, workflow, platform, save, onVideoMode, onReset, container, onOpenChange }, ref) {
+}> (function GuideVideoPanel({ guide, workflow, platform, loadScreenshot, save, onVideoMode, onReset, container, onOpenChange }, ref) {
   const [open, setOpen] = useState(false);
   const [requireScreenshots, setRequireScreenshots] = useState(true);
   const [versions, setVersions] = useState<Array<{ result: GuideVideoResult; source: string; number: number }>>([]);
@@ -52,7 +55,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     if (!open) return;
     window.dispatchEvent(new CustomEvent("workflows:minimize-assistant"));
     panel.current?.focus({ preventScroll: true });
-    panel.current?.scrollIntoView?.({ block: "nearest" });
+    panel.current?.scrollIntoView?.({ block: "start" });
     const dismiss = (event: KeyboardEvent) => {
       if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); }
     };
@@ -118,22 +121,29 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     try { if (await platform.export(result, guide.title, captions)) setMessage(captions ? "Captions downloaded" : "Video downloaded"); }
     catch { setMessage(""); setError("Could not download. Your preview is still available; try again."); }
   }
+  function backToSop() {
+    onVideoMode?.(false);
+    setOpen(false);
+    trigger.current?.focus();
+  }
   const content = open && <section ref={panel} tabIndex={-1} id="sop-video-panel" aria-label="Video SOP" className={styles.videoPanel}>
-      <div className={styles.videoHeading}><h2>Video SOP</h2><button aria-label="Close video panel" onClick={() => { setOpen(false); trigger.current?.focus(); }}><X size={16} /></button></div>
-      <p className={styles.videoTitle}>{guide.title}</p>
-      <p>Create a narrated video from this SOP’s steps and screenshots.</p>
-      <details className={styles.videoPrivacy}><summary>How your data is used</summary><p>Narration is sent to Screenpipe’s speech service. Rendering stays on this device. When you ask chat for visual edits, it can inspect the relevant screenshots through your selected AI service.</p></details>
-      {platform.edit && <div className={styles.videoActions}>
-        <button disabled={busy || !!planError} onClick={() => { onVideoMode?.(true); setOpen(false); window.dispatchEvent(new CustomEvent("workflows:open-assistant")); }}><MessageCircle size={16} /> Edit video in chat</button>
-        <button onClick={() => { onVideoMode?.(false); setOpen(false); }}>Edit SOP instead</button>
-      </div>}
+      <button className={styles.videoBack} onClick={backToSop}><ArrowLeft size={16} /> Back to SOP</button>
+      <div className={styles.videoHeading}>
+        <div><p className={styles.videoEyebrow}>{result ? "Your video" : "Create a video"}</p><h2>{guide.title}</h2>
+          <p className={styles.videoDescription}>{scenes.length} {scenes.length === 1 ? "step" : "steps"} · Narrated walkthrough</p></div>
+        <div className={styles.videoActions}>
+          <button className={styles.primary} disabled={busy || !!planError || (requireScreenshots && gaps.length > 0)} onClick={() => void generate().catch(() => {})}>{busy ? <Loader2 size={16} className={styles.spin} /> : <Film size={16} />}{busy ? "Creating video…" : result ? "Create new video" : error ? "Try again" : "Create video"}</button>
+          {busy && <button onClick={() => { controller.current?.abort(); setMessage("Stopping video creation…"); }}>Stop</button>}
+        </div>
+      </div>
+      {message && <p role="status" aria-live="polite">{message}</p>}
+      {(error || planError) && <p role="alert">{error || planError}</p>}
       {gaps.length > 0 && <div role="status"><p>These steps need a screenshot before rendering:</p><ul>{gaps.map(title => <li key={title}>{title}</li>)}</ul>
         <label><input type="checkbox" checked={!requireScreenshots} disabled={busy} onChange={event => setRequireScreenshots(!event.target.checked)} /> Allow text-only steps for this video</label></div>}
       {!planError && repeated.length > 0 && <details><summary>Some steps reuse the same screenshot</summary>
         <p>Check that these captures show the actions you want to teach. Choose a different screenshot in the SOP when needed.</p>
         {repeated.map((titles, index) => <p key={index}>{titles.join(" · ")}</p>)}
       </details>}
-      {!planError && scenes.some(scene => scene.imageSources?.length) && gaps.length === 0 && <p>Screenshots will be loaded from the original recordings before the video is created.</p>}
       {result && <>
         {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}
         <video key={result.url} controls preload="metadata" src={result.url} aria-label="Narrated SOP preview">
@@ -146,18 +156,23 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
         {versions.length > 1 && <details><summary>Video revisions · {versions.length}</summary><div className={styles.videoActions}>{versions.map((version) => <button key={version.result.path} disabled={busy || result === version.result} onClick={() => { setResult(version.result); setRenderedSource(version.source); }}>Version {version.number}</button>)}</div></details>}
         <p>The last three previews stay available while this SOP is open. Download a copy to keep it.</p>
       </>}
-      {scenes.length > 0 && <details className={styles.videoScript}>
-        <summary>Review narration · {scenes.length} sections</summary>
-        {guide.video && <button disabled={busy} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
-        {scenes.map((scene, i) => <div key={i}><h3>{scene.title}</h3>{scene.image && isGuideImage(scene.image) && <img loading="lazy" src={scene.image} alt={`Screenshot for ${scene.title}`} />}<p>{scene.narration}</p><small>{scene.image || scene.imageFrameId ? "Captured screenshot" : "Text slide · no screenshot"}</small></div>)}
-      </details>}
-      {planError && guide.video && <button disabled={busy} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
-      {(error || planError) && <p role="alert">{error || planError}</p>}
-      <div className={styles.videoActions}>
-        <button disabled={busy || !!planError || (requireScreenshots && gaps.length > 0)} onClick={() => void generate().catch(() => {})}>{busy ? <Loader2 size={16} className={styles.spin} /> : <Film size={16} />}{result ? "Create new video" : error ? "Try again" : "Create video"}</button>
-        {busy && <button onClick={() => { controller.current?.abort(); setMessage("Stopping video creation…"); }}>Stop</button>}
-        <span role="status" aria-live="polite">{message}</span>
-      </div>
+      {scenes.length > 0 && <section className={styles.videoScript} aria-label="Screenshots and narration">
+        <div className={styles.videoScriptHeading}>
+          <h3>Screenshots and narration</h3>
+          {platform.edit && <button disabled={busy || !!planError} onClick={() => { onVideoMode?.(true); setOpen(false); window.dispatchEvent(new CustomEvent("workflows:open-assistant")); }}><MessageCircle size={16} /> {result ? "Edit video in chat" : "Change narration"}</button>}
+        </div>
+        <ol className={styles.videoScenes}>{scenes.map((scene, i) => <li key={scene.id ?? i}>
+          <div className={styles.videoSceneImage}>
+            {(scene.image && isGuideImage(scene.image)) || (scene.imageFrameId && loadScreenshot)
+              ? <SopScreenshot src={scene.image && isGuideImage(scene.image) ? scene.image : ""} frameId={scene.imageFrameId ?? 0} load={scene.imageFrameId ? loadScreenshot : undefined} alt={`Screenshot for ${scene.title}`} />
+              : <div className={styles.videoMissingImage}><ImageOff size={24} /><span>{scene.imageFrameId || scene.imageSources?.length ? "Screenshot will load from the recording" : "No screenshot for this step"}</span></div>}
+          </div>
+          <div><h4>{scene.title}</h4><p>{scene.narration}</p></div>
+        </li>)}</ol>
+      </section>}
+      <details className={styles.videoPrivacy}><summary>How your data is used</summary><p>Narration is sent to Screenpipe’s speech service. Rendering stays on this device. When you ask chat for visual edits, it can inspect the relevant screenshots through your selected AI service.</p></details>
+      {guide.video && <button disabled={busy} onClick={() => { void onReset?.().catch(() => setError("Could not reset the video script. Try again.")); }}>Reset video script from SOP</button>}
+
     </section>;
   return <>
     <button ref={trigger} className={styles.actionButton} aria-label="Video SOP" aria-expanded={open} aria-controls="sop-video-panel" onClick={() => setOpen(!open)}>

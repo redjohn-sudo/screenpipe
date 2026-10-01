@@ -34,6 +34,7 @@ import { WorkflowRichText } from "./rich-text";
 import { InlineText } from "./inline-text";
 import { SopDocument } from "./sop-document";
 import { GuideAssistant } from "./guide-assistant";
+import { SopScreenshot } from "./sop-screenshot";
 import { GuideVideoPanel, type GuideVideoHandle } from "./guide-video-panel";
 import styles from "./workflow-guide.module.css";
 import { useGT } from "gt-react";
@@ -252,7 +253,7 @@ export function WorkflowGuide({
           )}
           {draft && (
             <>
-              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} save={persist} onVideoMode={setVideoMode} onReset={async () => {
+              {platform.video && <GuideVideoPanel container={videoContainer} onOpenChange={setVideoOpen} ref={videoHandle} guide={draft} workflow={workflow} platform={platform.video} loadScreenshot={platform.loadScreenshot} save={persist} onVideoMode={setVideoMode} onReset={async () => {
                 const { video: _video, ...next } = draft;
                 await persist(next); latest.current = next; setDraft(next);
               }} />}
@@ -834,42 +835,6 @@ function ScreenshotReview({
 }
 
 
-function SopScreenshot({ src, frameId, load, alt, onLoad, onError }: {
-  src: string; frameId: number; alt: string; draggable?: boolean;
-  load?: NonNullable<WorkflowsPlatform["guides"]>["loadScreenshot"];
-  onLoad?: () => void; onError?: () => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  const [original, setOriginal] = useState<string>();
-  const [failed, setFailed] = useState(false);
-  useEffect(() => {
-    if (!ref.current) return;
-    if (typeof IntersectionObserver === "undefined") { setVisible(true); return; }
-    const observer = new IntersectionObserver(entries => setVisible(entries.some(entry => entry.isIntersecting)), { rootMargin: "200px" });
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-  useEffect(() => {
-    if (!load || !visible) return;
-    const controller = new AbortController();
-    let url: string | undefined;
-    setFailed(false);
-    void load(frameId, controller.signal).then(value => {
-      if (controller.signal.aborted) { if (value.startsWith("blob:")) URL.revokeObjectURL(value); return; }
-      url = value; setOriginal(value);
-    }).catch(() => { if (!controller.signal.aborted) setFailed(true); });
-    return () => {
-      controller.abort(); setOriginal(undefined);
-      if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
-    };
-  }, [frameId, load, visible]);
-  return <div ref={ref}>
-    <img src={original || src} alt={alt} loading="lazy" draggable={false} onLoad={onLoad}
-      onError={() => { if (original) { setOriginal(undefined); setFailed(true); } else onError?.(); }} />
-    {failed && <p className={styles.muted} role="status">Original screenshot unavailable. Showing the saved preview.</p>}
-  </div>;
-}
 
 function SourceSopScreenshot({ stage, load, title }: {
   stage: WorkflowMap["stages"][number];

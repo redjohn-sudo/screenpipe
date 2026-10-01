@@ -297,7 +297,7 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
   const lastUser = [...conversation.messages].reverse().find((message) => message.role === "user");
   const lastAnswer = conversation.messages.at(-1);
   const suggestions = context.purpose === "video"
-    ? ["Make the narration shorter", "Create the updated video"]
+    ? ["Make the narration shorter", "Create video"]
     : context.purpose === "sop"
     ? ["Make this SOP shorter", "Make the steps easier to follow"]
     : context.workflow
@@ -382,7 +382,7 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
           {!history.length && <p>{historyQuery ? ui("No matching conversations.") : ui("Your conversations will appear here.")}</p>}
         </div> : loaded && <>
           {!conversation.messages.length && <div className={styles.empty}>
-            <h2>{feedbackContext ? ui("What should change?") : context.purpose === "video" ? ui("Edit this video") : context.purpose === "sop" ? ui("Edit this SOP") : context.workflow ? ui("Ask about this workflow") : ui("Search your memory")}</h2>
+            <h2>{feedbackContext ? ui("What should change?") : context.purpose === "video" ? ui("Edit the video script") : context.purpose === "sop" ? ui("Edit this SOP") : context.workflow ? ui("Ask about this workflow") : ui("Search your memory")}</h2>
             {!feedbackContext && <div>{suggestions.map((question) => <button key={question} onClick={() => void send(question)}><Search size={15} /><span>{question}</span><ArrowUp size={13} /></button>)}</div>}
           </div>}
           {conversation.messages.map((message) => <article key={message.id} className={message.role === "user" ? styles.user : styles.assistant} aria-label={message.role === "user" ? ui("Your question") : ui("Screenpipe answer")}>
@@ -408,7 +408,7 @@ export function WorkflowAssistant({ platform, context, onDockChange, onWidthChan
       {saveError && <div className={styles.saveError} role="alert">Couldn’t save this conversation.<button onClick={() => void persist(stateRef.current).catch(() => {})}>Retry save</button></div>}
       {!historyOpen && <form className={styles.composer} onSubmit={(event) => { event.preventDefault(); void send(conversation.draft); }}>
         {feedbackContext ? <span className={styles.context}><span className={styles.contextDot} /><span>{feedbackContext.title}</span></span> : <button type="button" className={styles.context} aria-pressed={includeContext} title={includeContext ? ui("Remove current page from the next message") : ui("Include current page in the next message")} onClick={() => setIncludeContext(!includeContext)}>{includeContext ? <><span className={styles.contextDot} /><span>{context.title}</span><X size={12} /></> : <><Plus size={13} /><span>Add current page</span></>}</button>}
-        <ComposerTextArea ref={input} aria-label={ui("Ask Screenpipe")} placeholder={feedbackContext ? platform.learnsFromFeedback ? ui("Share feedback to refine this workflow…") : ui("Answer a question or share feedback…") : includeContext && context.purpose === "video" ? ui("Ask Screenpipe to change or regenerate this video…") : includeContext && context.purpose === "sop" ? ui("Ask Screenpipe to edit this SOP…") : includeContext && context.workflow ? ui("Ask about this workflow…") : ui("Ask or find anything…")} rows={1}
+        <ComposerTextArea ref={input} aria-label={ui("Ask Screenpipe")} placeholder={feedbackContext ? platform.learnsFromFeedback ? ui("Share feedback to refine this workflow…") : ui("Answer a question or share feedback…") : includeContext && context.purpose === "video" ? ui("Change the narration, screenshots, or pacing…") : includeContext && context.purpose === "sop" ? ui("Ask Screenpipe to edit this SOP…") : includeContext && context.workflow ? ui("Ask about this workflow…") : ui("Ask or find anything…")} rows={1}
           value={conversation.draft} maxLength={8000} disabled={!loaded} onChange={(event) => update((current) => ({
             ...current, conversations: current.conversations.map((item) => item.id === current.activeId ? { ...item, draft: event.target.value } : item),
           }))} onSend={() => void send(conversation.draft)} />
