@@ -9,9 +9,65 @@ This is an agent eval suite, not a unit-test suite. Every case contains:
 - saved prompt, transcript, candidate patch, grader output, runtime fingerprint, and result;
 - repeated-trial reporting with success rate, `pass@k`, and `pass^k`.
 
+`app-search-focus-lifecycle` runs the actual search page, focus hook and DOM
+listener hook with synthetic native events and a small search-view shell. Ten
+outcomes cover hidden prewarm, hide/show cycles, focus recovery, query resets,
+navigation, close and unmount. The parent fails three hidden-focus outcomes and
+preserves seven; the historical page fix and current source pass ten. Run
+`bun test evals/coding-agent/calibrate-search-focus.test.js` for twelve controls,
+including a mounted-but-inactive equivalent, unused correct code, blanket
+inactivity, ignored hide events and lost query/focus/handoff behavior. Missing
+source is a setup failure. Fixtures and runtime links appear only at grading.
+This does not execute the full search modal, native window events, macOS focus,
+real IPC, execution isolation or model trials. Current cache prewarm is checked
+separately and is allowed while the view is hidden.
+
+`app-mixed-note-paste` mounts the actual React and TipTap meeting-note editor
+with synthetic image conversion and inert menus/localization. Five outcomes cover
+mixed text/image paste, ordinary text, image-only files and HTML, and a delayed
+image after a keyed meeting switch. The parent loses mixed-paste text; four nearby
+outcomes pass. The historical fix and current source pass all five. Run
+`bun test evals/coding-agent/calibrate-note-paste.test.js` for calibration,
+including unused correct code, equivalent paragraph construction, lost text or
+images, blanket paste refusal and missing-source classification. Fixtures and
+dependency links appear only when grading begins. This does not execute native
+clipboard delivery, image encoding, disk autosave, agent isolation or model trials.
+
 The current app corpus contains 80 git-mined regressions. See
 [DESIGN.md](./DESIGN.md) for the Anthropic guidance, source contract, and
 history-mining workflow. The companion website manifest uses this same harness.
+
+`ai-gateway-auth-log-privacy` runs the actual authentication entry points with
+synthetic Clerk and account-service replies. Eight checks reject credentials,
+account identifiers, emails and upstream error details in console output;
+four nearby outcomes preserve verified and legacy access and anonymous fallback.
+The broken parent fails eight checks and preserves four. The auth-only historical
+fix and current source pass all twelve. Run
+`bun test evals/coding-agent/calibrate-auth-log-privacy.test.js` for eleven
+controls, including equivalent diagnostics, silence, unused correct source,
+raw-value logging, blanket access/denial and missing-source classification.
+Fixtures are installed only when grading begins. This does not test real JWT
+cryptography, the HTTP router, external log sinks, native model policy, execution
+isolation or model capability. Public-identifier authentication from the historical
+source is superseded and is not required by this case.
+
+
+`app-permission-recovery-audio-policy` renders permission recovery, onboarding
+and the status banner with synthetic settings and native command ports. Fourteen
+outcomes cover audio-off policy, loading, policy changes during delayed completion,
+unmount and ordinary audio-on requests. The parent fails eight outcomes and
+preserves six; the historical fix and current source pass fourteen. Run
+`bun test evals/coding-agent/calibrate-audio-policy.test.js` for ten controls,
+including an equivalent policy implementation, unused correct interfaces and
+blanket microphone requirements or suppression. Explicit DOM cleanup keeps tests
+independent. Fixtures and dependency links appear only at grading. Native pause
+and recording behavior, OS permission enforcement, execution isolation and model
+improvement are outside this evidence. Recognized Vitest collection failures stay
+infrastructure errors when neighboring suites pass or skip. Executed test failures
+and assertion headers retain their behavior classification. The shared runner's
+`bun test evals/coding-agent/run.test.ts` controls cover both verification arms
+and exclusion from scored trials. Unknown diagnostics still need log inspection;
+a nonzero process exit alone does not establish a behavior regression.
 
 `app-model-catalog-session-freshness` runs the actual model-catalog hook with
 synthetic settings and HTTP ports. Ten outcomes cover hydration, token changes,
@@ -1368,3 +1424,15 @@ not establish Home callback wiring, native recording resumption, operating-syste
 capture, agent isolation or model improvement. The hidden fixture and dependency
 link are installed only after the trajectory ends. No evaluated agent runs in
 calibration or baseline/reference verification.
+
+## OpenAI streaming tool policy regression
+
+`app-openai-stream-tool-choice` executes the historical OpenAI provider with a synthetic SDK transport. The broken parent loses explicit tool choices on four streams and the unsupported-usage retry; seven neighboring outcomes still pass. The provider-only historical repair and current source pass all twelve checks.
+
+The grader checks caller-selected policy, tool schemas, model/messages, input preservation, retry behavior, native tool fragments, content, usage and stream termination. Eleven calibration controls include equivalent code, an unused repair, forced policies, lost schemas/fragments and a missing-source setup error.
+
+```sh
+bun test evals/coding-agent/calibrate-openai-tool-choice.test.js
+```
+
+This covers the provider boundary with synthetic transport. It does not establish model adherence, actual tool execution, gateway authentication, native Pi policy, agent isolation or model gains. The existing GLM case covers response conversion and remains separate.
