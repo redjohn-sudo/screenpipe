@@ -1,5 +1,7 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
+import { findWorkflowScreenshot } from "./source-screenshot";
+import { loadOriginalWorkflowScreenshot } from "./original-screenshot";
 import { trackWorkflowOutcome } from "./notification";
 import { editGuideVideo } from "./guide-video-edit";
 import { desktopGuideVideo } from "./guide-video";
@@ -44,6 +46,12 @@ async function requireSopGenerationAccess(signal: AbortSignal) {
 
 export const desktopGuides: NonNullable<WorkflowsPlatform["guides"]> = {
   video: { ...desktopGuideVideo, edit: editGuideVideo },
+  loadSourceScreenshot: async (timestamp, app, signal) => {
+    const frame = await findWorkflowScreenshot(timestamp, app, signal);
+    if (!frame) return null;
+    return { ...frame, dataUrl: URL.createObjectURL(await loadOriginalWorkflowScreenshot(frame.frameId, signal)) };
+  },
+  loadScreenshot: async (frameId, signal) => URL.createObjectURL(await loadOriginalWorkflowScreenshot(frameId, signal)),
   async openWeb(guide) {
     const token = await commands.getCloudToken();
     if (!token)

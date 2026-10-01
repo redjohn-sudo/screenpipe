@@ -7,29 +7,19 @@ import { copyFile } from "@tauri-apps/plugin-fs";
 import posthog from "posthog-js";
 import { commands } from "@/lib/utils/tauri";
 import type { GuideVideoPlatform, GuideVideoResult } from "@screenpipe/workflows-ui";
-import { localFetch } from "@/lib/api";
+import { findWorkflowScreenshot } from "./source-screenshot";
+import { loadOriginalWorkflowScreenshot } from "./original-screenshot";
 
 export async function loadVideoScreenshot(frameId: number, signal: AbortSignal): Promise<string> {
-  if (!Number.isSafeInteger(frameId) || frameId <= 0) throw new Error("Invalid screenshot reference.");
-  const controller = new AbortController();
-  const abort = () => controller.abort();
-  signal.addEventListener("abort", abort, { once: true });
-  if (signal.aborted) abort();
-  const timeout = setTimeout(abort, 15000);
-  try {
-    const response = await localFetch(`/frames/${frameId}/thumbnail?width=1920&quality=90&fallback=false`, { signal: controller.signal });
-    if (!response.ok) throw new Error("A reviewed screenshot is unavailable. Restore or replace that screenshot before rendering.");
-    const blob = await response.blob();
-    if (!/^image\/(png|jpeg|webp)$/.test(blob.type) || !blob.size || blob.size > 12 * 1024 * 1024) throw new Error("A screenshot could not be read.");
-    const result = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(new Error("Could not read the screenshot."));
-      reader.readAsDataURL(blob);
-    });
-    controller.signal.throwIfAborted();
-    return result;
-  } finally { clearTimeout(timeout); signal.removeEventListener("abort", abort); }
+  const blob = await loadOriginalWorkflowScreenshot(frameId, signal);
+  const result = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Could not read the screenshot."));
+    reader.readAsDataURL(blob);
+  });
+  signal.throwIfAborted();
+  return result;
 }
 
 const ids = new WeakMap<GuideVideoResult, string>();
@@ -46,13 +36,21 @@ export const desktopGuideVideo: GuideVideoPlatform = {
     signal.addEventListener("abort", stop, { once: true });
     try {
       signal.throwIfAborted();
-      progress("Loading reviewed screenshots");
+      progress("Loading screenshots");
       const images = new Map<number, string>();
       const prepared = [];
       for (const scene of scenes) {
         signal.throwIfAborted();
-        if (scene.imageFrameId && !images.has(scene.imageFrameId)) images.set(scene.imageFrameId, await loadVideoScreenshot(scene.imageFrameId, signal));
-        prepared.push({ title: scene.title, narration: scene.narration, image: images.get(scene.imageFrameId ?? 0) || scene.image || null, pace: scene.pace ?? 1, focus: scene.focus ?? null });
+        let frameId = scene.imageFrameId;
+        if (!frameId && scene.imageSources?.length) {
+          for (const source of scene.imageSources.slice(0, 3)) {
+            const frame = await findWorkflowScreenshot(source.timestamp, source.app, signal);
+            if (frame) { frameId = frame.frameId; break; }
+          }
+          if (!frameId) throw new Error(`The recording for “${scene.title}” is unavailable. Choose another screenshot before creating the video.`);
+        }
+        if (frameId && !images.has(frameId)) images.set(frameId, await loadVideoScreenshot(frameId, signal));
+        prepared.push({ title: scene.title, narration: scene.narration, image: images.get(frameId ?? 0) || scene.image || null, pace: scene.pace ?? 1, focus: scene.focus ?? null });
       }
       signal.throwIfAborted();
       posthog.capture("workflow_video_started", { sections: scenes.length, screenshots: prepared.filter(s => s.image).length });

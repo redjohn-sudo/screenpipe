@@ -97,6 +97,8 @@ export type WorkflowsPlatform = {
     scope?: WorkflowScope,
   ) => Promise<WorkProfile>;
   guides?: {
+    loadSourceScreenshot?: WorkflowsPlatform["loadWorkflowScreenshot"];
+    loadScreenshot?: (frameId: number, signal: AbortSignal) => Promise<string>;
     video?: import("./guide-video").GuideVideoPlatform;
     generate: (
       workflow: WorkflowMap,

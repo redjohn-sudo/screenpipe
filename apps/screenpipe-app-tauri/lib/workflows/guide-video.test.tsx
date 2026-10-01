@@ -4,7 +4,7 @@ import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { GuideVideoPanel } from "../../../../packages/workflows-ui/src/guide-video-panel";
-import { guideVideoScenes, guideVideoDraft, repeatedVideoScreenshots, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
+import { guideVideoScenes, guideVideoDraft, videoScreenshotGaps, repeatedVideoScreenshots, type GuideVideoPlatform } from "../../../../packages/workflows-ui/src/guide-video";
 import type { WorkflowGuide } from "../../../../packages/workflows-ui/src/guide";
 import { fixtureWorkflowAnalysis } from "../../../../packages/workflows-ui/src/fixture-platform";
 
@@ -26,10 +26,10 @@ describe("video SOP plans", () => {
     expect(guide.prerequisites).toEqual(["Collect the source documents."]);
     expect(guide.steps[0].expectedResult).toBe("Each claim has a source.");
   });
-  it("never uses unreviewed images or stale source revisions", () => {
+  it("uses attached captures without an approval flag, but rejects stale or missing selections", () => {
     const unreviewed = structuredClone(workflow);
     unreviewed.stages[0].screenshot!.visualVerified = false;
-    expect(guideVideoScenes(guide, unreviewed)[0].imageFrameId).toBeUndefined();
+    expect(guideVideoScenes(guide, unreviewed)[0].imageFrameId).toBe(5);
     const reviewed = structuredClone(guide);
     reviewed.steps[0].imageReview = { frameId: 5, timestamp: "2026-09-01T10:00:00Z" };
     expect(guideVideoScenes(reviewed, unreviewed)[0].imageFrameId).toBe(5);
@@ -127,7 +127,7 @@ it("renders the current chat-supplied script through the same preview controller
 });
 
 it("blocks procedural screenshot gaps before any rendering or speech",async()=>{
- const p=platform(); const without=structuredClone(workflow);without.stages[0].screenshot=undefined;
+ const p=platform(); const without=structuredClone(workflow);without.stages[0].screenshot=undefined;without.stages[0].evidence=[];
  render(<GuideVideoPanel guide={guide} workflow={without} platform={p} save={async()=>{}} />);
  fireEvent.click(screen.getByRole("button",{name:"Video SOP"}));
  expect(screen.getByText(/These steps need a screenshot/)).toBeTruthy();
@@ -189,4 +189,30 @@ it("shows selected captures alongside narration without claiming semantic review
   expect(screen.getByText("Captured screenshot")).toBeTruthy();
   expect(screen.queryByText("Reviewed screenshot")).toBeNull();
   expect(screen.queryByText("Each step has its own reviewed screenshot.")).toBeNull();
+});
+
+
+it("lets legacy SOPs render their attached screenshots without a checkbox", async () => {
+  const legacy = structuredClone(guide);
+  legacy.steps[0].includeImage = false;
+  const source = structuredClone(workflow);
+  source.stages[0].screenshot!.visualVerified = false;
+  const p = platform();
+  render(<GuideVideoPanel guide={legacy} workflow={source} platform={p} save={async () => {}} />);
+  fireEvent.click(screen.getByRole("button", { name: "Video SOP" }));
+  expect(screen.queryByRole("checkbox")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Create video" }));
+  await screen.findByLabelText("Narrated SOP preview");
+  expect(p.generate).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ imageFrameId: 5 })]), expect.any(AbortSignal), expect.any(Function));
+});
+
+it("resolves unattached screen evidence automatically, but never audio or an explicitly removed image", () => {
+ const source=structuredClone(workflow);source.stages[0].screenshot=undefined;
+ const scenes=guideVideoScenes(guide,source);
+ expect(scenes[0].imageSources?.length).toBeGreaterThan(0);
+ expect(videoScreenshotGaps(scenes)).toEqual([]);
+ const removed={...guide,steps:guide.steps.map(s=>({...s,imageExcluded:true}))};
+ expect(videoScreenshotGaps(guideVideoScenes(removed,source))).toHaveLength(1);
+ source.stages[0].evidence=source.stages[0].evidence.map(e=>({...e,source:"audio"}));
+ expect(videoScreenshotGaps(guideVideoScenes(guide,source))).toHaveLength(1);
 });

@@ -69,7 +69,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
     if (lock.current) throw new Error("A video is already being created. Stop it before starting another.");
     const selected = guideVideoScenes(target, workflow);
     const missing = videoScreenshotGaps(selected);
-    if (requireScreenshots && missing.length) throw new Error(`Add or review screenshots before creating this video: ${missing.join("; ")}`);
+    if (requireScreenshots && missing.length) throw new Error(`Add screenshots before creating this video: ${missing.join("; ")}`);
     const targetSource = JSON.stringify(target);
     signal?.throwIfAborted();
     setOpen(!signal);
@@ -133,7 +133,7 @@ export const GuideVideoPanel = forwardRef<GuideVideoHandle, {
         <p>Check that these captures show the actions you want to teach. Choose a different screenshot in the SOP when needed.</p>
         {repeated.map((titles, index) => <p key={index}>{titles.join(" · ")}</p>)}
       </details>}
-      {!planError && scenes.some(scene => scene.requiresImage) && gaps.length === 0 && repeated.length === 0 && <p>Each step has a different captured screenshot. Review the images below to check that they show the instructions.</p>}
+      {!planError && scenes.some(scene => scene.imageSources?.length) && gaps.length === 0 && <p>Screenshots will be loaded from the original recordings before the video is created.</p>}
       {result && <>
         {renderedSource !== source && <p role="status">This preview uses an earlier edit. Create a new video to include your changes.</p>}
         <video key={result.url} controls preload="metadata" src={result.url} aria-label="Narrated SOP preview">

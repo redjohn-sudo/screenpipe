@@ -25,7 +25,7 @@ describe("desktop video boundary", () => {
   it("blocks unavailable screenshots before any speech/render call", async () => {
     mocks.fetch.mockResolvedValue({ok:false,status:410});
     await expect(desktopGuideVideo.generate([{ ...scenes[0], imageFrameId: 123 }], new AbortController().signal, vi.fn())).rejects.toThrow(/screenshot is unavailable/);
-    expect(mocks.fetch.mock.calls[0][0]).toBe("/frames/123/thumbnail?width=1920&quality=90&fallback=false");
+    expect(mocks.fetch.mock.calls[0][0]).toBe("/frames/123?fallback=false");
     expect(mocks.create).not.toHaveBeenCalled();
     expect(mocks.unlisten).toHaveBeenCalledOnce();
   });
@@ -51,4 +51,18 @@ describe("desktop video boundary", () => {
     expect(mocks.copy).not.toHaveBeenCalled();
     expect(mocks.capture).not.toHaveBeenCalled();
   });
+});
+
+it("resolves an unattached exact source and loads the original before rendering", async () => {
+ const timestamp="2026-09-24T02:07:42.820687Z";
+ mocks.fetch.mockResolvedValueOnce(Response.json({data:[{content:{frame_id:42,timestamp,app_name:"Obsidian"}}]}))
+   .mockResolvedValueOnce({ok:true,blob:async()=>new Blob(["image"],{type:"image/png"})});
+ await desktopGuideVideo.generate([{...scenes[0],requiresImage:true,imageSources:[{timestamp,app:"Obsidian"}]}],new AbortController().signal,vi.fn());
+ expect(mocks.fetch.mock.calls[1][0]).toBe("/frames/42?fallback=false");
+ expect(mocks.create.mock.calls[0][1][0].image).toMatch(/^data:image\/png;base64,/);
+});
+it("does not render a text substitute when a source frame cannot be resolved", async () => {
+ mocks.fetch.mockResolvedValueOnce(Response.json({data:[]}));
+ await expect(desktopGuideVideo.generate([{...scenes[0],requiresImage:true,imageSources:[{timestamp:"2026-09-24T02:07:42Z",app:"Obsidian"}]}],new AbortController().signal,vi.fn())).rejects.toThrow(/recording.*unavailable/);
+ expect(mocks.create).not.toHaveBeenCalled();
 });

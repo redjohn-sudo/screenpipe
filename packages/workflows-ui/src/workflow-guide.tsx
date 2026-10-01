@@ -1,6 +1,7 @@
 // screenpipe — AI that knows everything you've seen, said, or heard
 // https://screenpipe.com
 "use client";
+import { useSourceScreenshot } from "./use-source-screenshot";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import {
   ArrowLeft,
@@ -23,6 +24,8 @@ import type { WorkflowsPlatform } from "./platform";
 import {
   guideHtml,
   guideImage,
+  guideScreenshot,
+  guideStepIncludesImage,
   guideSourceImages,
   isGuideImage,
   type WorkflowGuide as Guide,
@@ -417,7 +420,7 @@ export function WorkflowGuide({
             <div className={styles.steps}>
               {draft.steps.map((step, i) => {
                 const image =
-                  !stale && step.includeImage
+                  !stale && guideStepIncludesImage(step)
                     ? guideImage(workflow, step.sourceStage, step.imageReview)
                     : null;
                 const sources = !stale
@@ -567,7 +570,9 @@ export function WorkflowGuide({
                       />
                       {image ? (
                         <figure>
-                          <img
+                          <SopScreenshot
+                            load={platform.loadScreenshot}
+                            frameId={guideScreenshot(workflow, step.sourceStage, step.imageReview)!.frameId}
                             src={image}
                             alt={ui("Source for {value1}", {
                               value1: step.title,
@@ -579,7 +584,7 @@ export function WorkflowGuide({
                               update({
                                 ...draft,
                                 steps: draft.steps.map((s, j) =>
-                                  j === i ? { ...s, includeImage: false } : s,
+                                  j === i ? { ...s, includeImage: false, imageExcluded: true } : s,
                                 ),
                               })
                             }
@@ -596,6 +601,7 @@ export function WorkflowGuide({
                           selected={step.imageReview}
                           replacing={!!image}
                           title={step.title}
+                          load={platform.loadScreenshot}
                           include={(source) => {
                             update({
                               ...draft,
@@ -604,6 +610,7 @@ export function WorkflowGuide({
                                   ? {
                                       ...s,
                                       includeImage: true,
+                                      imageExcluded: false,
                                       imageReview: {
                                         frameId: source.frameId,
                                         timestamp: source.timestamp,
@@ -614,6 +621,8 @@ export function WorkflowGuide({
                             });
                           }}
                         />
+                      ) : !image && !stale && guideStepIncludesImage(step) && !step.imageReview && step.sourceStage !== null && workflow.stages[step.sourceStage] ? (
+                        <SourceSopScreenshot stage={workflow.stages[step.sourceStage]} load={platform.loadSourceScreenshot} title={step.title} />
                       ) : !image ? (
                         <p className={styles.muted}>
                           {stale
@@ -752,7 +761,9 @@ function ScreenshotReview({
   replacing,
   title,
   include,
+  load,
 }: {
+  load?: NonNullable<WorkflowsPlatform["guides"]>["loadScreenshot"];
   sources: ReturnType<typeof guideSourceImages>;
   selected?: Guide["steps"][number]["imageReview"];
   replacing: boolean;
@@ -775,9 +786,8 @@ function ScreenshotReview({
   return (
     <div className={styles.imageReview}>
       <div className={styles.imageReviewHeader}>
-        <span>{sources.length > 1 ? ui("{value1} saved screenshots", { value1: sources.length }) : ui("Saved screenshot available")}</span>
         <button aria-expanded={open} onClick={() => setOpen(!open)}>
-          {open ? ui("Hide screenshot") : replacing ? ui("Change screenshot") : ui("Review screenshot")}
+          {open ? ui("Close screenshot picker") : replacing ? ui("Change screenshot") : ui("Restore screenshot")}
         </button>
       </div>
       {open && (
@@ -787,7 +797,9 @@ function ScreenshotReview({
             <span>{ui("Screenshot {value1} of {value2}", { value1: index + 1, value2: sources.length })}</span>
             <button aria-label={ui("Next screenshot")} disabled={index === sources.length - 1} onClick={() => choose(index + 1)}>Next</button>
           </div>}
-          <img
+          <SopScreenshot
+            load={load}
+            frameId={source.frameId}
             key={`${source.frameId}:${source.timestamp}`}
             src={source.dataUrl}
             alt={ui("Review source for {value1}", { value1: title })}
@@ -805,14 +817,66 @@ function ScreenshotReview({
             <span>
               {failed
                 ? ui("This screenshot could not be loaded.")
-                : ui("Does this image show the step clearly?")}
+                : ""}
             </span>
             <button disabled={!loaded || failed} onClick={() => { include(source); setOpen(false); }}>
-              Include screenshot
+              Use screenshot
             </button>
           </div>
         </>
       )}
     </div>
   );
+}
+
+
+function SopScreenshot({ src, frameId, load, alt, onLoad, onError }: {
+  src: string; frameId: number; alt: string; draggable?: boolean;
+  load?: NonNullable<WorkflowsPlatform["guides"]>["loadScreenshot"];
+  onLoad?: () => void; onError?: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [original, setOriginal] = useState<string>();
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (typeof IntersectionObserver === "undefined") { setVisible(true); return; }
+    const observer = new IntersectionObserver(entries => setVisible(entries.some(entry => entry.isIntersecting)), { rootMargin: "200px" });
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => {
+    if (!load || !visible) return;
+    const controller = new AbortController();
+    let url: string | undefined;
+    setFailed(false);
+    void load(frameId, controller.signal).then(value => {
+      if (controller.signal.aborted) { if (value.startsWith("blob:")) URL.revokeObjectURL(value); return; }
+      url = value; setOriginal(value);
+    }).catch(() => { if (!controller.signal.aborted) setFailed(true); });
+    return () => {
+      controller.abort(); setOriginal(undefined);
+      if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+    };
+  }, [frameId, load, visible]);
+  return <div ref={ref}>
+    <img src={original || src} alt={alt} loading="lazy" draggable={false} onLoad={onLoad}
+      onError={() => { if (original) { setOriginal(undefined); setFailed(true); } else onError?.(); }} />
+    {failed && <p className={styles.muted} role="status">Original screenshot unavailable. Showing the saved preview.</p>}
+  </div>;
+}
+
+function SourceSopScreenshot({ stage, load, title }: {
+  stage: WorkflowMap["stages"][number];
+  load: NonNullable<WorkflowsPlatform["guides"]>["loadSourceScreenshot"];
+  title: string;
+}) {
+  const source = useSourceScreenshot(stage, false, load);
+  return <figure ref={source.ref}>
+    {source.image ? <img src={source.image.dataUrl} alt={`Source for ${title}`} loading="lazy" draggable={false} />
+      : <p className={styles.muted} role="status">{source.status === "loading" ? "Loading screenshot…" : "No captured screenshot available for this step."}
+        {source.canRetry && source.status !== "loading" && <button onClick={source.retry}>Try again</button>}
+      </p>}
+  </figure>;
 }
