@@ -32,6 +32,7 @@ use std::{
     collections::{HashMap, HashSet},
     io::Cursor,
     os::fd::OwnedFd,
+    path::{Path, PathBuf},
     rc::Rc,
     sync::{
         atomic::{AtomicU64, AtomicU8, Ordering},
@@ -99,6 +100,41 @@ struct PortalFrame {
     image: DynamicImage,
 }
 
+/// Where the portal restore token is kept between runs, so the screen-share
+/// approval survives a restart instead of prompting on every launch.
+fn restore_token_path() -> Option<PathBuf> {
+    let base = std::env::var_os("XDG_STATE_HOME")
+        .filter(|v| !v.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local/state")))?;
+    Some(base.join("screenpipe").join("wayland-portal-restore-token"))
+}
+
+fn read_restore_token(path: &Path) -> Option<String> {
+    let token = std::fs::read_to_string(path).ok()?;
+    let token = token.trim();
+    (!token.is_empty()).then(|| token.to_string())
+}
+
+/// Owner-only file: the token lets screenpipe resume screen sharing silently.
+fn write_restore_token(path: &Path, token: &str) -> std::io::Result<()> {
+    use std::io::Write;
+    use std::os::unix::fs::OpenOptionsExt;
+    if let Some(dir) = path.parent() {
+        std::fs::create_dir_all(dir)?;
+    }
+    let tmp = path.with_extension("tmp");
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .mode(0o600)
+        .open(&tmp)?;
+    file.write_all(token.as_bytes())?;
+    file.sync_all()?;
+    std::fs::rename(tmp, path)
+}
+
 struct PortalShared {
     phase: AtomicU8,
     generation: AtomicU64,
@@ -128,7 +164,7 @@ impl Default for PortalShared {
             control: Mutex::new(None),
             last_error: Mutex::new(None),
             failed_at: Mutex::new(None),
-            restore_token: Mutex::new(None),
+            restore_token: Mutex::new(restore_token_path().and_then(|p| read_restore_token(&p))),
         }
     }
 }
@@ -513,7 +549,7 @@ async fn run_portal_session(
             SourceType::Monitor.into(),
             true,
             restore_token.as_deref(),
-            PersistMode::Application,
+            PersistMode::ExplicitlyRevoked,
         ) => result.context("failed to select portal sources")?,
         _ = wait_for_cancellation(&mut shutdown_rx, &mut generation_rx, generation) => {
             let _ = session.close().await;
@@ -537,6 +573,11 @@ async fn run_portal_session(
 
     if let Some(token) = response.restore_token() {
         *shared.restore_token.lock().unwrap() = Some(token.to_string());
+        if let Some(path) = restore_token_path() {
+            if let Err(e) = write_restore_token(&path, token) {
+                tracing::warn!("could not save Wayland portal restore token: {}", e);
+            }
+        }
     }
 
     let portal_streams = response
@@ -1097,6 +1138,22 @@ fn pipewire_frame_to_rgba(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn restore_token_round_trip_is_owner_only() {
+        use std::os::unix::fs::PermissionsExt;
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("screenpipe").join("wayland-portal-restore-token");
+        assert_eq!(read_restore_token(&path), None);
+        write_restore_token(&path, "token-1\n").unwrap();
+        assert_eq!(read_restore_token(&path).as_deref(), Some("token-1"));
+        write_restore_token(&path, "token-2").unwrap();
+        assert_eq!(read_restore_token(&path).as_deref(), Some("token-2"));
+        let mode = std::fs::metadata(&path).unwrap().permissions().mode() & 0o777;
+        assert_eq!(mode, 0o600);
+        std::fs::write(&path, "  \n").unwrap();
+        assert_eq!(read_restore_token(&path), None);
+    }
 
     fn monitor(id: u32, x: i32, width: u32, name: &str) -> MonitorDescriptor {
         MonitorDescriptor {

@@ -18,6 +18,8 @@ mod electron_docs;
 #[cfg(target_os = "linux")]
 mod linux;
 #[cfg(target_os = "linux")]
+pub use linux::focused_window_info;
+#[cfg(target_os = "linux")]
 mod linux_lines;
 #[cfg(target_os = "macos")]
 mod macos;

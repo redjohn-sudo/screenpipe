@@ -73,6 +73,12 @@ pub trait FocusTracker: Send + Sync {
     fn subscribe(&self) -> broadcast::Receiver<FocusEvent>;
     /// Stop the tracker (idempotent). Called on shutdown.
     fn stop(&self);
+    /// False for a platform tracker that can never locate focus (Linux today).
+    /// The controller then treats every monitor as hosting focus, the
+    /// pre-focus-aware behaviour, instead of stripping app/window names.
+    fn resolves_focus(&self) -> bool {
+        true
+    }
 }
 
 /// Construct a tracker for the current platform. Returns a Null tracker

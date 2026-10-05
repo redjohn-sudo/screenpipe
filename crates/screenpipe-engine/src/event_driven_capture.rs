@@ -2708,6 +2708,7 @@ fn is_ocr_heavy_app(app_name: &str) -> bool {
         || contains_ascii_case_insensitive(app_name, "kitty")
         || contains_ascii_case_insensitive(app_name, "hyper")
         || contains_ascii_case_insensitive(app_name, "warp")
+        || contains_ascii_case_insensitive(app_name, "ptyxis")
         || app_name.eq_ignore_ascii_case("obsidian")
         || app_name.eq_ignore_ascii_case("obsidian.exe")
 }

@@ -218,6 +218,12 @@ impl FocusAwareController {
     }
 
     fn hosts_focus_for_identity(&self, identity: &MonitorIdentity) -> bool {
+        // ponytail: with several monitors on Linux, the focused app/window is
+        // attached to every monitor's frames; a real tracker (X11 / GNOME
+        // Shell introspection) would narrow it to one monitor.
+        if !self.tracker.resolves_focus() {
+            return true;
+        }
         let focus_is_fresh = self
             .last_event_time
             .lock()
@@ -447,6 +453,34 @@ mod tests {
             self.tx.subscribe()
         }
         fn stop(&self) {}
+    }
+
+    struct UnresolvableFocusTracker {
+        tx: tokio::sync::broadcast::Sender<crate::focus_tracker::FocusEvent>,
+    }
+
+    impl FocusTracker for UnresolvableFocusTracker {
+        fn current(&self) -> Option<MonitorIdentity> {
+            None
+        }
+        fn subscribe(&self) -> tokio::sync::broadcast::Receiver<crate::focus_tracker::FocusEvent> {
+            self.tx.subscribe()
+        }
+        fn stop(&self) {}
+        fn resolves_focus(&self) -> bool {
+            false
+        }
+    }
+
+    #[tokio::test]
+    async fn tracker_that_cannot_resolve_focus_keeps_every_monitor_attributed() {
+        let (tx, _) = tokio::sync::broadcast::channel(4);
+        let unresolvable = FocusAwareController::new(Arc::new(UnresolvableFocusTracker { tx }));
+        assert!(unresolvable.hosts_focus(0));
+        assert!(unresolvable.hosts_focus(1));
+        // A tracker that can resolve focus but has no answer stays fail-closed.
+        let null: Arc<dyn FocusTracker> = Arc::new(NullFocusTracker::new());
+        assert!(!FocusAwareController::new(null).hosts_focus(0));
     }
 
     #[tokio::test]

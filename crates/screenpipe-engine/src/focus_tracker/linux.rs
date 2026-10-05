@@ -57,4 +57,7 @@ impl FocusTracker for LinuxFocusTracker {
     }
 
     fn stop(&self) {}
+    fn resolves_focus(&self) -> bool {
+        false
+    }
 }

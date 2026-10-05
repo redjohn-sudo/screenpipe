@@ -354,6 +354,9 @@ async fn paired_capture_inner(
                 || n.contains("kitty")
                 || n.contains("hyper")
                 || n.contains("warp")
+                // GNOME's GTK4 terminal: AT-SPI exposes only the window chrome
+                // (menus, tab bar), never the terminal buffer.
+                || n.contains("ptyxis")
         });
     let has_accessibility_text = !app_prefers_ocr
         && pixel_tree_snapshot

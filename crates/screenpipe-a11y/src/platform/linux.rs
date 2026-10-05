@@ -1019,6 +1019,7 @@ pub fn get_active_window_info_fresh() -> Option<(String, String, i32)> {
     get_hyprland_active_window_info()
         .or_else(get_sway_active_window_info)
         .or_else(get_x11_active_window_info)
+        .or_else(crate::tree::focused_window_info)
 }
 
 fn get_hyprland_active_window_info() -> Option<(String, String, i32)> {
