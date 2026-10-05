@@ -2668,7 +2668,10 @@ fn resolved_window_matches_privacy_filters(
 ///
 /// Returns `true` if this capture should be skipped (too recent).
 fn terminal_ocr_throttled(app_name: &str) -> bool {
-    const INTERVAL: Duration = Duration::from_secs(30);
+    static INTERVAL_CELL: OnceLock<Duration> = OnceLock::new();
+    let interval = *INTERVAL_CELL.get_or_init(|| {
+        terminal_ocr_interval(std::env::var("SCREENPIPE_TERMINAL_OCR_INTERVAL_SECS").ok().as_deref())
+    });
     if !is_ocr_heavy_app(app_name) {
         return false;
     }
@@ -2683,7 +2686,7 @@ fn terminal_ocr_throttled(app_name: &str) -> bool {
     };
     let now = Instant::now();
     let throttled = match guard.get(&app_key) {
-        Some(&last) if now.duration_since(last) < INTERVAL => true,
+        Some(&last) if now.duration_since(last) < interval => true,
         _ => {
             guard.insert(app_key, now);
             false
@@ -2692,13 +2695,24 @@ fn terminal_ocr_throttled(app_name: &str) -> bool {
 
     // Bound the map: keys are app names, so in practice this is the small
     // `is_ocr_heavy_app` allow-list — but it's a process-lifetime static, so
-    // drop entries older than INTERVAL (they're stale and can't throttle
+    // drop entries older than the interval (they're stale and can't throttle
     // anything anymore) before it can grow without limit.
     if guard.len() > 64 {
-        guard.retain(|_, &mut last| now.duration_since(last) < INTERVAL);
+        guard.retain(|_, &mut last| now.duration_since(last) < interval);
     }
 
     throttled
+}
+
+/// Minimum gap between two OCR captures of the same terminal. 30 s by default;
+/// `SCREENPIPE_TERMINAL_OCR_INTERVAL_SECS` (1 to 300) lowers it when a terminal must
+/// be read quickly, at the cost of more OCR work. Invalid values keep the default.
+fn terminal_ocr_interval(value: Option<&str>) -> Duration {
+    value
+        .and_then(|v| v.trim().parse::<u64>().ok())
+        .filter(|secs| (1..=300).contains(secs))
+        .map(Duration::from_secs)
+        .unwrap_or(Duration::from_secs(30))
 }
 
 /// Apps whose accessibility tree tends to be thin, making OCR fallback expensive.
@@ -3990,6 +4004,15 @@ fn is_frame_corrupt(image: &image::DynamicImage) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn terminal_ocr_interval_defaults_and_bounds() {
+        assert_eq!(terminal_ocr_interval(None), Duration::from_secs(30));
+        assert_eq!(terminal_ocr_interval(Some("5")), Duration::from_secs(5));
+        for invalid in ["0", "301", "abc", "", "-5"] {
+            assert_eq!(terminal_ocr_interval(Some(invalid)), Duration::from_secs(30));
+        }
+    }
 
     #[test]
     fn url_allowlist_masks_everything_outside_focused_window() {
