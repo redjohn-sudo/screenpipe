@@ -1047,11 +1047,13 @@ fn normalize_bounds(
 // Connect to the AT-SPI2 bus
 // ---------------------------------------------------------------------------
 
-fn connect_to_atspi_bus() -> Result<Connection> {
+/// `method_timeout`: None waits like zbus does by default, which a hung application
+/// turns into an unbounded wait; callers without their own watchdog must pass one.
+fn connect_to_atspi_bus(method_timeout: Option<std::time::Duration>) -> Result<Connection> {
     // Strategy 1: Use AT_SPI_BUS_ADDRESS environment variable
     if let Ok(addr) = std::env::var("AT_SPI_BUS_ADDRESS") {
         match zbus::blocking::connection::Builder::address(addr.as_str()) {
-            Ok(builder) => match builder.build() {
+            Ok(builder) => match with_method_timeout(builder, method_timeout).build() {
                 Ok(conn) => {
                     debug!("Connected to AT-SPI2 bus via AT_SPI_BUS_ADDRESS env var");
                     return Ok(conn);
@@ -1087,12 +1089,25 @@ fn connect_to_atspi_bus() -> Result<Connection> {
         .deserialize()
         .context("Failed to parse AT-SPI bus address")?;
 
-    let conn = zbus::blocking::connection::Builder::address(address.as_str())?
-        .build()
+    let conn = with_method_timeout(
+        zbus::blocking::connection::Builder::address(address.as_str())?,
+        method_timeout,
+    )
+    .build()
         .context("Failed to connect to AT-SPI bus")?;
 
     debug!("Connected to AT-SPI2 bus via org.a11y.Bus");
     Ok(conn)
+}
+
+fn with_method_timeout(
+    builder: zbus::blocking::connection::Builder<'_>,
+    timeout: Option<std::time::Duration>,
+) -> zbus::blocking::connection::Builder<'_> {
+    match timeout {
+        Some(timeout) => builder.method_timeout(timeout),
+        None => builder,
+    }
 }
 
 /// Enable accessibility for Chromium/Electron apps.
@@ -1187,10 +1202,15 @@ fn find_focused_window(conn: &Connection) -> Option<(String, String, AccessibleR
 
 /// Focused window through AT-SPI, for desktops without a compositor IPC
 /// (GNOME Wayland): Hyprland, Sway and X11 lookups all return None there.
-/// The AT-SPI connection is opened once and reused across captures.
+/// The AT-SPI connection is opened once and reused across captures. It visits every
+/// application before the focused one, so each call is bounded: one hung app used to
+/// block the app-switch observer for as long as the app stayed hung.
 pub fn focused_window_info() -> Option<(String, String, i32)> {
+    const CALL_TIMEOUT: std::time::Duration = std::time::Duration::from_millis(300);
     static CONN: std::sync::OnceLock<Option<Connection>> = std::sync::OnceLock::new();
-    let conn = CONN.get_or_init(|| connect_to_atspi_bus().ok()).as_ref()?;
+    let conn = CONN
+        .get_or_init(|| connect_to_atspi_bus(Some(CALL_TIMEOUT)).ok())
+        .as_ref()?;
     let (app, title, _, pid) = find_focused_window(conn)?;
     Some((app, title, pid as i32))
 }
@@ -1254,7 +1274,7 @@ impl LinuxTreeWalker {
     unsafe fn ensure_init(&self) -> Result<&Connection> {
         let inner = &mut *self.inner.get();
         if !inner.initialized {
-            match connect_to_atspi_bus() {
+            match connect_to_atspi_bus(None) {
                 Ok(conn) => {
                     inner.a11y_conn = Some(conn);
                     enable_accessibility(inner.a11y_conn.as_ref().unwrap());
