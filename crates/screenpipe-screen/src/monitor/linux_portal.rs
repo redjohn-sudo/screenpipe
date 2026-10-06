@@ -6,7 +6,7 @@ use super::{MonitorData, SafeMonitor};
 use anyhow::{anyhow, Context, Result};
 use ashpd::desktop::{
     screencast::{CursorMode, Screencast, SourceType},
-    PersistMode,
+    PersistMode, ResponseError,
 };
 use image::DynamicImage;
 use once_cell::sync::Lazy;
@@ -34,7 +34,7 @@ use std::{
     os::fd::OwnedFd,
     rc::Rc,
     sync::{
-        atomic::{AtomicU64, AtomicU8, Ordering},
+        atomic::{AtomicBool, AtomicU64, AtomicU8, Ordering},
         Arc, Condvar, Mutex, Weak,
     },
     thread,
@@ -112,6 +112,8 @@ struct PortalShared {
     last_error: Mutex<Option<String>>,
     failed_at: Mutex<Option<Instant>>,
     restore_token: Mutex<Option<String>>,
+    /// The user dismissed the share dialog: never re-prompt until screenpipe restarts.
+    declined: AtomicBool,
 }
 
 impl Default for PortalShared {
@@ -129,6 +131,7 @@ impl Default for PortalShared {
             last_error: Mutex::new(None),
             failed_at: Mutex::new(None),
             restore_token: Mutex::new(None),
+            declined: AtomicBool::new(false),
         }
     }
 }
@@ -334,6 +337,11 @@ impl PortalCaptureSession {
     }
 
     fn ensure_started(self: &Arc<Self>) -> Result<()> {
+        if self.shared.declined.load(Ordering::Acquire) {
+            return Err(anyhow!(
+                "screen sharing was declined in the system dialog; restart screenpipe to be asked again"
+            ));
+        }
         let phase = self.shared.phase.load(Ordering::Acquire);
         let should_start = match phase {
             PORTAL_IDLE => self
@@ -520,9 +528,11 @@ async fn run_portal_session(
             return Ok(());
         },
     };
-    select_request
-        .response()
-        .context("portal rejected screen source selection")?;
+    if let Err(error) = select_request.response() {
+        let _ = session.close().await;
+        note_user_decline(&shared, &error);
+        return Err(anyhow!(error).context("portal rejected screen source selection"));
+    }
 
     let start_request = tokio::select! {
         result = screencast.start(&session, None) => result.context("failed to start portal session")?,
@@ -531,9 +541,14 @@ async fn run_portal_session(
             return Ok(());
         },
     };
-    let response = start_request
-        .response()
-        .context("screen-share approval was cancelled or rejected")?;
+    let response = match start_request.response() {
+        Ok(response) => response,
+        Err(error) => {
+            let _ = session.close().await;
+            note_user_decline(&shared, &error);
+            return Err(anyhow!(error).context("screen-share approval was cancelled or rejected"));
+        }
+    };
 
     if let Some(token) = response.restore_token() {
         *shared.restore_token.lock().unwrap() = Some(token.to_string());
@@ -684,6 +699,17 @@ async fn wait_for_cancellation(
                 }
             }
         }
+    }
+}
+
+/// A dismissed dialog is the user's answer, not a transient failure: retrying every minute re-opened it forever.
+fn is_user_decline(error: &ashpd::Error) -> bool {
+    matches!(error, ashpd::Error::Response(ResponseError::Cancelled))
+}
+
+fn note_user_decline(shared: &PortalShared, error: &ashpd::Error) {
+    if is_user_decline(error) {
+        shared.declined.store(true, Ordering::Release);
     }
 }
 
@@ -1096,6 +1122,14 @@ fn pipewire_frame_to_rgba(
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn only_a_dismissed_dialog_counts_as_a_decline() {
+        use super::{is_user_decline, ResponseError};
+        assert!(is_user_decline(&ashpd::Error::Response(ResponseError::Cancelled)));
+        assert!(!is_user_decline(&ashpd::Error::Response(ResponseError::Other)));
+        assert!(!is_user_decline(&ashpd::Error::NoResponse));
+    }
+
     use super::*;
 
     fn monitor(id: u32, x: i32, width: u32, name: &str) -> MonitorDescriptor {
