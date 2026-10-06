@@ -562,6 +562,10 @@ fn monitor_keyboards(
                             continue;
                         }
                     }
+                    // Unknown app (e.g. no compositor lookup on GNOME Wayland): the exclusion
+                    // list cannot apply, so a password copied from KeePassXC would be stored.
+                    // Fail closed for content; the event itself is still recorded.
+                    let app_known = app_name.is_some();
 
                     let mods = build_modifiers(ctrl_held, shift_held, alt_held, super_held);
                     let t = start.elapsed().as_millis() as u64;
@@ -572,7 +576,7 @@ fn monitor_keyboards(
                             evdev::KeyCode::KEY_C => {
                                 let tx = tx.clone();
                                 let start = start;
-                                let capture_content = config.capture_clipboard_content;
+                                let capture_content = config.capture_clipboard_content && app_known;
                                 let apply_pii = config.apply_pii_removal;
                                 thread::spawn(move || {
                                     thread::sleep(std::time::Duration::from_millis(50));
@@ -609,7 +613,7 @@ fn monitor_keyboards(
                             evdev::KeyCode::KEY_X => {
                                 let tx = tx.clone();
                                 let start = start;
-                                let capture_content = config.capture_clipboard_content;
+                                let capture_content = config.capture_clipboard_content && app_known;
                                 let apply_pii = config.apply_pii_removal;
                                 thread::spawn(move || {
                                     thread::sleep(std::time::Duration::from_millis(50));
@@ -644,7 +648,7 @@ fn monitor_keyboards(
                                 continue;
                             }
                             evdev::KeyCode::KEY_V => {
-                                let content = if config.capture_clipboard_content {
+                                let content = if config.capture_clipboard_content && app_known {
                                     get_clipboard().map(|s| {
                                         let truncated = truncate(&s, 1000);
                                         if config.apply_pii_removal {
@@ -699,7 +703,9 @@ fn monitor_keyboards(
                     } else if config.capture_text {
                         // Normal key → aggregate into text buffer
                         if let Some(c) = evdev_key_to_char(key, shift_held) {
-                            text_buf.lock().push(c);
+                            if app_known {
+                                text_buf.lock().push(c);
+                            }
                         } else if config.capture_keystrokes {
                             let event = UiEvent {
                                 id: None,
