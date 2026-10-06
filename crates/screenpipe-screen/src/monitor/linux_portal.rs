@@ -116,6 +116,24 @@ fn read_restore_token(path: &Path) -> Option<String> {
     (!token.is_empty()).then(|| token.to_string())
 }
 
+/// Keeps `token` in memory and on disk, or forgets both: a spent token only re-opens the dialog at next start.
+fn replace_restore_token(shared: &PortalShared, path: Option<&Path>, token: Option<&str>) {
+    *shared.restore_token.lock().unwrap() = token.map(str::to_string);
+    let Some(path) = path else {
+        return;
+    };
+    let result = match token {
+        Some(token) => write_restore_token(path, token),
+        None => match std::fs::remove_file(path) {
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            other => other,
+        },
+    };
+    if let Err(e) = result {
+        tracing::warn!("could not update Wayland portal restore token: {}", e);
+    }
+}
+
 /// Owner-only file: the token lets screenpipe resume screen sharing silently.
 fn write_restore_token(path: &Path, token: &str) -> std::io::Result<()> {
     use std::io::Write;
@@ -566,6 +584,9 @@ async fn run_portal_session(
     };
     if let Err(error) = select_request.response() {
         let _ = session.close().await;
+        if restore_token.is_some() {
+            replace_restore_token(&shared, restore_token_path().as_deref(), None);
+        }
         note_user_decline(&shared, &error);
         return Err(anyhow!(error).context("portal rejected screen source selection"));
     }
@@ -581,19 +602,16 @@ async fn run_portal_session(
         Ok(response) => response,
         Err(error) => {
             let _ = session.close().await;
+            if restore_token.is_some() {
+                replace_restore_token(&shared, restore_token_path().as_deref(), None);
+            }
             note_user_decline(&shared, &error);
             return Err(anyhow!(error).context("screen-share approval was cancelled or rejected"));
         }
     };
 
-    if let Some(token) = response.restore_token() {
-        *shared.restore_token.lock().unwrap() = Some(token.to_string());
-        if let Some(path) = restore_token_path() {
-            if let Err(e) = write_restore_token(&path, token) {
-                tracing::warn!("could not save Wayland portal restore token: {}", e);
-            }
-        }
-    }
+    // Restore tokens are single-use: keep only the one this session returned, or none.
+    replace_restore_token(&shared, restore_token_path().as_deref(), response.restore_token());
 
     let portal_streams = response
         .streams()
@@ -1187,6 +1205,20 @@ mod tests {
         assert_eq!(mode, 0o600);
         std::fs::write(&path, "  \n").unwrap();
         assert_eq!(read_restore_token(&path), None);
+    }
+
+    #[test]
+    fn a_spent_restore_token_is_forgotten() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("screenpipe").join("wayland-portal-restore-token");
+        let shared = PortalShared::default();
+        replace_restore_token(&shared, Some(&path), Some("token-1"));
+        assert_eq!(read_restore_token(&path).as_deref(), Some("token-1"));
+        // The portal answered without a new token: token-1 was consumed by that request.
+        replace_restore_token(&shared, Some(&path), None);
+        assert_eq!(read_restore_token(&path), None);
+        assert_eq!(*shared.restore_token.lock().unwrap(), None);
+        replace_restore_token(&shared, Some(&path), None); // nothing left to remove: no error
     }
 
     fn monitor(id: u32, x: i32, width: u32, name: &str) -> MonitorDescriptor {
