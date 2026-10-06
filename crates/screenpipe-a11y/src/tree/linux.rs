@@ -1130,6 +1130,12 @@ fn enable_accessibility(a11y_conn: &Connection) {
 // Active window detection
 // ---------------------------------------------------------------------------
 
+// Les fenêtres GTK4 peuvent exposer le rôle FILLER au niveau racine.
+// Cette sélection ne s'applique qu'aux enfants directs de l'application.
+fn role_fenetre_racine(role: u32) -> bool {
+    matches!(role, 20 | 23 | 69 | 16)
+}
+
 /// Get the currently focused window by walking the AT-SPI2 desktop root.
 ///
 /// Returns (app_name, window_title, window_ref, pid) if found.
@@ -1164,8 +1170,8 @@ fn find_focused_window(conn: &Connection) -> Option<(String, String, AccessibleR
         let windows = get_accessible_children(conn, app_ref);
         for win_ref in &windows {
             let role = get_accessible_role(conn, win_ref).unwrap_or(0);
-            // Only consider Frame (23), Window (69), Dialog (16)
-            if !matches!(role, 23 | 69 | 16) {
+            // Conserver aussi les fenêtres GTK4 de rôle Filler (20).
+            if !role_fenetre_racine(role) {
                 continue;
             }
 
@@ -1508,6 +1514,16 @@ mod tests {
         assert_eq!(role_name(48), "ScrollBar");
         assert_eq!(role_name(91), "TreeItem");
         assert_eq!(role_name(999), "Other");
+    }
+
+    #[test]
+    fn test_roles_fenetre_racine_gtk4() {
+        for role in [20, 23, 69, 16] {
+            assert!(role_fenetre_racine(role));
+        }
+        for role in [0, 29, 43, 48, 79] {
+            assert!(!role_fenetre_racine(role));
+        }
     }
 
     #[test]
