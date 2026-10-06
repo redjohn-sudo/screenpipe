@@ -1125,8 +1125,12 @@ mod tests {
     #[test]
     fn only_a_dismissed_dialog_counts_as_a_decline() {
         use super::{is_user_decline, ResponseError};
-        assert!(is_user_decline(&ashpd::Error::Response(ResponseError::Cancelled)));
-        assert!(!is_user_decline(&ashpd::Error::Response(ResponseError::Other)));
+        assert!(is_user_decline(&ashpd::Error::Response(
+            ResponseError::Cancelled
+        )));
+        assert!(!is_user_decline(&ashpd::Error::Response(
+            ResponseError::Other
+        )));
         assert!(!is_user_decline(&ashpd::Error::NoResponse));
     }
 
@@ -1224,11 +1228,19 @@ mod tests {
 
         let declined = session_after_failure(true);
         assert!(declined.ensure_started().is_err());
-        assert_eq!(declined.shared.generation.load(Ordering::Acquire), 0, "no new portal request");
+        assert_eq!(
+            declined.shared.generation.load(Ordering::Acquire),
+            0,
+            "no new portal request"
+        );
 
         let failed = session_after_failure(false);
         let _ = failed.ensure_started(); // no Tokio runtime here: the attempt itself is what we observe
-        assert_eq!(failed.shared.generation.load(Ordering::Acquire), 1, "a technical failure is retried");
+        assert_eq!(
+            failed.shared.generation.load(Ordering::Acquire),
+            1,
+            "a technical failure is retried"
+        );
     }
 
     #[test]
