@@ -1207,6 +1207,31 @@ mod tests {
     }
 
     #[test]
+    fn a_declined_dialog_is_never_reopened_by_the_retry_timer() {
+        // Failed more than PORTAL_RETRY_DELAY ago: without a decline this is exactly when the dialog came back.
+        let session_after_failure = |declined: bool| {
+            let shared = Arc::new(PortalShared::default());
+            shared.phase.store(PORTAL_FAILED, Ordering::Release);
+            *shared.failed_at.lock().unwrap() =
+                Instant::now().checked_sub(PORTAL_RETRY_DELAY + Duration::from_secs(1));
+            shared.declined.store(declined, Ordering::Release);
+            Arc::new(PortalCaptureSession {
+                shared,
+                shutdown_tx: watch::channel(false).0,
+                generation_tx: watch::channel(0).0,
+            })
+        };
+
+        let declined = session_after_failure(true);
+        assert!(declined.ensure_started().is_err());
+        assert_eq!(declined.shared.generation.load(Ordering::Acquire), 0, "no new portal request");
+
+        let failed = session_after_failure(false);
+        let _ = failed.ensure_started(); // no Tokio runtime here: the attempt itself is what we observe
+        assert_eq!(failed.shared.generation.load(Ordering::Acquire), 1, "a technical failure is retried");
+    }
+
+    #[test]
     fn dropping_a_session_signals_lifecycle_shutdown() {
         let (shutdown_tx, shutdown_rx) = watch::channel(false);
         let (generation_tx, generation_rx) = watch::channel(0);
