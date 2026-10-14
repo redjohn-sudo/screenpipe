@@ -1888,11 +1888,64 @@ fn role_string(elem: &ax::UiElement) -> Option<String> {
 
 /// Best-effort label for an element: title, then value, then description.
 fn element_label(elem: &ax::UiElement) -> Option<String> {
-    get_string_attr(elem, ax::attr::title())
-        .or_else(|| get_string_attr(elem, ax::attr::value()))
-        .or_else(|| get_string_attr(elem, ax::attr::desc()))
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
+    first_label(
+        get_string_attr(elem, ax::attr::title()),
+        || get_string_attr(elem, ax::attr::value()),
+        || get_string_attr(elem, ax::attr::desc()),
+    )
+}
+
+/// Label from title, then value, then description (the latter two read lazily).
+fn first_label(
+    title: Option<String>,
+    value: impl FnOnce() -> Option<String>,
+    desc: impl FnOnce() -> Option<String>,
+) -> Option<String> {
+    non_blank(title)
+        .or_else(|| non_blank(value()))
+        .or_else(|| non_blank(desc()))
+}
+
+/// Outcome of naming a clicked element from its own AX attributes.
+#[derive(Debug, PartialEq, Eq)]
+enum ClickLabel {
+    /// The element carries a usable label.
+    Named(String),
+    /// No usable label: look for a labeled descendant under the cursor, and
+    /// only if none is found fall back to `fallback`.
+    Unlabeled { fallback: Option<String> },
+}
+
+/// Trimmed attribute text, or `None` when missing or blank. Chromium reports
+/// AXTitle as present but empty (`Some("")`) on web links and text, so
+/// presence alone must not end a label search.
+fn non_blank(s: Option<String>) -> Option<String> {
+    s.map(|s| s.trim().to_string()).filter(|s| !s.is_empty())
+}
+
+/// Pick the clicked element's name from its AXTitle, AXDescription, AXValue
+/// (`value`, read lazily, only for roles whose value is their visible text)
+/// and AXRoleDescription (`role_desc`, read lazily). The role description
+/// ("group", "link") is only a fallback for after the descendant search.
+fn click_label(
+    role: &str,
+    title: Option<String>,
+    desc: Option<String>,
+    value: impl FnOnce() -> Option<String>,
+    role_desc: impl FnOnce() -> Option<String>,
+) -> ClickLabel {
+    let value_is_label = ["Button", "MenuItem", "Link", "StaticText"]
+        .iter()
+        .any(|r| role.contains(r));
+    let name = non_blank(title)
+        .or_else(|| non_blank(desc))
+        .or_else(|| value_is_label.then(value).and_then(non_blank));
+    match name {
+        Some(n) => ClickLabel::Named(n),
+        None => ClickLabel::Unlabeled {
+            fallback: non_blank(role_desc()),
+        },
+    }
 }
 
 /// A hit-test at a click point very often returns a generic, unlabeled container
@@ -2187,35 +2240,29 @@ fn build_click_element_context(
     let role = role_string(elem)?;
     let bounds = get_element_bounds(elem);
 
-    // Try multiple attributes to get the element name/label
-    // Different elements use different attributes for their label
-    let name = get_string_attr(elem, ax::attr::title())
-        .or_else(|| get_string_attr(elem, ax::attr::desc()))
-        .or_else(|| {
-            // For buttons and many controls, the value contains the label
-            if role.contains("Button") || role.contains("MenuItem") || role.contains("Link") {
-                get_string_attr(elem, ax::attr::value())
-            } else {
-                None
-            }
-        })
-        .or_else(|| {
-            // Try to get the title from role description
-            elem.role_desc().ok().map(|s| s.to_string())
-        });
+    // Read once: it is both a label candidate and the recorded description.
+    let desc = get_string_attr(elem, ax::attr::desc());
+    let label = click_label(
+        &role,
+        get_string_attr(elem, ax::attr::title()),
+        desc.clone(),
+        || get_string_attr(elem, ax::attr::value()),
+        || elem.role_desc().ok().map(|s| s.to_string()),
+    );
 
     // The hit-test commonly lands on an unlabeled generic container (web content
     // returns AXGroup / AXWebArea / AXScrollArea with no title). When there is no
     // usable label, descend to the specific labeled control under the cursor so the
     // recorded action is "click AXButton: Continue" instead of "click AXGroup".
-    let (role, name, bounds) = if name.as_deref().map(str::trim).unwrap_or("").is_empty() {
-        let mut budget: u32 = 96;
-        match find_labeled_descendant_at(elem, x, y, 5, &mut budget) {
-            Some((r, n, b)) => (r, Some(n), b.or(bounds)),
-            None => (role, name, bounds),
+    let (role, name, bounds) = match label {
+        ClickLabel::Named(name) => (role, Some(name), bounds),
+        ClickLabel::Unlabeled { fallback } => {
+            let mut budget: u32 = 96;
+            match find_labeled_descendant_at(elem, x, y, 5, &mut budget) {
+                Some((r, n, b)) => (r, Some(n), b.or(bounds)),
+                None => (role, fallback, bounds),
+            }
         }
-    } else {
-        (role, name, bounds)
     };
 
     if config.is_password_field(Some(&role), name.as_deref()) {
@@ -2257,7 +2304,7 @@ fn build_click_element_context(
         } else {
             None
         };
-    let description = get_string_attr(elem, ax::attr::desc());
+    let description = desc;
 
     Some(ElementContext {
         role,
@@ -2449,9 +2496,16 @@ fn build_element_context(elem: &ax::UiElement, config: &UiCaptureConfig) -> Opti
     let bounds = get_element_bounds(elem);
 
     // Get element name/label
-    let name = get_string_attr(elem, ax::attr::title())
-        .or_else(|| get_string_attr(elem, ax::attr::desc()))
-        .or_else(|| elem.role_desc().ok().map(|s| s.to_string()));
+    let name = match click_label(
+        &role,
+        get_string_attr(elem, ax::attr::title()),
+        get_string_attr(elem, ax::attr::desc()),
+        || get_string_attr(elem, ax::attr::value()),
+        || elem.role_desc().ok().map(|s| s.to_string()),
+    ) {
+        ClickLabel::Named(name) => Some(name),
+        ClickLabel::Unlabeled { fallback } => fallback,
+    };
 
     // Check for password field
     if config.is_password_field(Some(&role), name.as_deref()) {
@@ -3104,8 +3158,127 @@ mod macos_click_attribution_e2e;
 mod macos_click_attribution_eval;
 
 #[cfg(test)]
+#[path = "macos_click_label_live.rs"]
+mod macos_click_label_live;
+
+#[cfg(test)]
 mod tests {
     use super::*;
+
+    fn s(v: &str) -> Option<String> {
+        Some(v.to_string())
+    }
+
+    /// Chromium (observed in Brave) reports AXTitle as present but empty on
+    /// links, with the link text in AXDescription. An empty title must not end
+    /// the search, or the click is stored as `AXLink` with name "".
+    #[test]
+    fn click_label_chromium_link_with_empty_title_uses_description() {
+        assert_eq!(
+            click_label(
+                "AXLink",
+                s(""),
+                s("Factures fournisseurs"),
+                || s(""),
+                || s("Lien")
+            ),
+            ClickLabel::Named("Factures fournisseurs".to_string())
+        );
+    }
+
+    /// Clicking the text inside a web link hit-tests to AXStaticText, whose
+    /// text is in AXValue (the tree walker already reads it there).
+    #[test]
+    fn click_label_chromium_static_text_uses_value() {
+        assert_eq!(
+            click_label(
+                "AXStaticText",
+                s(""),
+                s(""),
+                || s("Factures fournisseurs"),
+                || s("texte")
+            ),
+            ClickLabel::Named("Factures fournisseurs".to_string())
+        );
+    }
+
+    /// Whitespace-only attributes are as unusable as empty ones.
+    #[test]
+    fn click_label_skips_blank_title_and_description() {
+        assert_eq!(
+            click_label("AXButton", s("  "), s("Payer"), || None, || s("bouton")),
+            ClickLabel::Named("Payer".to_string())
+        );
+    }
+
+    /// AXRoleDescription ("group", "link") is a last resort AFTER looking for
+    /// a labeled control under the cursor, not a label that stops the descent.
+    #[test]
+    fn click_label_role_description_is_only_a_fallback() {
+        assert_eq!(
+            click_label("AXGroup", None, None, || None, || s("groupe")),
+            ClickLabel::Unlabeled {
+                fallback: s("groupe")
+            }
+        );
+        assert_eq!(
+            click_label("AXLink", s(""), s(""), || s(""), || s("lien")),
+            ClickLabel::Unlabeled {
+                fallback: s("lien")
+            }
+        );
+        assert_eq!(
+            click_label("AXGroup", None, None, || None, || s(" ")),
+            ClickLabel::Unlabeled { fallback: None }
+        );
+    }
+
+    /// Unchanged behavior: a non-blank native label wins.
+    #[test]
+    fn click_label_keeps_native_labels() {
+        assert_eq!(
+            click_label(
+                "AXButton",
+                s("Nouvelle facture"),
+                None,
+                || s("ignored"),
+                || s("bouton")
+            ),
+            ClickLabel::Named("Nouvelle facture".to_string())
+        );
+        assert_eq!(
+            click_label(
+                "AXTextField",
+                s("Montant TTC"),
+                None,
+                || s("1200"),
+                || s("champ")
+            ),
+            ClickLabel::Named("Montant TTC".to_string())
+        );
+    }
+
+    /// Reading AXValue for link-like roles must not leak a text field's typed
+    /// value into its name.
+    #[test]
+    fn click_label_never_names_text_fields_by_value() {
+        assert_eq!(
+            click_label("AXTextField", s(""), s(""), || s("secret"), || None),
+            ClickLabel::Unlabeled { fallback: None }
+        );
+    }
+
+    /// Descendant search: a Chromium AXStaticText child with an empty AXTitle
+    /// must still be picked up by its AXValue.
+    #[test]
+    fn first_label_skips_empty_title() {
+        assert_eq!(
+            first_label(s(""), || s("Factures fournisseurs"), || s("")),
+            s("Factures fournisseurs")
+        );
+        assert_eq!(first_label(s(" "), || s(""), || s("Fermer")), s("Fermer"));
+        assert_eq!(first_label(s(""), || s(""), || s("")), None);
+    }
 
     /// The AX observer thread loops on `run_in_mode`. Two of the four results
     /// come back instantly: `Finished` when the mode has no sources or timers
