@@ -321,7 +321,12 @@ impl DatabaseManager {
         tags_all: &[String],
         enforce_search_deadline: bool,
     ) -> Result<Vec<MemoryRecord>, SqlxError> {
-        let use_fts = query.is_some_and(|q| !q.is_empty());
+        // Decide on the sanitized query: " " or "\"" sanitize to "" and an empty
+        // MATCH is an FTS5 syntax error.
+        let fts_query = query
+            .map(crate::text_normalizer::sanitize_fts5_query)
+            .filter(|q| !q.is_empty());
+        let use_fts = fts_query.is_some();
         let tags_col = if use_fts { "m.tags" } else { "tags" };
         let tags_all_json = serde_json::to_string(tags_all).unwrap_or_else(|_| "[]".to_string());
 
@@ -348,7 +353,8 @@ impl DatabaseManager {
             sql.push_str(" AND source = ?2");
         }
         if tags_filter.is_some() {
-            sql.push_str(" AND tags LIKE '%' || ?3 || '%'");
+            // memories_fts also has a `tags` column: qualify it when joined.
+            sql.push_str(&format!(" AND {tags_col} LIKE '%' || ?3 || '%'"));
         }
         if min_importance.is_some() {
             sql.push_str(" AND importance >= ?4");
@@ -381,8 +387,6 @@ impl DatabaseManager {
             " ORDER BY {} {}, id {} LIMIT ?7 OFFSET ?8",
             order_col, order_direction, order_direction
         ));
-
-        let fts_query = query.map(crate::text_normalizer::sanitize_fts5_query);
 
         let query = sqlx::query_as::<_, MemoryRecord>(sqlx::AssertSqlSafe(sql))
             .bind(fts_query.as_deref())
@@ -465,7 +469,12 @@ impl DatabaseManager {
         tags_all: &[String],
         enforce_search_deadline: bool,
     ) -> Result<i64, SqlxError> {
-        let use_fts = query.is_some_and(|q| !q.is_empty());
+        // Decide on the sanitized query: " " or "\"" sanitize to "" and an empty
+        // MATCH is an FTS5 syntax error.
+        let fts_query = query
+            .map(crate::text_normalizer::sanitize_fts5_query)
+            .filter(|q| !q.is_empty());
+        let use_fts = fts_query.is_some();
         let tags_col = if use_fts { "m.tags" } else { "tags" };
         let tags_all_json = serde_json::to_string(tags_all).unwrap_or_else(|_| "[]".to_string());
 
@@ -486,7 +495,8 @@ impl DatabaseManager {
             sql.push_str(" AND source = ?2");
         }
         if tags_filter.is_some() {
-            sql.push_str(" AND tags LIKE '%' || ?3 || '%'");
+            // memories_fts also has a `tags` column: qualify it when joined.
+            sql.push_str(&format!(" AND {tags_col} LIKE '%' || ?3 || '%'"));
         }
         if min_importance.is_some() {
             sql.push_str(" AND importance >= ?4");
@@ -502,8 +512,6 @@ impl DatabaseManager {
              (SELECT COUNT(DISTINCT je.value) FROM json_each(CASE WHEN json_valid({tags_col}) THEN {tags_col} ELSE '[]' END) je \
               WHERE je.value IN (SELECT value FROM json_each(?7))) = json_array_length(?7))"
         ));
-
-        let fts_query = query.map(crate::text_normalizer::sanitize_fts5_query);
 
         let query = sqlx::query_scalar::<_, i64>(sqlx::AssertSqlSafe(sql))
             .bind(fts_query.as_deref())
