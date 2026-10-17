@@ -121,6 +121,18 @@ fn memory_to_response(m: screenpipe_db::MemoryRecord) -> MemoryResponse {
 const MAX_TAG_LENGTH: usize = 100;
 const MAX_TAGS_COUNT: usize = 50;
 const MAX_CONTENT_LENGTH: usize = 50_000;
+/// How much of an oversized tag is echoed back in the validation error.
+const TAG_PREVIEW_CHARS: usize = 40;
+
+/// First `TAG_PREVIEW_CHARS` characters of `tag`. Cuts on a char boundary:
+/// slicing at a fixed byte offset panics when a multi-byte character (emoji,
+/// accented letter, CJK) straddles it.
+fn tag_preview(tag: &str) -> &str {
+    match tag.char_indices().nth(TAG_PREVIEW_CHARS) {
+        Some((end, _)) => &tag[..end],
+        None => tag,
+    }
+}
 
 fn validate_tags(tags: &[String]) -> Result<(), (StatusCode, JsonResponse<Value>)> {
     if tags.len() > MAX_TAGS_COUNT {
@@ -136,7 +148,7 @@ fn validate_tags(tags: &[String]) -> Result<(), (StatusCode, JsonResponse<Value>
             return Err((
                 StatusCode::BAD_REQUEST,
                 JsonResponse(
-                    json!({"error": format!("tag too long: '{}...' ({} chars, max {})", &tag[..40.min(tag.len())], tag.len(), MAX_TAG_LENGTH)}),
+                    json!({"error": format!("tag too long: '{}...' ({} chars, max {})", tag_preview(tag), tag.len(), MAX_TAG_LENGTH)}),
                 ),
             ));
         }
@@ -460,6 +472,28 @@ pub(crate) fn enrich_source_context_with_device(ctx: Option<Value>) -> Option<Va
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn validate_tags_rejects_long_multibyte_tag_without_panicking() {
+        // 39 ASCII bytes then a 4-byte emoji: byte 40 falls inside the emoji.
+        let tag = format!("{}\u{1F600}{}", "a".repeat(39), "b".repeat(80));
+        assert!(!tag.is_char_boundary(40));
+
+        let (status, body) = validate_tags(&[tag]).unwrap_err();
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        let error = body.0["error"].as_str().unwrap();
+        assert!(
+            error.starts_with(&format!("tag too long: '{}\u{1F600}...'", "a".repeat(39))),
+            "{error}"
+        );
+    }
+
+    #[test]
+    fn tag_preview_cuts_on_char_boundaries() {
+        assert_eq!(tag_preview("short"), "short");
+        assert_eq!(tag_preview(&"é".repeat(60)), "é".repeat(40));
+        assert_eq!(tag_preview(&"x".repeat(41)), "x".repeat(40));
+    }
 
     #[test]
     fn parse_exact_tag_filter_only_splits_comma_separated_values() {
