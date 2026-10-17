@@ -499,7 +499,7 @@ fn emit_json(body: &Value, raw: bool) -> anyhow::Result<()> {
 fn trim(s: &str) -> String {
     let s = s.trim();
     if s.len() > 500 {
-        format!("{}…", &s[..500])
+        format!("{}…", screenpipe_core::strings::safe_byte_prefix(s, 500))
     } else {
         s.to_string()
     }
@@ -794,6 +794,13 @@ mod tests {
             } => assert_eq!(args.kind, "parsed"),
             _ => panic!("expected Team::Records"),
         }
+    }
+
+    #[test]
+    fn trim_respects_char_boundaries() {
+        // 499 ASCII bytes + 'é' (bytes 499..501): byte 500 is mid-char.
+        let body = format!("{}é{}", "a".repeat(499), "b".repeat(100));
+        assert_eq!(trim(&body), format!("{}…", "a".repeat(499)));
     }
 
     #[test]

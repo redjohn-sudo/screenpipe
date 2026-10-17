@@ -303,6 +303,16 @@ fn parse_frontmatter(
     (title, description, icon, category)
 }
 
+/// Truncate a registry description to fit the 40-wide search table column.
+/// Counts chars, like the `{:<40}` padding does; ASCII output is unchanged.
+fn truncate_description(desc: &str) -> String {
+    if desc.chars().count() > 38 {
+        format!("{}...", desc.chars().take(35).collect::<String>())
+    } else {
+        desc.to_string()
+    }
+}
+
 /// Search the pipe registry and display results.
 async fn handle_search_command(query: &str) -> anyhow::Result<()> {
     let base = api_base_url();
@@ -337,12 +347,7 @@ async fn handle_search_command(query: &str) -> anyhow::Result<()> {
                     .get("description")
                     .and_then(|v| v.as_str())
                     .unwrap_or("");
-                // Truncate description to fit
-                let desc_truncated = if desc.len() > 38 {
-                    format!("{}...", &desc[..35])
-                } else {
-                    desc.to_string()
-                };
+                let desc_truncated = truncate_description(desc);
                 println!(
                     "{:<30} {:<15} {:<10} {:<40}",
                     slug, category, installs, desc_truncated
@@ -820,5 +825,30 @@ fn first_line(s: &str) -> String {
         format!("{}…", line)
     } else {
         line.to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn truncate_description_respects_char_boundaries() {
+        // 34 ASCII bytes + 'é' (bytes 34..36): byte 35 is mid-char.
+        let desc = format!("{}é{}", "a".repeat(34), "b".repeat(10));
+        assert_eq!(
+            truncate_description(&desc),
+            format!("{}é...", "a".repeat(34))
+        );
+        // A non-ASCII description that fits the column is not cut just
+        // because it is longer than 38 bytes.
+        let fits = "é".repeat(30);
+        assert_eq!(truncate_description(&fits), fits);
+        // Short and long ASCII keep the existing behavior.
+        assert_eq!(truncate_description("short"), "short");
+        assert_eq!(
+            truncate_description(&"x".repeat(40)),
+            format!("{}...", "x".repeat(35))
+        );
     }
 }
